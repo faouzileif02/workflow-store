@@ -1,6 +1,6 @@
 # Facebook Posts + Reels — n8n
 
-> **Statut : TEMPLATE NETTOYÉ**
+> **Statut : TEMPLATE PRIVÉ / CATALOGUE PUBLIC**
 
 Workflow n8n avec deux branches indépendantes dans le même projet :
 
@@ -27,15 +27,25 @@ Déclencheur Post
 → mémorisation de l'image utilisée
 ```
 
-## Template nettoyé
+## Version privée
 
-Le JSON fourni ne contient pas de credentials enregistrés, clés API, tokens, ID de page Facebook personnel, IDs Data Table de l'instance d'origine ni instanceId n8n.
+Le fichier JSON n8n complet n'est **pas publié dans ce dépôt**.
 
-Les nœuds et la logique des deux branches sont conservés.
+Il est conservé séparément et peut être livré avec :
+- le workflow importable ;
+- le guide d'installation ;
+- les paramètres à configurer ;
+- l'accompagnement de mise en service.
 
-## Fichier n8n
+## Sécurité
 
-`Facebook-Posts-et-Reels-Template-Clean.json`
+La version préparée pour livraison ne contient pas :
+- credentials enregistrés ;
+- clés API ;
+- tokens ;
+- ID de page Facebook personnel ;
+- IDs Data Table propres à l'instance d'origine ;
+- instanceId n8n.
 
 ## Catégorie
 
