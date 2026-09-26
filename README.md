@@ -19,6 +19,7 @@ Catalogue privé de workflows n8n professionnels préparés pour une future comm
 ### Marketing
 - [Collecte automatique d'avis clients après achat](marketing/collecte-avis-clients/)
 - [Publication Facebook auto météo locale + IA](marketing/facebook-meteo-ia/)
+- [Facebook Posts + Reels — image + vidéo](marketing/facebook-posts-reels/)
 - [Publication automatique LinkedIn depuis Google Sheets](marketing/linkedin-google-sheets/)
 - [Réponse automatique aux avis Google Business](marketing/reponse-avis-google-business/)
 - [Veille marque automatique Twitter/X vers Google Sheets](marketing/veille-marque-twitter-google-sheets/)
