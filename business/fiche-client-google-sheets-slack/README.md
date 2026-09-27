@@ -1,5 +1,12 @@
 # Création auto fiche client Google Sheets + alerte Slack
 
+## 🛒 Acheter ce workflow
+
+[**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/creation-auto-fiche-client-google-sheets-alerte-slack-workflow-n8n)
+
+> Produit numérique vendu via la boutique N8N Market AI.
+
+
 > **Statut : BETA — validation/corrections en cours**
 
 Quand un prospect remplit votre formulaire de contact, ses informations sont immédiatement ajoutées dans un Google Sheet et l'équipe commerciale reçoit une notification Slack en temps réel. Plus besoin de surveiller sa boîte mail ou de perdre les leads dans les premières minutes critiques. Un accusé de réception automatique est également envoyé au prospect.
