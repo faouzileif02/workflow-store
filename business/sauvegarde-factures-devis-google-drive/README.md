@@ -1,5 +1,12 @@
 # Sauvegarde automatique factures et devis vers Google Drive
 
+## 🛒 Acheter ce workflow
+
+[**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/sauvegarde-automatique-factures-et-devis-vers-google-drive-workflow-n8n)
+
+> Produit numérique vendu via la boutique N8N Market AI.
+
+
 > **Statut : BETA — validation/corrections en cours**
 
 Vous cherchez une facture depuis vingt minutes dans votre boîte Gmail, elle est quelque part, vous ne la trouvez plus. Chaque semaine des dizaines de pièces jointes s’éparpillent entre votre boîte mail et vos téléchargements. Ce workflow les renomme automatiquement avec l’IA et les range dans des dossiers fournisseurs sans que vous ayez à toucher quoi que ce soit.
