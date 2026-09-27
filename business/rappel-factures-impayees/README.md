@@ -1,5 +1,12 @@
 # Rappel automatique de factures impayées par email
 
+## 🛒 Acheter ce workflow
+
+[**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/rappel-automatique-de-factures-impayees-par-email-workflow-n8n)
+
+> Produit numérique vendu via la boutique N8N Market AI.
+
+
 > **Statut : BETA — validation/corrections en cours**
 
 Ce workflow détecte chaque matin les factures en retard dans votre Google Sheets et envoie automatiquement le bon niveau de relance par email selon l’ancienneté du retard. Il adapte le ton du message en fonction du palier (relance douce, ferme ou avertissement final) et tient à jour la date de dernière relance. Vous n’avez plus à chasser manuellement vos clients.
