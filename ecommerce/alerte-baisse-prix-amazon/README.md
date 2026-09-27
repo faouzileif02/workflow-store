@@ -1,5 +1,12 @@
 # Alerte email automatique baisse de prix Amazon
 
+## 🛒 Acheter ce workflow
+
+[**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/alerte-email-automatique-baisse-de-prix-amazon-workflow-n8n)
+
+> Produit numérique vendu via la boutique N8N Market AI.
+
+
 > **Statut : BETA — validation/corrections en cours**
 
 Ne ratez plus jamais une baisse de prix sur Amazon. Ce workflow vérifie automatiquement vos produits surveillés toutes les six heures et vous envoie un email dès que le prix descend en dessous de votre seuil cible. Fini les vérifications manuelles quotidiennes et les achats trop chers.
