@@ -1,5 +1,12 @@
 # Collecte automatique d'avis clients après achat
 
+## 🛒 Acheter ce workflow
+
+[**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/collecte-automatique-d-avis-clients-apres-achat-workflow-n8n)
+
+> Produit numérique vendu via la boutique N8N Market AI.
+
+
 > **Statut : BETA — validation/corrections en cours**
 
 Ce workflow envoie automatiquement une demande d'avis au bon moment, 24h après la livraison ou la fin de la prestation. Il trie les réponses selon la note donnée : il invite les clients satisfaits à laisser un avis public sur Google et alerte immédiatement l'équipe en cas d'insatisfaction. Toutes les réponses sont enregistrées dans Google Sheets avec le statut correspondant.
