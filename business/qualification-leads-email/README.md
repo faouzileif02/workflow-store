@@ -1,5 +1,12 @@
 # Qualification automatique des leads par email
 
+## 🛒 Acheter ce workflow
+
+[**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/qualification-automatique-des-leads-par-email-workflow-n8n)
+
+> Produit numérique vendu via la boutique N8N Market AI.
+
+
 > **Statut : BETA — validation/corrections en cours**
 
 Les commerciaux perdent chaque jour plus d’une heure à trier manuellement les emails de prospects. Ce workflow identifie automatiquement les leads chauds, extrait les informations clés et notifie immédiatement le bon commercial. Les prospects reçoivent une réponse automatique tandis que tous les échanges sont tracés dans un tableau de suivi.
