@@ -1,5 +1,12 @@
 # Publication Facebook auto météo locale + IA pour Hannut
 
+## 🛒 Acheter ce workflow
+
+[**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/publication-facebook-auto-meteo-locale-ia-workflow-n8n)
+
+> Produit numérique vendu via la boutique N8N Market AI.
+
+
 > **Statut : BETA — validation/corrections en cours**
 
 Faouzi n’a plus à rédiger chaque matin le post de sa page de nettoyage auto. Le workflow récupère la météo réelle à Hannut, génère un texte adapté à la pluie ou au soleil, et publie automatiquement avec une image du jour. Il résout le manque d’inspiration et de pertinence locale qui touche tous les indépendants qui gèrent seuls leur présence sur Facebook.
