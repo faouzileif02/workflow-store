@@ -1,5 +1,12 @@
 # Alerte automatique rupture de stock Google Sheets
 
+## 🛒 Acheter ce workflow
+
+[**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/alerte-automatique-rupture-de-stock-google-sheets-workflow-n8n)
+
+> Produit numérique vendu via la boutique N8N Market AI.
+
+
 Workflow n8n pour petites boutiques, e-commerçants et responsables logistiques utilisant Google Sheets pour suivre leur stock.
 
 ## Ce que fait le workflow
