@@ -1,5 +1,12 @@
 # Facebook Posts + Reels — n8n
 
+## 🛒 Acheter ce workflow
+
+[**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/facebook-posts-reels-image-video-workflow-n8n)
+
+> Produit numérique vendu via la boutique N8N Market AI.
+
+
 > **Statut : TEMPLATE PRIVÉ / CATALOGUE PUBLIC**
 
 Workflow n8n avec deux branches indépendantes dans le même projet :
