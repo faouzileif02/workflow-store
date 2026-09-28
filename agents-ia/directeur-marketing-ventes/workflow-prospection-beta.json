@@ -1,0 +1,750 @@
+{
+  "name": "N8N Market AI — Prospection IA → Brouillons Gmail",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "b19528c4-cc49-4247-8879-2678bc1b5c73",
+      "name": "▶️ Test manuel",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1500,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "12374b91-58f4-42a4-ad4b-4fbe8fb0517e",
+      "name": "⏰ Prospection lun-ven 09h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1500,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-location",
+              "name": "location",
+              "value": "Luxembourg",
+              "type": "string"
+            },
+            {
+              "id": "cfg-queries",
+              "name": "queries",
+              "value": "[\"salon de coiffure\",\"institut de beauté\",\"restaurant\",\"agence immobilière\",\"garage automobile\",\"agence web\",\"consultant indépendant\",\"commerce local\"]",
+              "type": "string"
+            },
+            {
+              "id": "cfg-max",
+              "name": "maxPerQuery",
+              "value": 8,
+              "type": "number"
+            },
+            {
+              "id": "cfg-score",
+              "name": "minScore",
+              "value": 70,
+              "type": "number"
+            },
+            {
+              "id": "cfg-drafts",
+              "name": "maxDrafts",
+              "value": 10,
+              "type": "number"
+            },
+            {
+              "id": "cfg-model",
+              "name": "aiModel",
+              "value": "openai/gpt-4o-mini",
+              "type": "string"
+            },
+            {
+              "id": "cfg-store",
+              "name": "storeUrl",
+              "value": "https://n8nmarketai.com",
+              "type": "string"
+            },
+            {
+              "id": "cfg-products",
+              "name": "productsUrl",
+              "value": "https://n8nmarketai.com/products.json?limit=250",
+              "type": "string"
+            },
+            {
+              "id": "cfg-days",
+              "name": "dedupDays",
+              "value": 90,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fd2bfb2d-3b7d-495f-875c-b9d3e24491a1",
+      "name": "⚙️ Configuration prospection",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1260,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.productsUrl }}",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "4092bf99-0d2f-467e-a824-e1db025e55db",
+      "name": "🛍️ Shopify — Catalogue public",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1020,
+        80
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const cfg = $('⚙️ Configuration prospection').first().json;\nlet queries = [];\ntry { queries = JSON.parse(cfg.queries || '[]'); } catch (e) { queries = []; }\n\nconst products = Array.isArray($json.products) ? $json.products : [];\nconst catalog = products.map(p => ({\n  title: String(p.title || '').trim(),\n  handle: String(p.handle || '').trim(),\n  type: String(p.product_type || '').trim(),\n  price: String(p.variants?.[0]?.price || ''),\n  url: cfg.storeUrl + '/products/' + String(p.handle || '').trim()\n})).filter(p => p.title && p.handle);\n\nif (!queries.length) throw new Error('Aucune requête de prospection configurée.');\nif (!catalog.length) throw new Error('Catalogue Shopify public vide ou inaccessible.');\n\nreturn queries.map(q => ({\n  json: {\n    query: String(q).trim(),\n    location: cfg.location,\n    maxPerQuery: Number(cfg.maxPerQuery || 8),\n    minScore: Number(cfg.minScore || 70),\n    maxDrafts: Number(cfg.maxDrafts || 10),\n    aiModel: cfg.aiModel,\n    storeUrl: cfg.storeUrl,\n    dedupDays: Number(cfg.dedupDays || 90),\n    catalog\n  }\n}));"
+      },
+      "id": "9e16d251-fb5a-4bc2-b164-caee3012f538",
+      "name": "🧭 Préparer recherches + catalogue",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -780,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google_local"
+            },
+            {
+              "name": "q",
+              "value": "={{ $json.query }}"
+            },
+            {
+              "name": "location",
+              "value": "={{ $json.location }}"
+            },
+            {
+              "name": "google_domain",
+              "value": "google.lu"
+            },
+            {
+              "name": "hl",
+              "value": "fr"
+            },
+            {
+              "name": "gl",
+              "value": "lu"
+            },
+            {
+              "name": "api_key",
+              "value": "={{ $env.SERPAPI_API_KEY }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "86ffafe9-27a9-49bd-b58f-cc9a2bcd9ce1",
+      "name": "🔎 SerpAPI — Google Local",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -540,
+        80
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const searches = $('🧭 Préparer recherches + catalogue').all();\nconst out = [];\n\nfor (let i = 0; i < $input.all().length; i++) {\n  const payload = $input.all()[i]?.json || {};\n  const cfg = searches[i]?.json || searches[0]?.json || {};\n  const places = Array.isArray(payload.local_results) ? payload.local_results : [];\n\n  for (const p of places.slice(0, Number(cfg.maxPerQuery || 8))) {\n    const nom = String(p.title || '').trim();\n    const website = String(p.website || p.links?.website || '').trim();\n    const telephone = String(p.phone || '').trim();\n    const adresse = String(p.address || '').trim();\n    const rating = Number(p.rating || 0);\n    const reviews = Number(p.reviews || 0);\n    if (!nom) continue;\n\n    let domain = '';\n    if (website) {\n      try { domain = new URL(website).hostname.replace(/^www\\./,'').toLowerCase(); } catch (e) {}\n    }\n\n    const key = (domain || (nom + '|' + adresse)).toLowerCase().replace(/\\s+/g,' ').trim();\n    out.push({\n      json: {\n        nom,\n        categorie: String(cfg.query || ''),\n        adresse,\n        telephone,\n        website,\n        domain,\n        rating,\n        reviews,\n        googleMapsUrl: String(p.place_id ? `https://www.google.com/maps/search/?api=1&query_place_id=${p.place_id}` : ''),\n        prospectKey: key,\n        dateRecherche: new Date().toISOString()\n      }\n    });\n  }\n}\nreturn out;"
+      },
+      "id": "bdf86649-b757-40a4-bc70-8827888896cc",
+      "name": "🧹 Normaliser prospects",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -300,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const cfg = $('⚙️ Configuration prospection').first().json;\nconst maxAgeMs = Number(cfg.dedupDays || 90) * 86400000;\nconst now = Date.now();\nconst data = $getWorkflowStaticData('global');\ndata.contactedProspects = data.contactedProspects || {};\n\nfor (const [k,ts] of Object.entries(data.contactedProspects)) {\n  if (!ts || now - Number(ts) > maxAgeMs) delete data.contactedProspects[k];\n}\n\nconst seenRun = new Set();\nconst out = [];\nfor (const item of $input.all()) {\n  const j = item.json || {};\n  const key = String(j.prospectKey || '').trim();\n  if (!key || seenRun.has(key) || data.contactedProspects[key]) continue;\n  seenRun.add(key);\n  if (!j.website) continue;\n  out.push({json:j});\n}\nreturn out;"
+      },
+      "id": "4f3834df-67c3-4228-9292-fa7be1df35fa",
+      "name": "🛡️ Dédupliquer + avec site",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -60,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.website }}",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": true,
+              "maxRedirects": 5
+            }
+          },
+          "timeout": 10000
+        }
+      },
+      "id": "30871345-4d2f-4794-9cdc-e36f2ac62dd5",
+      "name": "🌐 Lire site du prospect",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        180,
+        80
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const leads = $('🛡️ Dédupliquer + avec site').all();\nconst blocked = ['example.com','sentry.io','wixpress.com','cloudflare.com','schema.org','wordpress.org'];\nconst out = [];\n\nfor (let i = 0; i < $input.all().length; i++) {\n  const lead = leads[i]?.json || {};\n  const raw = JSON.stringify($input.all()[i]?.json || {}).replace(/\\\\u003c/g,'<');\n  const matches = [...raw.matchAll(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/gi)]\n    .map(m => m[0].toLowerCase().replace(/[\"'<>),;]+$/g,''));\n\n  const email = [...new Set(matches)].find(e =>\n    !blocked.some(d => e.includes(d)) &&\n    !e.endsWith('.png') &&\n    !e.endsWith('.jpg') &&\n    !e.endsWith('.jpeg') &&\n    !e.endsWith('.svg')\n  ) || '';\n\n  if (!email) continue;\n  out.push({json:{...lead,email,sourceEmail:'site web public'}});\n}\nreturn out;"
+      },
+      "id": "cfd5a579-938f-4527-8da3-01a6a4fb24eb",
+      "name": "📧 Emails publics trouvés",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: $('⚙️ Configuration prospection').first().json.aiModel,\n  temperature: 0.2,\n  max_tokens: 1200,\n  response_format: {type:'json_object'},\n  messages: [\n    {\n      role:'system',\n      content:`Tu es un agent commercial B2B expert en automatisation n8n pour N8N Market AI.\nTa mission est de QUALIFIER un prospect professionnel à partir de données publiques et de choisir UN produit réel du catalogue qui peut résoudre un besoin plausible.\nNe fabrique aucune information sur l'entreprise. N'affirme jamais qu'elle a un problème non observé.\nLe message doit être court, humain, professionnel et sans pression.\nNe promets aucun résultat garanti.\nLe prospect doit pouvoir refuser simplement d'être recontacté.\nRetourne uniquement un JSON strict avec:\n{\n \"score\":0,\n \"fit\":\"fort|moyen|faible\",\n \"recommended_handle\":\"handle exact du catalogue ou vide\",\n \"recommended_title\":\"titre exact ou vide\",\n \"reason\":\"raison factuelle courte\",\n \"angle\":\"angle commercial\",\n \"subject\":\"objet email court\",\n \"body_html\":\"email HTML court en français avec une seule proposition de valeur, le lien du produit si pertinent et une phrase simple pour ne plus être recontacté\"\n}\nLe score est de 0 à 100. Réserve >=70 aux entreprises pour lesquelles le produit est réellement pertinent.`\n    },\n    {\n      role:'user',\n      content: JSON.stringify({\n        prospect: $json,\n        catalogue: $('🧭 Préparer recherches + catalogue').first().json.catalog,\n        boutique: $('⚙️ Configuration prospection').first().json.storeUrl\n      })\n    }\n  ]\n}) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "fe12e3fb-7d02-4884-9abc-f4b6691380aa",
+      "name": "🧠 Agent IA — Qualification + offre",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        80
+      ],
+      "executeOnce": false,
+      "credentials": {
+        "openRouterApi": {
+          "id": "FWdNJAqsZh3EfcAw",
+          "name": "OpenRouter account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const leads = $('📧 Emails publics trouvés').all();\nconst catalog = $('🧭 Préparer recherches + catalogue').first().json.catalog || [];\nconst minScore = Number($('⚙️ Configuration prospection').first().json.minScore || 70);\nconst out = [];\n\nfor (let i = 0; i < $input.all().length; i++) {\n  const lead = leads[i]?.json || {};\n  let raw = String($input.all()[i]?.json?.choices?.[0]?.message?.content || '').trim();\n  raw = raw.replace(/^```(?:json)?\\s*/i,'').replace(/\\s*```$/,'');\n  let ai = {};\n  try { ai = JSON.parse(raw); } catch (e) { continue; }\n\n  const score = Math.max(0, Math.min(100, Number(ai.score || 0)));\n  const handle = String(ai.recommended_handle || '').trim();\n  let product = catalog.find(p => p.handle === handle);\n  if (!product && ai.recommended_title) {\n    product = catalog.find(p => p.title.toLowerCase() === String(ai.recommended_title).toLowerCase());\n  }\n  if (!product) continue;\n\n  let html = String(ai.body_html || '').trim();\n  const productUrl = product.url;\n  if (html && !html.includes(productUrl)) {\n    html += `<p><a href=\"${productUrl}\">Voir le workflow</a></p>`;\n  }\n  if (!/ne plus.*recontact|plus être recontact|ne pas.*recontact/i.test(html)) {\n    html += `<p style=\"font-size:12px;color:#666\">Si ce sujet ne vous concerne pas, dites-le-moi simplement et je ne vous recontacterai plus.</p>`;\n  }\n\n  if (score < minScore || !ai.subject || !html) continue;\n\n  out.push({\n    json:{\n      ...lead,\n      score,\n      fit:String(ai.fit || ''),\n      produit:product.title,\n      produitHandle:product.handle,\n      produitUrl:productUrl,\n      raison:String(ai.reason || ''),\n      angle:String(ai.angle || ''),\n      subject:String(ai.subject || '').trim(),\n      html,\n      statut:'A_VALIDER'\n    }\n  });\n}\nreturn out;"
+      },
+      "id": "7866c842-e36a-4a88-918e-059313d24638",
+      "name": "✅ Garder prospects qualifiés",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const maxDrafts = Number($('⚙️ Configuration prospection').first().json.maxDrafts || 10);\nreturn $input.all()\n  .sort((a,b) => Number(b.json.score || 0) - Number(a.json.score || 0))\n  .slice(0, maxDrafts)\n  .map((item,index)=>({json:{...item.json,rank:index+1}}));"
+      },
+      "id": "539138f6-adfc-47f6-bbc8-98e63cbcc803",
+      "name": "🏆 Top prospects",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1140,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "options": {
+          "sendTo": "={{ $json.email }}"
+        }
+      },
+      "id": "c738cb5f-cbdb-46fa-a82c-5a55bf6ba1d7",
+      "name": "✉️ Créer brouillon Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1380,
+        80
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UhLduFjFWV90ly9j",
+          "name": "FAOUZIGUERRIDA GMAIL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const selected = $('🏆 Top prospects').all().map(i=>i.json);\nconst data = $getWorkflowStaticData('global');\ndata.contactedProspects = data.contactedProspects || {};\nconst now = Date.now();\n\nfor (const p of selected) {\n  if (p.prospectKey) data.contactedProspects[p.prospectKey] = now;\n}\n\nconst avg = selected.length\n  ? Math.round(selected.reduce((s,p)=>s+Number(p.score||0),0)/selected.length)\n  : 0;\nconst products = [...new Set(selected.map(p=>p.produit).filter(Boolean))].slice(0,5);\nconst segments = [...new Set(selected.map(p=>p.categorie).filter(Boolean))].slice(0,8);\n\nreturn [{\n  json:{\n    \"Timestamp\": new Date().toISOString(),\n    \"Période\": \"Prospection IA\",\n    \"CA analysé\": \"\",\n    \"Commandes\": selected.length,\n    \"Produit prioritaire\": products.join(\" | \"),\n    \"Objectif\": \"Trouver des prospects B2B pertinents pour N8N Market AI\",\n    \"Action principale\": `${selected.length} brouillon(s) Gmail créé(s) — validation humaine requise`,\n    \"SEO proposé\": \"\",\n    \"Contenu proposé\": selected.slice(0,5).map(p=>`${p.nom}: ${p.subject}`).join(\" || \"),\n    \"Segment client\": segments.join(\" | \"),\n    \"Confiance\": avg,\n    \"Validation requise\": \"OUI\",\n    \"Statut\": selected.length ? \"BROUILLONS_CREES\" : \"AUCUN_PROSPECT\",\n    \"Résumé IA\": selected.slice(0,10).map(p=>`${p.rank}. ${p.nom} — ${p.score}/100 — ${p.produit} — ${p.email}`).join(\"\\n\")\n  }\n}];"
+      },
+      "id": "8e6b311f-f08b-4bd4-ac49-93c0d66a2bf1",
+      "name": "📊 Résumé prospection",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1620,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1HoYqC0Wth7IezBJyLFumiGG3EHnQPpsnrrrh61GgP7g",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Marketing IA",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={ $json['Timestamp'] }",
+            "Période": "={ $json['Période'] }",
+            "CA analysé": "={ $json['CA analysé'] }",
+            "Commandes": "={ $json['Commandes'] }",
+            "Produit prioritaire": "={ $json['Produit prioritaire'] }",
+            "Objectif": "={ $json['Objectif'] }",
+            "Action principale": "={ $json['Action principale'] }",
+            "SEO proposé": "={ $json['SEO proposé'] }",
+            "Contenu proposé": "={ $json['Contenu proposé'] }",
+            "Segment client": "={ $json['Segment client'] }",
+            "Confiance": "={ $json['Confiance'] }",
+            "Validation requise": "={ $json['Validation requise'] }",
+            "Statut": "={ $json['Statut'] }",
+            "Résumé IA": "={ $json['Résumé IA'] }"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Période",
+              "displayName": "Période",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CA analysé",
+              "displayName": "CA analysé",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Commandes",
+              "displayName": "Commandes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Produit prioritaire",
+              "displayName": "Produit prioritaire",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Objectif",
+              "displayName": "Objectif",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Action principale",
+              "displayName": "Action principale",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "SEO proposé",
+              "displayName": "SEO proposé",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Contenu proposé",
+              "displayName": "Contenu proposé",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Segment client",
+              "displayName": "Segment client",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Confiance",
+              "displayName": "Confiance",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Validation requise",
+              "displayName": "Validation requise",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Statut",
+              "displayName": "Statut",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Résumé IA",
+              "displayName": "Résumé IA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "8d717abb-cfb3-4cac-811d-9f71a71b855e",
+      "name": "📝 Journaliser Marketing IA",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1860,
+        80
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oGQjGfx2O5kULzam",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## N8N Market AI — Prospection IA\n\n**Ce workflow ne fait aucun envoi automatique.** Il cherche des entreprises, récupère uniquement un email public trouvé sur leur site, les qualifie avec OpenRouter, associe un workflow réellement publié sur n8nmarketai.com, puis crée des **brouillons Gmail**.\n\n### Avant le premier test\n1. Dans l'environnement n8n, définir `SERPAPI_API_KEY`.\n2. Vérifier le credential **OpenRouter account**.\n3. Vérifier le credential **FAOUZIGUERRIDA GMAIL**.\n4. Vérifier **Google Sheets account**.\n5. Exécuter `▶️ Test manuel`.\n\n### Garde-fous\n- score minimum 70/100 ;\n- maximum 10 brouillons par exécution ;\n- déduplication 90 jours via la mémoire du workflow ;\n- pas de prix/remise modifié ;\n- pas d'envoi sans validation humaine ;\n- phrase de refus de contact dans chaque brouillon.",
+        "height": 520,
+        "width": 620,
+        "color": 5
+      },
+      "id": "391bf6e9-6db9-469b-a8fb-610c803c1ac8",
+      "name": "📖 Mode d'emploi",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1480,
+        -560
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "▶️ Test manuel": {
+      "main": [
+        [
+          {
+            "node": "⚙️ Configuration prospection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⏰ Prospection lun-ven 09h": {
+      "main": [
+        [
+          {
+            "node": "⚙️ Configuration prospection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⚙️ Configuration prospection": {
+      "main": [
+        [
+          {
+            "node": "🛍️ Shopify — Catalogue public",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🛍️ Shopify — Catalogue public": {
+      "main": [
+        [
+          {
+            "node": "🧭 Préparer recherches + catalogue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧭 Préparer recherches + catalogue": {
+      "main": [
+        [
+          {
+            "node": "🔎 SerpAPI — Google Local",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔎 SerpAPI — Google Local": {
+      "main": [
+        [
+          {
+            "node": "🧹 Normaliser prospects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧹 Normaliser prospects": {
+      "main": [
+        [
+          {
+            "node": "🛡️ Dédupliquer + avec site",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🛡️ Dédupliquer + avec site": {
+      "main": [
+        [
+          {
+            "node": "🌐 Lire site du prospect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🌐 Lire site du prospect": {
+      "main": [
+        [
+          {
+            "node": "📧 Emails publics trouvés",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📧 Emails publics trouvés": {
+      "main": [
+        [
+          {
+            "node": "🧠 Agent IA — Qualification + offre",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 Agent IA — Qualification + offre": {
+      "main": [
+        [
+          {
+            "node": "✅ Garder prospects qualifiés",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✅ Garder prospects qualifiés": {
+      "main": [
+        [
+          {
+            "node": "🏆 Top prospects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🏆 Top prospects": {
+      "main": [
+        [
+          {
+            "node": "✉️ Créer brouillon Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✉️ Créer brouillon Gmail": {
+      "main": [
+        [
+          {
+            "node": "📊 Résumé prospection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 Résumé prospection": {
+      "main": [
+        [
+          {
+            "node": "📝 Journaliser Marketing IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Luxembourg"
+  },
+  "versionId": "3a57735a-6ea3-4b83-96d3-729696f38b51",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}
