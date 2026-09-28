@@ -1,0 +1,666 @@
+{
+  "name": "N8N AI Marketing Shopify — CORRIGÉ",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1400,
+        -120
+      ],
+      "id": "738cc679-21af-407c-97c6-92cc21b21b55",
+      "name": "▶️ Test manuel"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1400,
+        100
+      ],
+      "id": "a7013c6f-6078-4810-94ad-7d64904d0b73",
+      "name": "⏰ Tous les jours 08:00"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const days = 30;\nconst now = new Date();\nconst since = new Date(now.getTime() - days * 86400000);\nreturn [{json:{\n  shopDomain:'fza6g1-nh.myshopify.com',\n  apiVersion:'2026-07',\n  days,\n  sinceDate: since.toISOString().slice(0,10),\n  maxProducts:50,\n  maxOrders:100,\n  model:'openai/gpt-4.1-mini',\n  openRouterUrl:'https://openrouter.ai/api/v1/chat/completions',\n  autoApplySeo:false,\n  seoConfidenceThreshold:90,\n  maxSeoUpdates:3,\n  timezone:'Europe/Luxembourg',\n  sheetId:'1HoYqC0Wth7IezBJyLFumiGG3EHnQPpsnrrrh61GgP7g'\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1160,
+        0
+      ],
+      "id": "58ed7c74-9d3e-4a29-84c1-0145e1827d17",
+      "name": "⚙️ Configuration"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://fza6g1-nh.myshopify.com/admin/oauth/access_token",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -920,
+        0
+      ],
+      "id": "0044b5de-17b1-4719-878c-ecc9ede7ebe8",
+      "name": "🔐 Shopify Token"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://fza6g1-nh.myshopify.com/admin/api/2026-07/graphql.json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Shopify-Access-Token",
+              "value": "={{ $('🔐 Shopify Token').item.json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  query: `query MarketingContext($productsFirst: Int!, $ordersFirst: Int!, $orderQuery: String!) {\n    shop { name currencyCode }\n    products(first: $productsFirst, sortKey: UPDATED_AT, reverse: true, query: \"status:active\") {\n      nodes {\n        id title handle status descriptionHtml productType vendor tags updatedAt\n        variants(first: 10) { nodes { id sku price } }\n      }\n    }\n    orders(first: $ordersFirst, sortKey: CREATED_AT, reverse: true, query: $orderQuery) {\n      nodes {\n        id name createdAt processedAt\n        currentTotalPriceSet { shopMoney { amount currencyCode } }\n        lineItems(first: 100) {\n          nodes {\n            quantity\n            discountedTotalSet { shopMoney { amount currencyCode } }\n            product { id title handle }\n            variant { id sku price }\n          }\n        }\n      }\n    }\n  }`,\n  variables: {\n    productsFirst: $('⚙️ Configuration').first().json.maxProducts,\n    ordersFirst: $('⚙️ Configuration').first().json.maxOrders,\n    orderQuery: 'financial_status:paid created_at:>=' + $('⚙️ Configuration').first().json.sinceDate\n  }\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -680,
+        0
+      ],
+      "id": "1e536cd7-fe96-4c80-91e1-dc27a7a0cf3f",
+      "name": "🛍️ Shopify — Produits + ventes"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const p=$input.first().json;\nif(p.errors?.length) throw new Error('Shopify GraphQL: '+JSON.stringify(p.errors));\nconst d=p.data||{};\nconst products=d.products?.nodes||[];\nconst orders=d.orders?.nodes||[];\nconst stats=new Map();\nfor(const product of products){\n  stats.set(product.id,{productId:product.id,title:product.title,handle:product.handle,status:product.status,productType:product.productType||'',vendor:product.vendor||'',tags:product.tags||[],updatedAt:product.updatedAt||'',price:Number(product.variants?.nodes?.[0]?.price||0),sku:product.variants?.nodes?.[0]?.sku||'',description:String(product.descriptionHtml||'').replace(/<[^>]+>/g,' ').replace(/\\s+/g,' ').trim().slice(0,2500),revenue:0,units:0,orders:new Set()});\n}\nlet totalRevenue=0;\nconst currency=d.shop?.currencyCode||'EUR';\nfor(const order of orders){\n  totalRevenue+=Number(order.currentTotalPriceSet?.shopMoney?.amount||0);\n  for(const li of (order.lineItems?.nodes||[])){\n    const id=li.product?.id; if(!id||!stats.has(id)) continue;\n    const s=stats.get(id);\n    s.units+=Number(li.quantity||0);\n    s.revenue+=Number(li.discountedTotalSet?.shopMoney?.amount||0);\n    s.orders.add(order.id);\n  }\n}\nconst list=[...stats.values()].map(s=>({...s,orderCount:s.orders.size,orders:undefined})).sort((a,b)=>b.revenue-a.revenue);\nconst opportunities=[...list].sort((a,b)=>a.revenue-b.revenue).slice(0,10);\nreturn [{json:{\n  shop:{name:d.shop?.name||'Shopify',currency},\n  period:{days:$('⚙️ Configuration').first().json.days,since:$('⚙️ Configuration').first().json.sinceDate,generatedAt:new Date().toISOString()},\n  totals:{revenue:Number(totalRevenue.toFixed(2)),orders:orders.length,activeProducts:products.length},\n  products:list,\n  topProducts:list.slice(0,10),\n  opportunities\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        0
+      ],
+      "id": "e77730ee-6685-480f-bd10-a89da81e6b18",
+      "name": "📊 Contexte Marketing Shopify"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('⚙️ Configuration').first().json.openRouterUrl }}",
+        "authentication": "predefinedCredentialType",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://n8nmarketai.com"
+            },
+            {
+              "name": "X-Title",
+              "value": "N8N Market AI - Shopify Marketing Agent"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: $('⚙️ Configuration').first().json.model,\n  temperature: 0.25,\n  messages: [\n    {\n      role: 'system',\n      content: `Tu es un analyste e-commerce senior. Analyse uniquement les données Shopify fournies. Ne fabrique aucun chiffre. Réponds en JSON strict, sans markdown, avec: executiveSummary, priorities (max 5), productScores (productId,title,score,diagnosis,opportunity), risks, quickWins. N'invente jamais des ventes, taux ou marges absents des données.`\n    },\n    {\n      role: 'user',\n      content: `Analyse ce contexte Shopify sur ${$('⚙️ Configuration').first().json.days} jours:\\n${JSON.stringify($('📊 Contexte Marketing Shopify').first().json)}`\n    }\n  ]\n}) }}",
+        "options": {
+          "timeout": 120000
+        },
+        "nodeCredentialType": "openRouterApi"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -180,
+        -160
+      ],
+      "id": "d4b6fc60-49d2-4597-a772-51fbd6071f62",
+      "name": "📈 Agent Analyste",
+      "credentials": {
+        "openRouterApi": {
+          "id": "FWdNJAqsZh3EfcAw",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function parseAI(p){\n const t=String(p?.choices?.[0]?.message?.content||'').trim().replace(/^```(?:json)?\\s*/i,'').replace(/```\\s*$/,'').trim();\n const a=t.indexOf('{'),b=t.lastIndexOf('}'); const s=(a>=0&&b>=a)?t.slice(a,b+1):t;\n try{return JSON.parse(s)}catch(e){return {parseError:true,raw:s.slice(0,12000),error:e.message}}\n}\nconst base=$('📊 Contexte Marketing Shopify').first().json;\nreturn [{json:{...base,analyst:parseAI($input.first().json)}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        60,
+        -160
+      ],
+      "id": "68139589-878b-4c69-a80a-1504ea041d2a",
+      "name": "🧩 Résultat Analyste"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('⚙️ Configuration').first().json.openRouterUrl }}",
+        "authentication": "predefinedCredentialType",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://n8nmarketai.com"
+            },
+            {
+              "name": "X-Title",
+              "value": "N8N Market AI - Shopify Marketing Agent"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: $('⚙️ Configuration').first().json.model,\n  temperature: 0.25,\n  messages: [\n    {\n      role: 'system',\n      content: `Tu es un expert SEO e-commerce et CRO Shopify. À partir du contexte et de l'analyse, prépare des recommandations réalistes. Réponds en JSON strict avec: seoRecommendations (max 5: productId,title,seoTitle,seoDescription,reason,confidence de 0 à 100), croRecommendations, missingInformation. Le seoTitle doit rester concis; seoDescription doit être une meta description claire. Ne change pas les prix. Ne prétends pas qu'une optimisation garantit des ventes.`\n    },\n    {\n      role: 'user',\n      content: `Contexte:${JSON.stringify($('📊 Contexte Marketing Shopify').first().json)}\\nAnalyse:${JSON.stringify($('🧩 Résultat Analyste').first().json.analyst)}`\n    }\n  ]\n}) }}",
+        "options": {
+          "timeout": 120000
+        },
+        "nodeCredentialType": "openRouterApi"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        300,
+        -160
+      ],
+      "id": "d16960f2-a85c-42ae-b1fb-5072405c6c84",
+      "name": "🔎 Agent SEO + CRO",
+      "credentials": {
+        "openRouterApi": {
+          "id": "FWdNJAqsZh3EfcAw",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function parseAI(p){\n const t=String(p?.choices?.[0]?.message?.content||'').trim().replace(/^```(?:json)?\\s*/i,'').replace(/```\\s*$/,'').trim();\n const a=t.indexOf('{'),b=t.lastIndexOf('}'); const s=(a>=0&&b>=a)?t.slice(a,b+1):t;\n try{return JSON.parse(s)}catch(e){return {parseError:true,raw:s.slice(0,12000),error:e.message}}\n}\nconst base=$('🧩 Résultat Analyste').first().json;\nreturn [{json:{...base,seo:parseAI($input.first().json)}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        540,
+        -160
+      ],
+      "id": "918f1a62-1500-479e-8e71-4e2d1fe1737c",
+      "name": "🧩 Résultat SEO"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('⚙️ Configuration').first().json.openRouterUrl }}",
+        "authentication": "predefinedCredentialType",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://n8nmarketai.com"
+            },
+            {
+              "name": "X-Title",
+              "value": "N8N Market AI - Shopify Marketing Agent"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: $('⚙️ Configuration').first().json.model,\n  temperature: 0.25,\n  messages: [\n    {\n      role: 'system',\n      content: `Tu es un directeur créatif e-commerce. Prépare du contenu marketing basé uniquement sur les produits et priorités fournis. Réponds en JSON strict avec: campaigns (max 5: productId,title,channel,hook,angle,cta), weeklyContentPlan (7 éléments max), emailIdeas (max 3), socialIdeas (max 5). Aucune promesse mensongère, aucun faux témoignage, aucune remise inventée.`\n    },\n    {\n      role: 'user',\n      content: `Contexte:${JSON.stringify($('📊 Contexte Marketing Shopify').first().json)}\\nAnalyse:${JSON.stringify($('🧩 Résultat Analyste').first().json.analyst)}\\nSEO:${JSON.stringify($('🧩 Résultat SEO').first().json.seo)}`\n    }\n  ]\n}) }}",
+        "options": {
+          "timeout": 120000
+        },
+        "nodeCredentialType": "openRouterApi"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        780,
+        -160
+      ],
+      "id": "35c83753-5ccb-4d9d-ab76-4f6dd5a45f4d",
+      "name": "✍️ Agent Contenu",
+      "credentials": {
+        "openRouterApi": {
+          "id": "FWdNJAqsZh3EfcAw",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function parseAI(p){\n const t=String(p?.choices?.[0]?.message?.content||'').trim().replace(/^```(?:json)?\\s*/i,'').replace(/```\\s*$/,'').trim();\n const a=t.indexOf('{'),b=t.lastIndexOf('}'); const s=(a>=0&&b>=a)?t.slice(a,b+1):t;\n try{return JSON.parse(s)}catch(e){return {parseError:true,raw:s.slice(0,12000),error:e.message}}\n}\nconst base=$('🧩 Résultat SEO').first().json;\nreturn [{json:{...base,content:parseAI($input.first().json)}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1020,
+        -160
+      ],
+      "id": "c426067c-fb57-48db-ad80-452bc5c474b9",
+      "name": "🧩 Résultat Contenu"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('⚙️ Configuration').first().json.openRouterUrl }}",
+        "authentication": "predefinedCredentialType",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://n8nmarketai.com"
+            },
+            {
+              "name": "X-Title",
+              "value": "N8N Market AI - Shopify Marketing Agent"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: $('⚙️ Configuration').first().json.model,\n  temperature: 0.25,\n  messages: [\n    {\n      role: 'system',\n      content: `Tu es le Directeur Marketing & Ventes d'une boutique Shopify de produits numériques n8n. Tu arbitres les recommandations des agents et produis un plan exécutable, prudent et mesurable. Réponds UNIQUEMENT en JSON strict avec les clés: summary, priorityProduct (productId,title,objective,reason), mainAction, seoUpdates (max 3: productId,title,seoTitle,seoDescription,confidence), contentPlan, retentionPlan, kpis, next7Days, requiresHumanApproval. Ne modifie jamais les prix, ne crée pas de fausse urgence, n'invente aucune donnée. Les actions d'envoi client, publicité payante ou modification visible d'une fiche exigent validation humaine. Les seoUpdates ne concernent que les métadonnées SEO.`\n    },\n    {\n      role: 'user',\n      content: `Contexte:${JSON.stringify($('📊 Contexte Marketing Shopify').first().json)}\\nAnalyste:${JSON.stringify($('🧩 Résultat Analyste').first().json.analyst)}\\nSEO:${JSON.stringify($('🧩 Résultat SEO').first().json.seo)}\\nContenu:${JSON.stringify($('🧩 Résultat Contenu').first().json.content)}`\n    }\n  ]\n}) }}",
+        "options": {
+          "timeout": 120000
+        },
+        "nodeCredentialType": "openRouterApi"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1260,
+        -160
+      ],
+      "id": "119ceecc-1c83-4a96-bff1-92f9ad0f60c7",
+      "name": "🧠 Directeur Marketing IA",
+      "credentials": {
+        "openRouterApi": {
+          "id": "FWdNJAqsZh3EfcAw",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function parseAI(p){\n const t=String(p?.choices?.[0]?.message?.content||'').trim().replace(/^```(?:json)?\\s*/i,'').replace(/```\\s*$/,'').trim();\n const a=t.indexOf('{'),b=t.lastIndexOf('}'); const s=(a>=0&&b>=a)?t.slice(a,b+1):t;\n try{return JSON.parse(s)}catch(e){return {parseError:true,raw:s.slice(0,12000),error:e.message}}\n}\nconst base=$('🧩 Résultat Contenu').first().json;\nreturn [{json:{...base,finalPlan:parseAI($input.first().json)}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        -160
+      ],
+      "id": "839b442b-8679-4d64-92a2-e43925be9cc1",
+      "name": "✅ Plan Marketing Final"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const d=$input.first().json; const p=d.finalPlan||{}; const pp=p.priorityProduct||{};\nconst seo=(p.seoUpdates||[])[0]||{}; const content=(p.contentPlan||[])[0]||{}; const retention=(p.retentionPlan||[])[0]||{};\nreturn [{json:{\n 'Timestamp':new Date().toISOString(),\n 'Période':`${d.period?.since||''} → maintenant (${d.period?.days||0}j)`,\n 'CA analysé':`${d.totals?.revenue||0} ${d.shop?.currency||'EUR'}`,\n 'Commandes':d.totals?.orders||0,\n 'Produit prioritaire':pp.title||'',\n 'Objectif':pp.objective||'',\n 'Action principale':typeof p.mainAction==='string'?p.mainAction:JSON.stringify(p.mainAction||{}),\n 'SEO proposé':seo.seoTitle?`${seo.seoTitle} | ${seo.seoDescription||''}`:'',\n 'Contenu proposé':typeof content==='string'?content:JSON.stringify(content||{}),\n 'Segment client':typeof retention==='string'?retention:JSON.stringify(retention||{}),\n 'Confiance':seo.confidence??'',\n 'Validation requise':p.requiresHumanApproval===false?'NON':'OUI',\n 'Statut':'ANALYSE_TERMINEE',\n 'Résumé IA':p.summary||''\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1740,
+        -280
+      ],
+      "id": "f88dfa91-130c-467f-90b9-fd2d7fec0822",
+      "name": "🧾 Ligne Rapport"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1HoYqC0Wth7IezBJyLFumiGG3EHnQPpsnrrrh61GgP7g",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Marketing IA",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json['Timestamp'] }}",
+            "Période": "={{ $json['Période'] }}",
+            "CA analysé": "={{ $json['CA analysé'] }}",
+            "Commandes": "={{ $json['Commandes'] }}",
+            "Produit prioritaire": "={{ $json['Produit prioritaire'] }}",
+            "Objectif": "={{ $json['Objectif'] }}",
+            "Action principale": "={{ $json['Action principale'] }}",
+            "SEO proposé": "={{ $json['SEO proposé'] }}",
+            "Contenu proposé": "={{ $json['Contenu proposé'] }}",
+            "Segment client": "={{ $json['Segment client'] }}",
+            "Confiance": "={{ $json['Confiance'] }}",
+            "Validation requise": "={{ $json['Validation requise'] }}",
+            "Statut": "={{ $json['Statut'] }}",
+            "Résumé IA": "={{ $json['Résumé IA'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1980,
+        -280
+      ],
+      "id": "a3a0c5ff-7fa7-4f36-b059-fe8dbf591658",
+      "name": "📊 Enregistrer Marketing IA"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const d=$input.first().json; const cfg=$('⚙️ Configuration').first().json;\nif(!cfg.autoApplySeo) return [];\nconst list=(d.finalPlan?.seoUpdates||[]).filter(x=>x.productId&&x.seoTitle&&x.seoDescription&&Number(x.confidence||0)>=Number(cfg.seoConfidenceThreshold||90)).slice(0,Number(cfg.maxSeoUpdates||3));\nreturn list.map(x=>({json:{product:{id:x.productId,seo:{title:String(x.seoTitle).slice(0,255),description:String(x.seoDescription).slice(0,320)}},title:x.title||'',confidence:x.confidence}}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1740,
+        -40
+      ],
+      "id": "d73d9fdd-94a2-408b-ae38-9be6b9309c28",
+      "name": "🛡️ SEO auto autorisé ?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://fza6g1-nh.myshopify.com/admin/api/2026-07/graphql.json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Shopify-Access-Token",
+              "value": "={{ $('🔐 Shopify Token').item.json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  query: `mutation ApplyProductSeo($product: ProductUpdateInput!) {\n    productUpdate(product: $product) {\n      product { id title handle seo { title description } }\n      userErrors { field message }\n    }\n  }`,\n  variables: { product: $json.product }\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1980,
+        -40
+      ],
+      "id": "ca74b64e-e94f-44a6-8904-48a8d3c1fa52",
+      "name": "🚀 Appliquer SEO Shopify",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "# Directeur Marketing IA — Shopify\n\nBoutique: fza6g1-nh.myshopify.com\nRapport: Google Sheets > Marketing IA\n\nÀ connecter après import:\n1. 🔐 Shopify Token → credential Custom Auth Shopify déjà fonctionnel.\n2. Les 4 nœuds IA OpenRouter utilisent le credential n8n existant « OpenRouter account » (type OpenRouter API).\n3. 📊 Enregistrer Marketing IA → credential Google Sheets.\n\nSécurité:\n- autoApplySeo = false par défaut.\n- Le workflow analyse le catalogue + les commandes payées sur 30 jours.\n- Il ne modifie ni prix ni promotions.\n- Pour autoriser seulement les métadonnées SEO: mettre autoApplySeo=true dans ⚙️ Configuration après test.\n",
+        "height": 420,
+        "width": 620
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1160,
+        -520
+      ],
+      "id": "2b440cf7-1a6e-4c02-91c8-a2400c7fdb3e",
+      "name": "📝 Configuration rapide"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "▶️ Test manuel": {
+      "main": [
+        [
+          {
+            "node": "⚙️ Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⏰ Tous les jours 08:00": {
+      "main": [
+        [
+          {
+            "node": "⚙️ Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⚙️ Configuration": {
+      "main": [
+        [
+          {
+            "node": "🔐 Shopify Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔐 Shopify Token": {
+      "main": [
+        [
+          {
+            "node": "🛍️ Shopify — Produits + ventes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🛍️ Shopify — Produits + ventes": {
+      "main": [
+        [
+          {
+            "node": "📊 Contexte Marketing Shopify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 Contexte Marketing Shopify": {
+      "main": [
+        [
+          {
+            "node": "📈 Agent Analyste",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📈 Agent Analyste": {
+      "main": [
+        [
+          {
+            "node": "🧩 Résultat Analyste",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧩 Résultat Analyste": {
+      "main": [
+        [
+          {
+            "node": "🔎 Agent SEO + CRO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔎 Agent SEO + CRO": {
+      "main": [
+        [
+          {
+            "node": "🧩 Résultat SEO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧩 Résultat SEO": {
+      "main": [
+        [
+          {
+            "node": "✍️ Agent Contenu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✍️ Agent Contenu": {
+      "main": [
+        [
+          {
+            "node": "🧩 Résultat Contenu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧩 Résultat Contenu": {
+      "main": [
+        [
+          {
+            "node": "🧠 Directeur Marketing IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 Directeur Marketing IA": {
+      "main": [
+        [
+          {
+            "node": "✅ Plan Marketing Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✅ Plan Marketing Final": {
+      "main": [
+        [
+          {
+            "node": "🧾 Ligne Rapport",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🛡️ SEO auto autorisé ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧾 Ligne Rapport": {
+      "main": [
+        [
+          {
+            "node": "📊 Enregistrer Marketing IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🛡️ SEO auto autorisé ?": {
+      "main": [
+        [
+          {
+            "node": "🚀 Appliquer SEO Shopify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Luxembourg"
+  },
+  "versionId": "414ef8dc-3455-48e9-bec3-95a9f4402f5c",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
