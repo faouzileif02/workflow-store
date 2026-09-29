@@ -8,6 +8,7 @@ Catalogue privé de workflows n8n professionnels préparés pour une future comm
 
 ### Agents IA — Marketing & Ventes
 - [Agent IA Directeur Marketing & Ventes](agents-ia/directeur-marketing-ventes/) — **LIVRABLE**
+- [Prospection IA — Brouillons Gmail](agents-ia/prospection-ia/) — **LIVRABLE**
 - [Agent IA SEO & Fiches Produits](agents-ia/seo-fiches-produits/) — **EN DÉVELOPPEMENT**
 - [Agent IA Conversion & Relance Clients](agents-ia/conversion-relance-clients/) — **EN DÉVELOPPEMENT**
 
@@ -44,10 +45,10 @@ Catalogue privé de workflows n8n professionnels préparés pour une future comm
 ## État du catalogue
 
 - **18 workflows existants** documentés dans le catalogue principal.
-- **3 Agents IA Marketing & Ventes** sont présents dans le dépôt.
-- **21 fiches catalogue au total** dans le dépôt.
-- Les 3 variantes du workflow **Tri CV → Notion** sont regroupées sous une seule fiche produit.
-- **Agent IA Directeur Marketing & Ventes** est maintenant **LIVRABLE**.
+- **4 Agents IA Marketing & Ventes** sont présents dans le dépôt.
+- **22 fiches catalogue au total**.
+- **Agent IA Directeur Marketing & Ventes** est **LIVRABLE**.
+- **Prospection IA — Brouillons Gmail V5.1** est **LIVRABLE**.
 - **Alerte rupture de stock Google Sheets** est classé **PUBLIABLE**.
 - Les autres workflows restent à leur statut actuel tant qu'ils ne sont pas revalidés.
 
