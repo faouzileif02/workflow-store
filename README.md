@@ -7,7 +7,7 @@ Catalogue privé de workflows n8n professionnels préparés pour une future comm
 ## Catalogue
 
 ### Agents IA — Marketing & Ventes
-- [Agent IA Directeur Marketing & Ventes](agents-ia/directeur-marketing-ventes/) — **EN DÉVELOPPEMENT**
+- [Agent IA Directeur Marketing & Ventes](agents-ia/directeur-marketing-ventes/) — **LIVRABLE**
 - [Agent IA SEO & Fiches Produits](agents-ia/seo-fiches-produits/) — **EN DÉVELOPPEMENT**
 - [Agent IA Conversion & Relance Clients](agents-ia/conversion-relance-clients/) — **EN DÉVELOPPEMENT**
 
@@ -44,12 +44,12 @@ Catalogue privé de workflows n8n professionnels préparés pour une future comm
 ## État du catalogue
 
 - **18 workflows existants** documentés dans le catalogue principal.
-- **3 nouveaux Agents IA Marketing & Ventes** ajoutés en phase de conception.
-- **21 fiches catalogue au total** dans le dépôt après cet ajout.
+- **3 Agents IA Marketing & Ventes** sont présents dans le dépôt.
+- **21 fiches catalogue au total** dans le dépôt.
 - Les 3 variantes du workflow **Tri CV → Notion** sont regroupées sous une seule fiche produit.
-- **1 workflow est actuellement classé publiable** par sa fiche de validation : Alerte rupture de stock Google Sheets.
-- Les autres workflows existants sont conservés en **BETA** avec leur point principal à corriger avant commercialisation.
-- Les 3 Agents IA sont en **EN DÉVELOPPEMENT** : architecture documentée, JSON n8n à construire et tester avant vente.
+- **Agent IA Directeur Marketing & Ventes** est maintenant **LIVRABLE**.
+- **Alerte rupture de stock Google Sheets** est classé **PUBLIABLE**.
+- Les autres workflows restent à leur statut actuel tant qu'ils ne sont pas revalidés.
 
 ## Structure d'une fiche produit
 
