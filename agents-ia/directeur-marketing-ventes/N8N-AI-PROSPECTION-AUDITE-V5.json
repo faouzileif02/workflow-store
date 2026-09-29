@@ -206,7 +206,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const searches = $('🧭 Préparer recherches + catalogue').all();\nconst inputs = $input.all();\nconst out = [];\n\nfor (let i = 0; i < inputs.length; i++) {\n  const payload = inputs[i]?.json || {};\n\n  if (payload.error) {\n    throw new Error('SerpAPI: ' + String(payload.error));\n  }\n\n  const cfg = searches[i]?.json || searches[0]?.json || {};\n  const places = Array.isArray(payload.local_results) ? payload.local_results : [];\n\n  for (const p of places.slice(0, Number(cfg.maxPerQuery || 8))) {\n    const nom = String(p.title || '').trim();\n    if (!nom) continue;\n\n    let website = String(p.website || p.links?.website || '').trim();\n    const telephone = String(p.phone || '').trim();\n    const adresse = String(p.address || '').trim();\n    const rating = Number(p.rating || 0);\n    const reviews = Number(p.reviews || 0);\n\n    let domain = '';\n\n    if (website) {\n      if (!/^https?:\\/\\//i.test(website)) {\n        website = 'https://' + website.replace(/^\\/+/, '');\n      }\n\n      try {\n        domain = new URL(website).hostname.replace(/^www\\./, '').toLowerCase();\n      } catch (e) {\n        website = '';\n        domain = '';\n      }\n\n      if (domain.includes('google.')) {\n        website = '';\n        domain = '';\n      }\n    }\n\n    const stableId = String(\n      p.place_id ||\n      p.data_id ||\n      p.data_cid ||\n      domain ||\n      (nom + '|' + adresse)\n    ).trim();\n\n    if (!stableId) continue;\n\n    const key = stableId\n      .toLowerCase()\n      .replace(/\\s+/g, ' ')\n      .trim();\n\n    out.push({\n      json: {\n        nom,\n        categorie: String(cfg.query || ''),\n        adresse,\n        telephone,\n        website,\n        domain,\n        rating,\n        reviews,\n        placeId:String(p.place_id || ''),\n        dataId:String(p.data_id || ''),\n        googleMapsUrl: String(\n          p.place_id\n            ? `https://www.google.com/maps/search/?api=1&query_place_id=${p.place_id}`\n            : ''\n        ),\n        prospectKey: key,\n        dateRecherche: new Date().toISOString()\n      },\n      pairedItem: { item: i }\n    });\n  }\n}\n\nreturn out;"
+        "jsCode": "const searches = $('🧭 Préparer recherches + catalogue').all();\nconst inputs = $input.all();\nconst out = [];\n\nfor (let i = 0; i < inputs.length; i++) {\n  const payload = inputs[i]?.json || {};\n\n  if (payload.error) {\n    throw new Error('SerpAPI: ' + String(payload.error));\n  }\n\n  const cfg = searches[i]?.json || searches[0]?.json || {};\n  const places = Array.isArray(payload.local_results) ? payload.local_results : [];\n\n  for (const p of places.slice(0, Number(cfg.maxPerQuery || 8))) {\n    const nom = String(p.title || '').trim();\n    if (!nom) continue;\n\n    let website = String(p.website || p.links?.website || '').trim();\n    const telephone = String(p.phone || '').trim();\n    const adresse = String(p.address || '').trim();\n    const rating = Number(p.rating || 0);\n    const reviews = Number(p.reviews || 0);\n\n    let domain = '';\n\n    if (website) {\n      if (!/^https?:\\/\\//i.test(website)) {\n        website = 'https://' + website.replace(/^\\/+/, '');\n      }\n\n      try {\n        domain = new URL(website).hostname.replace(/^www\\./, '').toLowerCase();\n      } catch (e) {\n        website = '';\n        domain = '';\n      }\n\n      if (domain.includes('google.')) {\n        website = '';\n        domain = '';\n      }\n    }\n\n    const stableId = String(\n      p.place_id ||\n      p.data_id ||\n      p.data_cid ||\n      domain ||\n      (nom + '|' + adresse)\n    ).trim();\n\n    if (!stableId) continue;\n\n    const key = stableId\n      .toLowerCase()\n      .replace(/\\s+/g, ' ')\n      .trim();\n\n    out.push({\n      json: {\n        nom,\n        categorie: String(cfg.query || ''),\n        adresse,\n        telephone,\n        website,\n        domain,\n        rating,\n        reviews,\n        placeId:String(p.place_id || ''),\n        dataId:String(p.data_id || ''),\n        dataCid:String(p.data_cid || ''),\n        placeDetailsUrl:String(p.place_id_search || (p.place_id ? `https://serpapi.com/search.json?engine=google_maps&place_id=${encodeURIComponent(p.place_id)}` : '')),\n        googleMapsUrl: String(\n          p.place_id\n            ? `https://www.google.com/maps/search/?api=1&query_place_id=${p.place_id}`\n            : ''\n        ),\n        prospectKey: key,\n        dateRecherche: new Date().toISOString()\n      },\n      pairedItem: { item: i }\n    });\n  }\n}\n\nreturn out;"
       },
       "id": "bdf86649-b757-40a4-bc70-8827888896cc",
       "name": "🧹 Normaliser prospects",
@@ -591,30 +591,10 @@
     },
     {
       "parameters": {
-        "url": "https://serpapi.com/search",
+        "url": "={{ $json.placeDetailsUrl }}",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
-            {
-              "name": "engine",
-              "value": "google_maps"
-            },
-            {
-              "name": "type",
-              "value": "place"
-            },
-            {
-              "name": "place_id",
-              "value": "={{ $json.placeId }}"
-            },
-            {
-              "name": "hl",
-              "value": "fr"
-            },
-            {
-              "name": "gl",
-              "value": "lu"
-            },
             {
               "name": "api_key",
               "value": "={{ $env.SERPAPI_API_KEY }}"
@@ -625,7 +605,7 @@
           "timeout": 30000,
           "response": {
             "response": {
-              "neverError": true,
+              "neverError": false,
               "responseFormat": "json"
             }
           }
@@ -644,7 +624,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const leads = $('🧹 Normaliser prospects').all();\nconst inputs = $input.all();\nconst out = [];\n\nfor (let i = 0; i < inputs.length; i++) {\n  const lead = leads[i]?.json || {};\n  const payload = inputs[i]?.json || {};\n  const place = payload.place_results || {};\n\n  let website = String(lead.website || place.website || place.links?.website || '').trim();\n  let domain = String(lead.domain || '').trim();\n\n  if (website) {\n    if (!/^https?:\\/\\//i.test(website)) {\n      website = 'https://' + website.replace(/^\\/+/, '');\n    }\n    try {\n      domain = new URL(website).hostname.replace(/^www\\./, '').toLowerCase();\n    } catch (e) {\n      website = '';\n      domain = '';\n    }\n    if (domain.includes('google.')) {\n      website = '';\n      domain = '';\n    }\n  }\n\n  out.push({\n    json:{\n      ...lead,\n      website,\n      domain,\n      telephone:String(lead.telephone || place.phone || '').trim(),\n      adresse:String(lead.adresse || place.address || '').trim(),\n      rating:Number(lead.rating || place.rating || 0),\n      reviews:Number(lead.reviews || place.reviews || 0)\n    },\n    pairedItem:{item:i}\n  });\n}\n\nreturn out;"
+        "jsCode": "const leads = $('🧹 Normaliser prospects').all();\nconst inputs = $input.all();\nconst out = [];\n\nfor (let i = 0; i < inputs.length; i++) {\n  const lead = leads[i]?.json || {};\n  const payload = inputs[i]?.json || {};\n\n  if (payload.error) {\n    throw new Error('SerpAPI détails: ' + String(payload.error));\n  }\n\n  const place = payload.place_results || {};\n  let website = String(lead.website || place.website || place.links?.website || '').trim();\n  let domain = String(lead.domain || '').trim();\n\n  if (website) {\n    if (!/^https?:\\/\\//i.test(website)) {\n      website = 'https://' + website.replace(/^\\/+/, '');\n    }\n    try {\n      domain = new URL(website).hostname.replace(/^www\\./, '').toLowerCase();\n    } catch (e) {\n      website = '';\n      domain = '';\n    }\n    if (domain.includes('google.')) {\n      website = '';\n      domain = '';\n    }\n  }\n\n  out.push({\n    json:{\n      ...lead,\n      website,\n      domain,\n      detailFound:Boolean(payload.place_results),\n      telephone:String(lead.telephone || place.phone || '').trim(),\n      adresse:String(lead.adresse || place.address || '').trim(),\n      rating:Number(lead.rating || place.rating || 0),\n      reviews:Number(lead.reviews || place.reviews || 0)\n    },\n    pairedItem:{item:i}\n  });\n}\n\nreturn out;"
       },
       "id": "prospection-enrich-v5",
       "name": "🧩 Enrichir prospect",
