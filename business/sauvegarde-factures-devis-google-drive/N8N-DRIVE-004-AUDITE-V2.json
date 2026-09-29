@@ -1,0 +1,326 @@
+{
+  "name": "Sauvegarde automatique factures et devis vers Google Drive",
+  "nodes": [
+    {
+      "name": "Setup Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        100,
+        100
+      ],
+      "parameters": {
+        "note": "Résumé et actions requises:\n\n1) Crédentiels à configurer dans n8n (ne pas mettre de clé ici):\n   - Google OAuth2 (Gmail + Drive) avec scopes pour Gmail Push + Drive (lecture/écriture). Préférer le mode \"watch\" / notifications push pour Gmail pour limiter les appels API.\n   - OpenAI (clé API) pour le noeud OpenAI.\n\n2) Pourquoi le noeud Move Binary Data est présent:\n   - Selon la configuration du trigger Gmail, les pièces jointes arrivent souvent sous une clé binaire avec le nom de fichier comme clé. Le noeud Google Drive attend un nom de propriété binaire déterminé (ici nous standardisons sur 'data'). Le noeud \"Move Binary Data\" garantit que l'upload reçoit toujours le binaire sous la clé 'data'.\n\n3) Gestion des pièces jointes multiples:\n   - On transforme d'abord l'item Gmail en autant d'items qu'il y a de pièces jointes (un par fichier), puis on itère avec SplitInBatches (taille 1) pour préserver les métadonnées parent (expéditeur, sujet, date) et éviter les pertes.\n\n4) Quotas & recommandations (audit rapide):\n   - Si vous utilisez un polling (ex: intervalle 1 min) le trigger peut générer ~60 appels API par heure. Pour 100 emails/jour ce n'est pas catastrophique, mais si plusieurs workflows / utilisateurs ou un intervalle très court est configuré, vous pouvez dépasser des quotas Google Workspace (ex. 250 unités) rapidement. Recommandation: activer Gmail push (watch) pour éviter le polling fréquent. Sur self-hosted, vérifier la configuration du trigger (polling vs push) et ajuster l'intervalle.\n\n5) Limites connues:\n   - Pas de traitement des pièces jointes intégrées inline dans le HTML.\n   - Pas de fusion/détection de doublons.\n   - Pas d'extraction de montants/n° de facture depuis le PDF.\n   - Nécessite reconfiguration pour Outlook.\n\n6) UX / vente: titre et description sont orientés comptable/assistante (peur de perdre une facture). Le noeud OpenAI renomme et catégorise; le code fournit un fallback si l'IA renvoie mal formé.\n\n7) Notes opérationnelles:\n   - Tester d'abord en sandbox avec quelques emails.\n   - Valider les noms de labels Gmail et l'emplacement Drive par défaut.\n"
+      }
+    },
+    {
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 2,
+      "position": [
+        300,
+        300
+      ],
+      "parameters": {
+        "watchFor": "newEmail",
+        "options": {
+          "includeAttachments": true,
+          "onlyWhenUnseen": true,
+          "fetchThreads": false
+        }
+      }
+    },
+    {
+      "name": "IF Has Attachments",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        500,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json[\"attachments\"] ? $json[\"attachments\"].length : (Object.keys($binary||{}).length)}}",
+              "operation": "isGreaterThan",
+              "value2": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "SplitAttachmentsToItems",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        300
+      ],
+      "parameters": {
+        "jsCode": "/*\n This node takes the incoming Gmail item and creates one item per attachment.\n Each new item keeps the original email metadata in json and places the single attachment under its original binary key.\n*/\n\nconst item = items[0];\nconst bin = item.binary || {};\nconst binKeys = Object.keys(bin);\nconst out = [];\nif (binKeys.length === 0) {\n  // No binary attachments; try to use attachments metadata if present (rare)\n  return [];\n}\n\nfor (let i = 0; i < binKeys.length; i++) {\n  const key = binKeys[i];\n  const newItem = {\n    json: Object.assign({}, item.json, { originalFileName: key, attachmentIndex: i }),\n    binary: {\n      // keep the original key for now; Move Binary Data will standardize to 'data'\n      [key]: bin[key]\n    }\n  };\n  out.push(newItem);\n}\n\nreturn out;"
+      }
+    },
+    {
+      "name": "Split In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        900,
+        300
+      ],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "name": "Prepare Metadata for AI",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        300
+      ],
+      "parameters": {
+        "jsCode": "/*\n Prepares a deterministic prompt for the OpenAI node and extracts sender metadata.\n*/\nconst item = items[0];\nconst j = item.json || {};\nconst binKeys = Object.keys(item.binary || {});\nconst originalFileName = j.originalFileName || binKeys[0] || 'attachment.bin';\n\n// try to extract sender name and email\nlet from = j.from || j.fromValue || '';\nlet senderName = '';\nlet senderEmail = '';\nif (from) {\n  const m = from.match(/(.*)\\s+<([^>]+)>/);\n  if (m) {\n    senderName = m[1].replace(/\\\"/g, '').trim();\n    senderEmail = m[2].trim();\n  } else {\n    // sometimes it's just the email\n    senderEmail = from.trim();\n  }\n}\nif (!senderEmail && j.headers && j.headers.From) {\n  senderEmail = j.headers.From;\n}\nconst senderDomain = (senderEmail && senderEmail.split('@')[1]) || (senderName && senderName.split(' ').slice(-1)[0]) || 'fournisseur-inconnu';\nconst dateRaw = j.date || new Date().toISOString();\nconst dateIso = (new Date(dateRaw)).toISOString().split('T')[0];\n\n// build a strict prompt asking for JSON only to ease parsing\nconst prompt = `You are a filename-normalization assistant for accounting. Respond ONLY with a single JSON object, no explanation, no surrounding markdown.\\nInput: original filename: \"${originalFileName}\"\\nEmail subject: \"${(j.subject||'').replace(/\\\"/g,'') }\"\\nSender name: \"${senderName}\"\\nSender domain: \"${senderDomain}\"\\nDate: ${dateIso}\\nRules: produce keys: normalized_file_name (string) and category (one of: facture, devis, contrat, autre). The normalized_file_name must keep the original extension and start with the date in YYYY-MM-DD format, e.g. 2026-09-14_Facture_Fournisseur-Martin.pdf.`;\n\nitem.json.prompt = prompt;\nitem.json.originalFileName = originalFileName;\nitem.json.senderDomain = senderDomain;\nitem.json.senderName = senderName;\nitem.json.date = dateIso;\n\nreturn items;"
+      }
+    },
+    {
+      "name": "OpenAI Analyze",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        300
+      ],
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "={{$json[\"prompt\"]}}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0,
+          "responseFormat": "json_object"
+        }
+      }
+    },
+    {
+      "name": "Validate AI Response & Fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        300
+      ],
+      "parameters": {
+        "jsCode": "/*\n This node parses the AI response which is expected to be pure JSON. If parsing fails or fields missing, we build a safe fallback filename and category.\n*/\nconst item = items[0];\nlet aiText = '';\nif (item.json && item.json.text) aiText = item.json.text; // older node outputs\nif (!aiText && item.json && item.json.choices && item.json.choices[0]) {\n  const c = item.json.choices[0];\n  aiText = (c.message && c.message.content) || c.text || '';\n}\nif (!aiText && item.json && item.json.output) aiText = item.json.output;\nif (!aiText && item.json && item.json.message && item.json.message.content) aiText = item.json.message.content;\n\nlet parsed = null;\ntry {\n  parsed = JSON.parse(aiText.trim());\n} catch (e) {\n  parsed = null;\n}\n\nconst orig = item.json.originalFileName || 'attachment.bin';\nconst ext = orig.includes('.') ? orig.substring(orig.lastIndexOf('.')) : '';\nlet normalized = null;\nlet category = null;\nif (parsed && typeof parsed === 'object') {\n  normalized = parsed.normalized_file_name || parsed.normalizedFileName || parsed.filename || null;\n  category = parsed.category || parsed.type || null;\n}\n// fallback if AI failed or returned invalid data\nif (!category) category = 'autre';\nif (!normalized) {\n  // sanitize original filename\n  const safeBase = orig.replace(/\\.[^.]+$/, '').replace(/\\s+/g, '_').replace(/[^a-zA-Z0-9_\\-]/g, '_');\n  normalized = `${item.json.date || (new Date()).toISOString().split('T')[0]}_${category}_${(item.json.senderDomain||'fournisseur')}_${safeBase}${ext}`;\n}\n// final safety: ensure extension present\nif (!normalized.includes('.') && ext) normalized = `${normalized}${ext}`;\n\nitem.json.normalizedFileName = normalized;\nitem.json.category = category;\n\nreturn items;"
+      }
+    },
+    {
+      "name": "Move Binary to data",
+      "type": "n8n-nodes-base.moveBinaryData",
+      "typeVersion": 1,
+      "position": [
+        1700,
+        300
+      ],
+      "parameters": {
+        "mode": "rename",
+        "sourceKey": "={{Object.keys($binary).length ? Object.keys($binary)[0] : 'file'}}",
+        "destinationKey": "data",
+        "binaryPropertyName": ""
+      }
+    },
+    {
+      "name": "Google Drive Create Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1900,
+        300
+      ],
+      "parameters": {
+        "resource": "folder",
+        "operation": "create",
+        "name": "={{$json[\"senderDomain\"] || 'Fournisseurs_Inconnus'}}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root"
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Google Drive Upload",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2100,
+        300
+      ],
+      "parameters": {
+        "resource": "file",
+        "operation": "upload",
+        "inputDataFieldName": "data",
+        "name": "={{$json[\"normalizedFileName\"]}}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{$node[\"Google Drive Create Folder\"].json[\"id\"]}}"
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Gmail Add Label",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        2300,
+        300
+      ],
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{$json[\"id\"] || $json[\"messageId\"] || $json[\"threadId\"]}}",
+        "labelIds": [
+          "Archivé-Drive"
+        ]
+      }
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "IF Has Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Has Attachments": {
+      "main": [
+        [
+          {
+            "node": "SplitAttachmentsToItems",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "SplitAttachmentsToItems": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches": {
+      "main": [
+        [
+          {
+            "node": "Prepare Metadata for AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Metadata for AI": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Analyze",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Analyze": {
+      "main": [
+        [
+          {
+            "node": "Validate AI Response & Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate AI Response & Fallback": {
+      "main": [
+        [
+          {
+            "node": "Move Binary to data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move Binary to data": {
+      "main": [
+        [
+          {
+            "node": "Google Drive Create Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Create Folder": {
+      "main": [
+        [
+          {
+            "node": "Google Drive Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Upload": {
+      "main": [
+        [
+          {
+            "node": "Gmail Add Label",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
