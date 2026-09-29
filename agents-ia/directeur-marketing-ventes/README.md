@@ -34,7 +34,7 @@ Créer un **directeur marketing virtuel** qui analyse le catalogue et les perfor
 - `N8N-AI-MKT-DIR-018-AUDITE-V5.json` : version auditée et validée du Directeur Marketing Shopify.
 - `N8N-AI-PROSPECTION-AUDITE-V5.json` : version auditée de la prospection IA.
 
-L’ancienne version Shopify V4 et `workflow-shopify-beta.json` ont été supprimées pour éviter les doublons. `workflow-prospection-beta.json` reste conservé pour la branche Prospection.
+Les anciennes versions bêta Shopify et Prospection ont été supprimées pour éviter les doublons. Les fichiers audités V5 sont les versions de référence.
 
 ### Corrections importantes intégrées
 
