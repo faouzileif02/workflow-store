@@ -9,7 +9,9 @@
 
 ## Acheter
 
-[Commander sur N8N Market AI](https://n8nmarketai.com/products/agent-ia-directeur-marketing-ventes-multi-agent-n8n)
+[🛒 Acheter sur N8N Market AI](https://n8nmarketai.com/products/agent-ia-directeur-marketing-ventes-multi-agent-n8n)
+
+> Le workflow complet n'est pas publié sur GitHub. Il est livré après achat.
 
 ## Objectif
 
@@ -26,9 +28,9 @@ Créer un directeur marketing virtuel qui analyse le catalogue Shopify et les pe
 - reporting Google Sheets ;
 - validation humaine avant action sensible.
 
-## Version auditée actuelle
+## Version validée
 
-- `N8N-AI-MKT-DIR-018-AUDITE-V5.json` : version auditée et validée du Directeur Marketing Shopify.
+La version commerciale auditée est conservée hors du dépôt public et livrée au client après achat.
 
 ## Garde-fous
 
