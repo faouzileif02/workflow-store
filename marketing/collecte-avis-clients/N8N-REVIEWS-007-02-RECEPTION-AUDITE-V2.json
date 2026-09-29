@@ -1,0 +1,245 @@
+{
+  "name": "N8N REVIEWS 007 — 02 Réception et traitement avis — AUDITÉ V2",
+  "nodes": [
+    {
+      "name": "StickyNote - Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        100
+      ],
+      "parameters": {
+        "content": "## N8N-REVIEWS-007 — Étape 2/2\nTypeform reçoit les réponses et doit transmettre les champs cachés :\n- orderId\n- email\n- name\n\nBranches :\n- note < 3 : alerte Slack + journalisation\n- note >= 3 : remerciement + invitation Google + journalisation\n\nGoogle Sheets conseillé : date, orderId, email, client, note, commentaire, statut.\nAucune publication Google automatique.",
+        "height": 380,
+        "width": 560,
+        "color": 5
+      }
+    },
+    {
+      "name": "Typeform Trigger",
+      "type": "n8n-nodes-base.typeformTrigger",
+      "typeVersion": 1,
+      "position": [
+        800,
+        300
+      ],
+      "parameters": {
+        "formId": "TYPEFORM_FORM_ID",
+        "event": "form_response",
+        "options": {}
+      },
+      "credentials": {
+        "typeformApi": {
+          "id": "TYPEFORM_CREDENTIAL_ID",
+          "name": "Typeform account"
+        }
+      }
+    },
+    {
+      "name": "Vérifier note",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json[\"score\"] || ($json[\"form_response\"] && $json[\"form_response\"][\"answers\"] && $json[\"form_response\"][\"answers\"][0] && $json[\"form_response\"][\"answers\"][0][\"number\"]) }}",
+              "operation": "lessThan",
+              "value2": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Alerte Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        400
+      ],
+      "parameters": {
+        "channel": "#alerts-reviews",
+        "text": "Avis négatif détecté :\nClient: {{$json[\"name\"] || ($json[\"form_response\"] && $json[\"form_response\"][\"hidden\"] && $json[\"form_response\"][\"hidden\"][\"name\"])}}\nCommande: {{$json[\"orderId\"] || ($json[\"form_response\"] && $json[\"form_response\"][\"hidden\"] && $json[\"form_response\"][\"hidden\"][\"orderId\"])}}\nNote: {{$json[\"score\"] || ($json[\"form_response\"] && $json[\"form_response\"][\"answers\"] && $json[\"form_response\"][\"answers\"][0] && $json[\"form_response\"][\"answers\"][0][\"number\"])}}\nCommentaire: {{$json[\"comment\"] || ($json[\"form_response\"] && $json[\"form_response\"][\"answers\"] && $json[\"form_response\"][\"answers\"][1] && $json[\"form_response\"][\"answers\"][1][\"text\"])}}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "SLACK_CREDENTIAL_ID",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "name": "Envoyer Merci",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1200,
+        200
+      ],
+      "parameters": {
+        "fromEmail": "no-reply@votresite.com",
+        "toEmail": "={{ $json[\"email\"] || ($json[\"form_response\"] && $json[\"form_response\"][\"hidden\"] && $json[\"form_response\"][\"hidden\"][\"email\"]) }}",
+        "subject": "Merci pour votre avis — pouvez-vous le partager publiquement ?",
+        "text": "Bonjour {{$json[\"name\"] || ($json[\"form_response\"] && $json[\"form_response\"][\"hidden\"] && $json[\"form_response\"][\"hidden\"][\"name\"])}},\n\nMerci pour votre retour positif ! Si vous le souhaitez, vous pouvez partager votre avis publiquement ici : https://g.page/your-business/review\n\nMerci encore pour votre confiance.",
+        "html": "<p>Bonjour {{$json[\"name\"] || ($json[\"form_response\"] && $json[\"form_response\"][\"hidden\"] && $json[\"form_response\"][\"hidden\"][\"name\"]) }},</p><p>Merci pour votre retour positif ! Si vous le souhaitez, vous pouvez partager votre avis publiquement <a href=\"https://g.page/your-business/review\">sur Google</a>.</p><p>Merci encore pour votre confiance.</p>",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": {
+          "id": "SMTP_CREDENTIAL_ID",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "name": "Ajouter ligne Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1400,
+        300
+      ],
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $now }}",
+            "email": "={{ $json[\"email\"] || ($json[\"form_response\"] && $json[\"form_response\"][\"hidden\"] && $json[\"form_response\"][\"hidden\"][\"email\"]) }}",
+            "client": "={{ $json[\"name\"] || ($json[\"form_response\"] && $json[\"form_response\"][\"hidden\"] && $json[\"form_response\"][\"hidden\"][\"name\"]) }}",
+            "note": "={{ $json[\"score\"] || ($json[\"form_response\"] && $json[\"form_response\"][\"answers\"] && $json[\"form_response\"][\"answers\"][0] && $json[\"form_response\"][\"answers\"][0][\"number\"]) }}",
+            "commentaire": "={{ $json[\"comment\"] || ($json[\"form_response\"] && $json[\"form_response\"][\"answers\"] && $json[\"form_response\"][\"answers\"][1] && $json[\"form_response\"][\"answers\"][1][\"text\"]) }}",
+            "statut": "={{ ($json[\"score\"] || ($json[\"form_response\"] && $json[\"form_response\"][\"answers\"] && $json[\"form_response\"][\"answers\"][0] && $json[\"form_response\"][\"answers\"][0][\"number\"])) < 3 ? 'à traiter en urgence' : 'relance Google' }}",
+            "orderId": "={{ $json.orderId || $json.form_response?.hidden?.orderId || '' }}"
+          }
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "name": "Formater statut",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1600,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": true,
+        "assignments": {
+          "assignments": [
+            {
+              "name": "statut",
+              "value": "={{ ($json[\"score\"] || ($json[\"form_response\"] && $json[\"form_response\"][\"answers\"] && $json[\"form_response\"][\"answers\"][0] && $json[\"form_response\"][\"answers\"][0][\"number\"])) < 3 ? 'à traiter en urgence' : 'relance Google' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Typeform Trigger": {
+      "main": [
+        [
+          {
+            "node": "Vérifier note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vérifier note": {
+      "main": [
+        [
+          {
+            "node": "Alerte Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Envoyer Merci",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alerte Slack": {
+      "main": [
+        [
+          {
+            "node": "Ajouter ligne Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envoyer Merci": {
+      "main": [
+        [
+          {
+            "node": "Ajouter ligne Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ajouter ligne Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Formater statut",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formater statut": {
+      "main": []
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Luxembourg"
+  },
+  "versionId": "5136c4e0-0bba-4e08-96c1-1f4afb87bfc2",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
