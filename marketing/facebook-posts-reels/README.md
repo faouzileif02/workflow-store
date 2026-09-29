@@ -7,7 +7,7 @@
 > Produit numérique vendu via la boutique N8N Market AI.
 
 
-> **Statut : TEMPLATE PRIVÉ / CATALOGUE PUBLIC**
+> **Statut : LIVRABLE**
 
 Workflow n8n avec deux branches indépendantes dans le même projet :
 
@@ -34,7 +34,7 @@ Déclencheur Post
 → mémorisation de l'image utilisée
 ```
 
-## Version privée
+## Livraison
 
 Le fichier JSON n8n complet n'est **pas publié dans ce dépôt**.
 
