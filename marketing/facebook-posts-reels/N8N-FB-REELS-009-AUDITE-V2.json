@@ -1,0 +1,905 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list"
+        },
+        "limit": 1
+      },
+      "id": "fb930ca5-142a-4974-9634-d270ccd0acb4",
+      "name": "Dernière vidéo utilisée1",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -640,
+        704
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $('Config').first().json.graphVersion }}/{{ $('Config').first().json.pageId }}/videos",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": []
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "file_url",
+              "value": "={{ $('Préparer contexte').first().json.videoUrl }}"
+            },
+            {
+              "name": "description",
+              "value": "={{ $json.message }}"
+            },
+            {
+              "name": "title",
+              "value": "={{ $json.title }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "b2949bd9-fbca-4c12-87c7-ffee234fd97d",
+      "name": "Publier Reel sur Facebook",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        336,
+        896
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "videoUrl",
+              "displayName": "videoUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "videoNumber",
+              "displayName": "videoNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "postId",
+              "displayName": "postId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "05863062-84f1-4e90-88b4-ea11e56e6369",
+      "name": "Enregistrer vidéo postée1",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        896
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1",
+              "name": "pageId",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "c3",
+              "name": "graphVersion",
+              "type": "string",
+              "value": "v26.0"
+            },
+            {
+              "id": "p1",
+              "name": "promoActive",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "id": "p2",
+              "name": "promoTexte",
+              "type": "string",
+              "value": "-10 % sur tous nos services"
+            },
+            {
+              "id": "p3",
+              "name": "promoFin",
+              "type": "string",
+              "value": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "791ffb32-4dee-4ea7-ad1b-bf1a2e79e14a",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1088,
+        704
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.open-meteo.com/v1/forecast",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "latitude",
+              "value": "50.67"
+            },
+            {
+              "name": "longitude",
+              "value": "5.08"
+            },
+            {
+              "name": "daily",
+              "value": "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum"
+            },
+            {
+              "name": "timezone",
+              "value": "Europe/Brussels"
+            },
+            {
+              "name": "forecast_days",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "93aa377e-59c2-47e3-a90e-31d7340eb4d0",
+      "name": "Météo Hannut",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -864,
+        704
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ JSON.stringify((() => {\n  // ─────────────────────────────────────────────────────────────\n  // 1. CONTEXTE (config, date, météo brute)\n  // ─────────────────────────────────────────────────────────────\n  const cfg    = $('Config').first().json || {};\n  const now    = DateTime.now().setZone('Europe/Brussels').setLocale('fr');\n  const daily  = $('Météo Hannut').first()?.json?.daily || {};\n\n  // ─────────────────────────────────────────────────────────────\n  // 2. LISTE DES VIDÉOS (Remplacez par vos URLs de vidéos MP4)\n  // ─────────────────────────────────────────────────────────────\n  const videos = [\n   \n    'https://i.imgur.com/ycnt1o4.mp4',\n     \n    'https://i.imgur.com/Ydq0Amg.mp4',\n\n     'https://i.imgur.com/Sj6Jy5m.mp4'\n  ];\n\n  // ─────────────────────────────────────────────────────────────\n  // 3. CHOIX DE LA VIDÉO (rotation cyclique)\n  // ─────────────────────────────────────────────────────────────\n  const lastVideo = String(\n    $('Dernière vidéo utilisée1').first()?.json?.videoUrl || ''\n  ).trim();\n\n  const lastPos  = videos.indexOf(lastVideo);\n  const idx      = lastPos === -1 ? 0 : (lastPos + 1) % videos.length;\n  const videoUrl = videos[idx];\n\n  // ─────────────────────────────────────────────────────────────\n  // 4. MÉTÉO (mapping codes WMO → texte FR)\n  // ─────────────────────────────────────────────────────────────\n  const WEATHER_CODES = {\n    0:  'ciel dégagé',       1:  'plutôt ensoleillé',\n    2:  'partiellement nuageux', 3: 'couvert',\n    45: 'brouillard',        48: 'brouillard givrant',\n    51: 'bruine légère',     53: 'bruine',\n    55: 'bruine dense',      56: 'bruine verglaçante',\n    57: 'bruine verglaçante',61: 'pluie faible',\n    63: 'pluie',             65: 'pluie soutenue',\n    66: 'pluie verglaçante', 67: 'pluie verglaçante',\n    71: 'neige faible',      73: 'neige',\n    75: 'neige soutenue',    77: 'grains de neige',\n    80: 'quelques averses',  81: 'averses',\n    82: 'averses soutenues', 85: 'averses de neige',\n    86: 'averses de neige',  95: 'orageux',\n    96: 'orageux',           99: 'orageux'\n  };\n\n  let meteo = 'indisponible (ne mentionne pas la météo)';\n\n  const hasWeather =\n    Array.isArray(daily.weather_code) && daily.weather_code.length &&\n    Array.isArray(daily.temperature_2m_max) && daily.temperature_2m_max.length;\n\n  if (hasWeather) {\n    const desc = WEATHER_CODES[daily.weather_code[0]] || 'temps variable';\n    const tMin = Math.round(daily.temperature_2m_min[0]);\n    const tMax = Math.round(daily.temperature_2m_max[0]);\n    const rain = (daily.precipitation_sum && daily.precipitation_sum[0]) || 0;\n    meteo = `${desc}, entre ${tMin}°C et ${tMax}°C, ${rain} mm de précipitations prévues`;\n  }\n\n  // ─────────────────────────────────────────────────────────────\n  // 5. SAISON\n  // ─────────────────────────────────────────────────────────────\n  const month  = now.month;\n  const saison =\n    month >= 3 && month <= 5  ? 'printemps' :\n    month >= 6 && month <= 8  ? 'été'       :\n    month >= 9 && month <= 11 ? 'automne'   :\n                                'hiver';\n\n  // ─────────────────────────────────────────────────────────────\n  // 6. ANGLE DU JOUR (rotation jour + vidéo)\n  // ─────────────────────────────────────────────────────────────\n  const ANGLES = [\n    \"Le confort d'un habitacle propre au quotidien\",\n    \"La saleté ramenée de l'extérieur sur les tapis de sol\",\n    \"Le bien-être des passagers sur des sièges propres\",\n    \"Une voiture agréable pour les trajets en famille\",\n    \"La sensation de fraîcheur en montant dans sa voiture\",\n    \"Prendre soin de l'intérieur pour préserver sa voiture\",\n    \"Les zones qu'on touche tous les jours : volant, poignées, tableau de bord\",\n    \"Confier l'intérieur de sa voiture à un professionnel local de Hannut\"\n  ];\n  const angle = ANGLES[(now.ordinal + idx) % ANGLES.length];\n\n  // ─────────────────────────────────────────────────────────────\n  // 7. PROMOTION\n  // ─────────────────────────────────────────────────────────────\n  const promoFin = String(cfg.promoFin || '').trim();\n\n  const promoActive =\n    (cfg.promoActive === true || cfg.promoActive === 'true') &&\n    (!promoFin || now.toISODate() <= promoFin);\n\n  const promo = promoActive ? String(cfg.promoTexte || '').trim() : '';\n\n  let promoFinTexte = '';\n  if (promo && promoFin) {\n    const dt = DateTime.fromISO(promoFin);\n    if (dt.isValid) promoFinTexte = dt.setLocale('fr').toFormat('d LLLL yyyy');\n  }\n\n  // ─────────────────────────────────────────────────────────────\n  // 8. RÉSULTAT\n  // ─────────────────────────────────────────────────────────────\n  return {\n    date:          now.toISODate(),\n    dateFr:        now.toFormat('cccc d LLLL yyyy'),\n    saison,\n    meteo,\n    angle,\n    promo,\n    promoFinTexte,\n    videoIndex:    idx + 1,\n    totalVideos:   videos.length,\n    videoUrl\n  };\n})()) }}",
+        "options": {}
+      },
+      "id": "1b6fe06c-efb9-4a3b-827a-265a2ca657fe",
+      "name": "Préparer contexte",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -432,
+        896
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un expert senior en marketing digital local, copywriting et vente sur Facebook.\n\nTa spécialité est de transformer une publication Facebook en outil d’acquisition de clients pour une entreprise de nettoyage intérieur automobile à Hannut et dans les communes voisines.\n\nTon objectif principal : attirer des prospects réellement intéressés, leur donner confiance et les pousser naturellement à demander un prix, envoyer un message privé ou réserver.\n\nINFORMATIONS DU JOUR\n- Date : {{ $json.dateFr }}\n- Saison : {{ $json.saison }}\n- Météo à Hannut : {{ $json.meteo }}\n- Angle éditorial : {{ $json.angle }}\n- Heure : {{ $now.toFormat('HH:mm') }}\n- Moment de publication : {{ $now.hour < 11 ? 'matin, les habitants commencent leur journée' : ($now.hour < 16 ? 'pause de midi, lecture rapide sur Facebook' : 'fin de journée, retour du travail et préparation de la soirée') }}\n\nPROMOTION\n{{ $json.promo\n  ? \"Promotion réelle et confirmée : \" + $json.promo + ($json.promoFinTexte ? \" jusqu’au \" + $json.promoFinTexte : \"\") + \". Reprends exactement cette promotion dans le titre ou l’accroche. Ne change ni le montant, ni les conditions, ni la date.\"\n  : \"Aucune promotion n’est en cours. N’invente aucune réduction, offre spéciale, remise, cadeau ou urgence commerciale.\"\n}}\n\nMISSION MARKETING\nRédige une publication Facebook persuasive pour accompagner un Reel vidéo qui :\n\n1. Arrête immédiatement le défilement avec une accroche courte et forte.\n2. Parle d’un problème concret vécu par les automobilistes : poussière, miettes, traces, mauvaises odeurs, poils d’animaux, sièges sales ou manque de temps.\n3. Aide le lecteur à se reconnaître dans la situation.\n4. Présente le nettoyage intérieur comme une solution pratique et rassurante.\n5. Met en avant un bénéfice clair : retrouver un habitacle propre, agréable et confortable.\n6. Crée de la confiance avec un ton humain, local et professionnel.\n7. Encourage une action immédiate : envoyer un message privé, demander des informations ou réserver.\n8. Termine par une question très simple qui incite les personnes intéressées à commenter.\n\nTECHNIQUES DE CONVERSION\n- Utilise la structure : accroche → problème → bénéfice → solution → appel à l’action.\n- Adresse-toi directement au lecteur avec « vous ».\n- Utilise des phrases courtes et faciles à lire sur téléphone.\n- Fais ressentir le résultat final sans exagération.\n- Si cela est pertinent, relie naturellement le sujet à la météo ou à la saison.\n- Ajoute une légère urgence uniquement si une promotion réelle possède une date de fin.\n- Utilise un appel à l’action précis, par exemple :\n  « Envoyez-nous un message privé pour recevoir les informations. »\n- La question finale doit permettre d’identifier des prospects potentiels, par exemple :\n  « Quelle partie de votre voiture aurait le plus besoin d’un bon nettoyage ? »\n\nRÈGLES IMPORTANTES\n- L’angle du jour est une piste de contenu, pas un nouveau service à annoncer.\n- Parle uniquement du nettoyage intérieur automobile.\n- Ne décris jamais la vidéo qui accompagne la publication.\n- N’invente aucun tarif, témoignage, résultat garanti, promotion ou disponibilité.\n- N’utilise aucune fausse urgence ni fausse limitation de places.\n- Ne promets pas que toutes les taches ou odeurs disparaîtront.\n- Ne sois ni agressif ni insistant.\n- Ne répète pas toujours les mêmes problèmes, accroches ou questions.\n- Trois publications paraissent chaque jour : adapte celle-ci au moment indiqué et varie son approche.\n- Mentionne naturellement Hannut ou ses environs.\n- Longueur idéale : entre 80 et 130 mots.\n- Ajoute 3 à 6 émojis bien choisis.\n- Termine par 5 à 8 hashtags pertinents, dont des hashtags locaux.\n\nFORMAT ATTENDU\n- Une accroche forte sur la première ligne.\n- Deux ou trois petits paragraphes faciles à lire.\n- Un appel à l’action clair.\n- Une question engageante.\n- Les hashtags sur la dernière ligne.\n\nRetourne uniquement la publication finale prête à être publiée sur Facebook. N’ajoute aucune explication, aucun conseil et aucun titre technique.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Tu es le copywriter et community manager de Hakim Auto Propre, spécialiste du nettoyage intérieur automobile à Hannut, en Belgique.\nTu écris des publications Facebook qui arrêtent le scroll, donnent envie de réagir et de partager, tout en restant professionnelles et crédibles.\nObjectif : toucher les habitants de Hannut et des environs, leur donner envie d'une voiture propre et les pousser à réserver.\n\n\n\n\n\nStructure du texte (BODY), une idée par ligne :\n1. Accroche d'une seule ligne : une question ou une situation concrète du quotidien que tout conducteur reconnaît (miettes, sable, boue, trajets en famille, voiture qui sert de bureau...).\n2. Une ou deux lignes d'identification, avec des mots simples et concrets.\n3. Une ligne sur le bénéfice ressenti : plaisir, fierté, sérénité en montant dans sa voiture.\n4. Une ligne qui ancre Hakim Auto Propre à Hannut, avec sérieux et proximité.\n5. Une question courte et facile qui invite à commenter.\n6. Un appel à l'action direct en dernière ligne.\n\nStyle :\n* Français uniquement, vouvoiement, ton chaleureux, local et professionnel.\n* Phrases courtes et concrètes. Évite les formules creuses (« confort exceptionnel », « expérience unique », « cocon de bien-être »).\n* Entre 3 et 4 emojis au total, jamais deux emojis côte à côte, toujours en fin de ligne.\n* Pas de majuscules criardes, pas de piège à clics mensonger.\n* Chaque jour une accroche différente : ne recopie jamais l'exemple ci-dessous.\n\nPromotion :\n* Si la demande du jour indique une promotion en cours, mets-la en avant de façon attractive (titre ou accroche) et rappelle-la dans l'appel à l'action.\n* Reprends exactement le contenu de la promotion : n'ajoute aucune durée, date limite, condition, code ou exclusion qui n'est pas indiqué.\n* Si aucune date de fin n'est indiquée, ne crée aucune urgence liée au temps (pas de « derniers jours », « avant qu'il soit trop tard », « offre limitée », « avant qu'elle ne s'envole »).\n* Si aucune promotion n'est indiquée, n'en mentionne aucune.\n\nRègles strictes :\n* Le titre fait au maximum 6 mots, sans emoji, et doit donner envie de lire la suite.\n* Mentionne la météo seulement si elle crée un lien pertinent avec l'intérieur de la voiture.\n* Ne donne jamais d'informations météorologiques alarmistes.\n* Ne décris pas le contenu de la vidéo si celle-ci n'a pas réellement été analysée.\n* N'invente aucun prix, résultat chiffré, avis client, garantie, délai ou service précis, ni aucune promotion autre que celle indiquée dans la demande du jour.\n* N'utilise aucun superlatif invérifiable comme « le meilleur de Belgique ».\n* N'ajoute aucun lien, numéro de téléphone ou adresse : ils sont ajoutés automatiquement.\n* Ajoute entre 3 et 6 hashtags pertinents, en mélangeant local (#Hannut) et thématique, séparés par des espaces.\n* N'ajoute aucune introduction ni explication.\n\nExemple du niveau attendu (pour le style uniquement, ne pas recopier) :\nTITLE:\nVotre voiture mérite ce petit bonheur\nBODY:\nVous aussi, vous retrouvez des miettes partout après les trajets en famille ? 🍪\nLa vie va vite, et l'intérieur de la voiture passe souvent après.\nPourtant, monter dans un habitacle propre change toute la journée. ✨\nChez Hakim Auto Propre, on prend soin de l'intérieur de votre voiture, ici à Hannut.\nEt chez vous, quel coin de la voiture a le plus besoin d'attention ? 👇\nRéservez votre créneau et retrouvez le plaisir de conduire ! 🚗\nHASHTAGS:\n #HakimAutoPropre #Hannut #HannutEtEnvirons #NettoyageAuto #NettoyageInterieur #VoiturePropre #ServiceADomicile #AvantApres\n\nRetourne obligatoirement la réponse sous cette structure exacte :\nTITLE:\n[Titre de 6 mots maximum]\nBODY:\n[Texte du post Facebook]\nHASHTAGS:\n[Hashtags séparés par des espaces]\n\n\n"
+            }
+          ]
+        }
+      },
+      "id": "fd7d9813-7aa0-4420-b877-d463520f9e80",
+      "name": "Rédaction IA",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        -208,
+        896
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "model": "~anthropic/claude-sonnet-latest",
+        "options": {
+          "maxTokens": 4000,
+          "temperature": 0.9
+        }
+      },
+      "id": "bdfae269-4a04-424c-a392-b466cac9ad29",
+      "name": "OpenRouter Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        768
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ JSON.stringify((() => {\n  // 1. Vérification de sécurité pour éviter le crash\n  const textContent = $json.text;\n  if (!textContent) {\n    throw new Error(\"L'IA n'a pas renvoyé de texte. Vérifiez le nœud 'Rédaction IA' ou changez de modèle OpenRouter.\");\n  }\n\n  const raw = String(textContent).replace(/\\r/g, '').trim();\n  \n  // 2. Regex plus flexible (accepte le markdown comme **TITLE:**)\n  const match = raw.match(/(?:\\*\\*)?TITLE(?:\\*\\*)?:\\s*([\\s\\S]*?)\\s*(?:\\*\\*)?BODY(?:\\*\\*)?:\\s*([\\s\\S]*?)\\s*(?:\\*\\*)?HASHTAGS(?:\\*\\*)?:\\s*([\\s\\S]*)/i);\n  \n  if (!match) {\n    throw new Error('Format IA invalide. Réponse brute : ' + raw.slice(0, 300));\n  }\n\n  const clean = s => s.replace(/\\*\\*/g, '').replace(/^\\s*\\[|\\]\\s*$/g, '').replace(/[ \\t]+\\n/g, '\\n').replace(/\\n{3,}/g, '\\n\\n').trim();\n  \n  let title = clean(match[1]).replace(/\\s*([!?])$/, ' $1');\n  const body = clean(match[2]);\n  let tags = [...new Set(match[3].match(/#[\\p{L}\\p{N}_]+/gu) || [])];\n  \n  const words = title.split(/\\s+/).filter(w => /[\\p{L}\\p{N}]/u.test(w));\n  if (words.length > 6) title = title.split(/\\s+/).slice(0, 6).join(' ');\n  \n  if (!title || !body) throw new Error('Titre ou texte vide');\n  if (tags.length < 3) throw new Error('Moins de 3 hashtags');\n  tags = tags.slice(0, 8);\n\n  // 3. Récupération sécurisée du contexte\n  const ctx = $('Préparer contexte')?.first()?.json || { promo: '', promoFinTexte: '' };\n  \n  const lignePromo = ctx.promo ? '🎁 Offre spéciale : ' + ctx.promo + (ctx.promoFinTexte ? ' jusqu\\'au ' + ctx.promoFinTexte : '') : '';\n  const liens = 'Visitez notre site : https://shorturl.at/FnGfv\\nPour réserver votre place : https://shorturl.at/uQl9K';\n  \n  const message = [title, body, lignePromo, liens, tags.join(' ')].filter(Boolean).join('\\n\\n');\n  \n  return { \n    title: title, \n    body: body, \n    promo: ctx.promo || '', \n    hashtags: tags.join(' '), \n    message: message \n  };\n})()) }}",
+        "options": {}
+      },
+      "id": "fbc7f84b-bbec-4815-a0a9-e9ac73227ac5",
+      "name": "Parser & valider",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        112,
+        896
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1",
+              "name": "pageId",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "c3",
+              "name": "graphVersion",
+              "type": "string",
+              "value": "v26.0"
+            },
+            {
+              "id": "p1",
+              "name": "promoActive",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "id": "p2",
+              "name": "promoTexte",
+              "type": "string",
+              "value": "-10 % sur tous nos services"
+            },
+            {
+              "id": "p3",
+              "name": "promoFin",
+              "type": "string",
+              "value": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9375dece-0524-4240-be21-26b77c778d96",
+      "name": "Config2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -992,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.open-meteo.com/v1/forecast",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "latitude",
+              "value": "50.67"
+            },
+            {
+              "name": "longitude",
+              "value": "5.08"
+            },
+            {
+              "name": "daily",
+              "value": "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum"
+            },
+            {
+              "name": "timezone",
+              "value": "Europe/Brussels"
+            },
+            {
+              "name": "forecast_days",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "e43ddc6b-6938-4119-acf8-6add4a9f987a",
+      "name": "Météo Hannut2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -768,
+        288
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list"
+        },
+        "limit": 500
+      },
+      "id": "88f90a2a-f279-4271-a866-7c8b4f5a48b8",
+      "name": "Dernière image utilisée",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -544,
+        288
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ JSON.stringify((() => {\n  const cfg    = $('Config2').first().json || {};\n  const now    = DateTime.now().setZone('Europe/Brussels').setLocale('fr');\n  const daily  = $('Météo Hannut2').first()?.json?.daily || {};\n\n  const images = [\n\"https://i.imgur.com/hTc5ogL.jpeg\",\n\"https://i.imgur.com/npjetY1.png\",\n\"https://i.imgur.com/ZfzY0OU.jpeg\",\n\"https://i.imgur.com/k711ve5.png\",\n\"https://i.imgur.com/gNUT8oV.jpeg\",\n\"https://i.imgur.com/Ukl1Ysp.jpeg\",\n\"https://i.imgur.com/VK2y0lx.png\",\n\"https://i.imgur.com/fscHlvD.jpeg\",\n\"https://i.imgur.com/nf3Ofs5.jpeg\",\n\"https://i.imgur.com/O02rKYm.jpeg\",\n\"https://i.imgur.com/FCw64FB.png\",\n\"https://i.imgur.com/YTlL7yj.jpeg\",\n\"https://i.imgur.com/QqAJSBO.jpeg\",\n\"https://i.imgur.com/3j82AIq.jpeg\",\n\"https://i.imgur.com/2Z3eR8v.jpeg\",\n\"https://i.imgur.com/voEBfse.jpeg\",\n\"https://i.imgur.com/4iS515Y.jpeg\",\n\"https://i.imgur.com/E84sXTf.jpeg\",\n\"https://i.imgur.com/lL8wMoT.jpeg\",\n\"https://i.imgur.com/VgoD42y.jpeg\"\n  ];\n\n  // Récupère TOUTES les lignes de la DataTable\n  let rows = [];\n  try {\n    const allItems = $('Dernière image utilisée').all();\n    if (Array.isArray(allItems)) {\n      rows = allItems\n        .map((i) => (i && i.json ? i.json : null))\n        .filter((r) => r && r.imageUrl);\n    }\n  } catch (e) {\n    rows = [];\n  }\n\n  // Tri par createdAt puis par id pour identifier la plus récente\n  rows.sort((a, b) => {\n    const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;\n    const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;\n    if (ta !== tb) return ta - tb;\n    return (Number(a.id) || 0) - (Number(b.id) || 0);\n  });\n\n  const lastImage = rows.length\n    ? String(rows[rows.length - 1].imageUrl || '').trim()\n    : '';\n\n  const lastPos  = images.indexOf(lastImage);\n  const idx      = lastPos === -1 ? 0 : (lastPos + 1) % images.length;\n  const imageUrl = images[idx];\n\n  const WEATHER_CODES = {\n    0:'ciel dégagé',1:'plutôt ensoleillé',2:'partiellement nuageux',3:'couvert',\n    45:'brouillard',48:'brouillard givrant',51:'bruine légère',53:'bruine',\n    55:'bruine dense',56:'bruine verglaçante',57:'bruine verglaçante',61:'pluie faible',\n    63:'pluie',65:'pluie soutenue',66:'pluie verglaçante',67:'pluie verglaçante',\n    71:'neige faible',73:'neige',75:'neige soutenue',77:'grains de neige',\n    80:'quelques averses',81:'averses',82:'averses soutenues',85:'averses de neige',\n    86:'averses de neige',95:'orageux',96:'orageux',99:'orageux'\n  };\n\n  let meteo = 'indisponible (ne mentionne pas la météo)';\n  const hasWeather =\n    Array.isArray(daily.weather_code) && daily.weather_code.length &&\n    Array.isArray(daily.temperature_2m_max) && daily.temperature_2m_max.length;\n\n  if (hasWeather) {\n    const desc = WEATHER_CODES[daily.weather_code[0]] || 'temps variable';\n    const tMin = Math.round(daily.temperature_2m_min[0]);\n    const tMax = Math.round(daily.temperature_2m_max[0]);\n    const rain = (daily.precipitation_sum && daily.precipitation_sum[0]) || 0;\n    meteo = `${desc}, entre ${tMin}°C et ${tMax}°C, ${rain} mm de précipitations prévues`;\n  }\n\n  const month  = now.month;\n  const saison =\n    month >= 3 && month <= 5  ? 'printemps' :\n    month >= 6 && month <= 8  ? 'été'       :\n    month >= 9 && month <= 11 ? 'automne'   :\n                                'hiver';\n\n  const ANGLES = [\n    \"Le confort d'un habitacle propre au quotidien\",\n    \"La saleté ramenée de l'extérieur sur les tapis de sol\",\n    \"Le bien-être des passagers sur des sièges propres\",\n    \"Une voiture agréable pour les trajets en famille\",\n    \"La sensation de fraîcheur en montant dans sa voiture\",\n    \"Prendre soin de l'intérieur pour préserver sa voiture\",\n    \"Les zones qu'on touche tous les jours : volant, poignées, tableau de bord\",\n    \"Confier l'intérieur de sa voiture à un professionnel local de Hannut\"\n  ];\n  const angle = ANGLES[(now.ordinal + idx) % ANGLES.length];\n\n  const promoFin = String(cfg.promoFin || '').trim();\n  const promoActive =\n    (cfg.promoActive === true || cfg.promoActive === 'true') &&\n    (!promoFin || now.toISODate() <= promoFin);\n  const promo = promoActive ? String(cfg.promoTexte || '').trim() : '';\n\n  let promoFinTexte = '';\n  if (promo && promoFin) {\n    const dt = DateTime.fromISO(promoFin);\n    if (dt.isValid) promoFinTexte = dt.setLocale('fr').toFormat('d LLLL yyyy');\n  }\n\n  return {\n    date: now.toISODate(),\n    dateFr: now.toFormat('cccc d LLLL yyyy'),\n    saison, meteo, angle, promo, promoFinTexte,\n    imageIndex: idx + 1,\n    totalImages: images.length,\n    imageUrl\n  };\n})()) }}",
+        "options": {}
+      },
+      "id": "9f255d4d-c57f-4f43-aea6-c1c5cc5d8ae9",
+      "name": "Préparer contexte2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -336,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un expert senior en marketing digital local, copywriting et vente sur Facebook.\n\nTa spécialité est de transformer une publication Facebook en outil d’acquisition de clients pour une entreprise de nettoyage intérieur automobile à Hannut et dans les communes voisines.\n\nTon objectif principal : attirer des prospects réellement intéressés, leur donner confiance et les pousser naturellement à demander un prix, envoyer un message privé ou réserver.\n\nINFORMATIONS DU JOUR\n- Date : {{ $json.dateFr }}\n- Saison : {{ $json.saison }}\n- Météo à Hannut : {{ $json.meteo }}\n- Angle éditorial : {{ $json.angle }}\n- Heure : {{ $now.toFormat('HH:mm') }}\n- Moment de publication : {{ $now.hour < 11 ? 'matin, les habitants commencent leur journée' : ($now.hour < 16 ? 'pause de midi, lecture rapide sur Facebook' : 'fin de journée, retour du travail et préparation de la soirée') }}\n\nPROMOTION\n{{ $json.promo\n  ? \"Promotion réelle et confirmée : \" + $json.promo + ($json.promoFinTexte ? \" jusqu’au \" + $json.promoFinTexte : \"\") + \". Reprends exactement cette promotion dans le titre ou l’accroche. Ne change ni le montant, ni les conditions, ni la date.\"\n  : \"Aucune promotion n’est en cours. N’invente aucune réduction, offre spéciale, remise, cadeau ou urgence commerciale.\"\n}}\n\nMISSION MARKETING\nRédige une publication Facebook persuasive qui :\n\n1. Arrête immédiatement le défilement avec une accroche courte et forte.\n2. Parle d’un problème concret vécu par les automobilistes : poussière, miettes, traces, mauvaises odeurs, poils d’animaux, sièges sales ou manque de temps.\n3. Aide le lecteur à se reconnaître dans la situation.\n4. Présente le nettoyage intérieur comme une solution pratique et rassurante.\n5. Met en avant un bénéfice clair : retrouver un habitacle propre, agréable et confortable.\n6. Crée de la confiance avec un ton humain, local et professionnel.\n7. Encourage une action immédiate : envoyer un message privé, demander des informations ou réserver.\n8. Termine par une question très simple qui incite les personnes intéressées à commenter.\n\nTECHNIQUES DE CONVERSION\n- Utilise la structure : accroche → problème → bénéfice → solution → appel à l’action.\n- Adresse-toi directement au lecteur avec « vous ».\n- Utilise des phrases courtes et faciles à lire sur téléphone.\n- Fais ressentir le résultat final sans exagération.\n- Si cela est pertinent, relie naturellement le sujet à la météo ou à la saison.\n- Ajoute une légère urgence uniquement si une promotion réelle possède une date de fin.\n- Utilise un appel à l’action précis, par exemple :\n  « Envoyez-nous un message privé pour recevoir les informations. »\n- La question finale doit permettre d’identifier des prospects potentiels, par exemple :\n  « Quelle partie de votre voiture aurait le plus besoin d’un bon nettoyage ? »\n\nRÈGLES IMPORTANTES\n- L’angle du jour est une piste de contenu, pas un nouveau service à annoncer.\n- Parle uniquement du nettoyage intérieur automobile.\n- Ne décris jamais l’image qui accompagne la publication.\n- N’invente aucun tarif, témoignage, résultat garanti, promotion ou disponibilité.\n- N’utilise aucune fausse urgence ni fausse limitation de places.\n- Ne promets pas que toutes les taches ou odeurs disparaîtront.\n- Ne sois ni agressif ni insistant.\n- Ne répète pas toujours les mêmes problèmes, accroches ou questions.\n- Trois publications paraissent chaque jour : adapte celle-ci au moment indiqué et varie son approche.\n- Mentionne naturellement Hannut ou ses environs.\n- Longueur idéale : entre 80 et 130 mots.\n- Ajoute 3 à 6 émojis bien choisis.\n- Termine par 5 à 8 hashtags pertinents, dont des hashtags locaux.\n\nFORMAT ATTENDU\n- Une accroche forte sur la première ligne.\n- Deux ou trois petits paragraphes faciles à lire.\n- Un appel à l’action clair.\n- Une question engageante.\n- Les hashtags sur la dernière ligne.\n\nRetourne uniquement la publication finale prête à être publiée sur Facebook. N’ajoute aucune explication, aucun conseil et aucun titre technique.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Tu es le copywriter et community manager de Hakim Auto Propre, spécialiste du nettoyage intérieur automobile à Hannut, en Belgique.\nTu écris des publications Facebook qui arrêtent le scroll, donnent envie de réagir et de partager, tout en restant professionnelles et crédibles.\nObjectif : toucher les habitants de Hannut et des environs, leur donner envie d'une voiture propre et les pousser à réserver.\n\n\n\n\n\nStructure du texte (BODY), une idée par ligne :\n1. Accroche d'une seule ligne : une question ou une situation concrète du quotidien que tout conducteur reconnaît (miettes, sable, boue, trajets en famille, voiture qui sert de bureau...).\n2. Une ou deux lignes d'identification, avec des mots simples et concrets.\n3. Une ligne sur le bénéfice ressenti : plaisir, fierté, sérénité en montant dans sa voiture.\n4. Une ligne qui ancre Hakim Auto Propre à Hannut, avec sérieux et proximité.\n5. Une question courte et facile qui invite à commenter.\n6. Un appel à l'action direct en dernière ligne.\n\nStyle :\n* Français uniquement, vouvoiement, ton chaleureux, local et professionnel.\n* Phrases courtes et concrètes. Évite les formules creuses (« confort exceptionnel », « expérience unique », « cocon de bien-être »).\n* Entre 3 et 4 emojis au total, jamais deux emojis côte à côte, toujours en fin de ligne.\n* Pas de majuscules criardes, pas de piège à clics mensonger.\n* Chaque jour une accroche différente : ne recopie jamais l'exemple ci-dessous.\n\nPromotion :\n* Si la demande du jour indique une promotion en cours, mets-la en avant de façon attractive (titre ou accroche) et rappelle-la dans l'appel à l'action.\n* Reprends exactement le contenu de la promotion : n'ajoute aucune durée, date limite, condition, code ou exclusion qui n'est pas indiqué.\n* Si aucune date de fin n'est indiquée, ne crée aucune urgence liée au temps (pas de « derniers jours », « avant qu'il soit trop tard », « offre limitée », « avant qu'elle ne s'envole »).\n* Si aucune promotion n'est indiquée, n'en mentionne aucune.\n\nRègles strictes :\n* Le titre fait au maximum 6 mots, sans emoji, et doit donner envie de lire la suite.\n* Mentionne la météo seulement si elle crée un lien pertinent avec l'intérieur de la voiture.\n* Ne donne jamais d'informations météorologiques alarmistes.\n* Ne décris pas le contenu de l'image si celle-ci n'a pas réellement été analysée.\n* N'invente aucun prix, résultat chiffré, avis client, garantie, délai ou service précis, ni aucune promotion autre que celle indiquée dans la demande du jour.\n* N'utilise aucun superlatif invérifiable comme « le meilleur de Belgique ».\n* N'ajoute aucun lien, numéro de téléphone ou adresse : ils sont ajoutés automatiquement.\n* Ajoute entre 3 et 6 hashtags pertinents, en mélangeant local (#Hannut) et thématique, séparés par des espaces.\n* N'ajoute aucune introduction ni explication.\n\nExemple du niveau attendu (pour le style uniquement, ne pas recopier) :\nTITLE:\nVotre voiture mérite ce petit bonheur\nBODY:\nVous aussi, vous retrouvez des miettes partout après les trajets en famille ? 🍪\nLa vie va vite, et l'intérieur de la voiture passe souvent après.\nPourtant, monter dans un habitacle propre change toute la journée. ✨\nChez Hakim Auto Propre, on prend soin de l'intérieur de votre voiture, ici à Hannut.\nEt chez vous, quel coin de la voiture a le plus besoin d'attention ? 👇\nRéservez votre créneau et retrouvez le plaisir de conduire ! 🚗\nHASHTAGS:\n #HakimAutoPropre #Hannut #HannutEtEnvirons #NettoyageAuto #NettoyageInterieur #VoiturePropre #ServiceADomicile #AvantApres\n\nRetourne obligatoirement la réponse sous cette structure exacte :\nTITLE:\n[Titre de 6 mots maximum]\nBODY:\n[Texte du post Facebook]\nHASHTAGS:\n[Hashtags séparés par des espaces]\n\n\n"
+            }
+          ]
+        }
+      },
+      "id": "1c9a53b7-df96-4243-8832-f661bb6a5c6c",
+      "name": "Rédaction IA2",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        -112,
+        480
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "model": "~anthropic/claude-sonnet-latest",
+        "options": {
+          "maxTokens": 4000,
+          "temperature": 0.9
+        }
+      },
+      "id": "7deeebf0-c786-4ad6-8645-a37b25bb29f5",
+      "name": "OpenRouter Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        0,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $('Config2').first().json.graphVersion }}/{{ $('Config2').first().json.pageId }}/photos",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $('Préparer contexte2').first().json.imageUrl }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.message }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "44bde57c-07c7-4850-a5d7-d916dc71a602",
+      "name": "Publier sur Facebook",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        416,
+        480
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "imageNumber": "={{ $('Préparer contexte2').first().json.imageIndex }}",
+            "imageUrl": "={{ $('Préparer contexte2').first().json.imageUrl }}",
+            "postId": "={{ $json.post_id || $json.id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "imageUrl",
+              "displayName": "imageUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "imageNumber",
+              "displayName": "imageNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "postId",
+              "displayName": "postId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "0e9a5bf8-1b54-48e3-a209-58f948652342",
+      "name": "Enregistrer image postée",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            },
+            {
+              "triggerAtHour": 12
+            },
+            {
+              "triggerAtHour": 18
+            }
+          ]
+        }
+      },
+      "id": "9511c304-8803-4544-b74b-42ed78ce42aa",
+      "name": "HEURE DE POST2",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1216,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ JSON.stringify((() => {\n  const cfg = $('Config2').first().json || {};\n  const raw = String($json.text || '').replace(/\\r/g, '').replace(/\\*\\*/g, '').trim();\n  if (!raw) throw new Error(\"Réponse IA vide (le modèle n'a rien renvoyé)\");\n\n  const enleverEtiquettes = (s) => String(s || '')\n    .replace(/^\\s*(TITLE|TITRE|BODY|TEXTE|HASHTAGS?)\\s*[:\\-]\\s*/gim, '')\n    .replace(/^\\s*\\[|\\]\\s*$/g, '')\n    .replace(/[ \\t]+\\n/g, '\\n')\n    .replace(/\\n{3,}/g, '\\n\\n')\n    .trim();\n\n  let title = '', body = '', tagsRaw = '';\n  const m = raw.match(/TITLE\\s*:\\s*([\\s\\S]*?)\\s*BODY\\s*:\\s*([\\s\\S]*?)\\s*HASHTAGS\\s*:\\s*([\\s\\S]*)$/i);\n\n  if (m) {\n    title = m[1];\n    body = m[2];\n    tagsRaw = m[3];\n  } else {\n    tagsRaw = (raw.match(/#[\\p{L}\\p{N}_]+/gu) || []).join(' ');\n    const sansTags = raw.replace(/#[\\p{L}\\p{N}_]+/gu, '').replace(/\\n{3,}/g, '\\n\\n').trim();\n    const lignes = sansTags.split('\\n').map(l => enleverEtiquettes(l)).filter(Boolean);\n    if (!lignes.length) throw new Error('Contenu IA vide');\n    if (lignes.length === 1) {\n      title = lignes[0];\n      body = lignes[0];\n    } else {\n      title = lignes[0];\n      body = lignes.slice(1).join('\\n');\n    }\n  }\n\n  title = enleverEtiquettes(title).split('\\n')[0];\n  body = enleverEtiquettes(body);\n  if (!title || !body) throw new Error('Titre ou texte vide');\n\n  const mots = title.split(/\\s+/).filter(Boolean);\n  if (mots.length > 6) {\n    title = mots.slice(0, 6).join(' ');\n    while (title && /[\\-–—:,;%€\\/«»\"']$/.test(title.trim())) {\n      title = title.trim().replace(/[\\-–—:,;%€\\/«»\"']$/, '').trim();\n      const reste = title.split(/\\s+/);\n      if (/^[\\d.,]+$/.test(reste[reste.length - 1] || '')) { reste.pop(); title = reste.join(' '); }\n    }\n  }\n  title = title.replace(/\\s*([!?])$/, ' $1').trim();\n  if (!title) throw new Error('Titre vide après nettoyage');\n\n  let tags = [...new Set(String(tagsRaw).match(/#[\\p{L}\\p{N}_]+/gu) || [])];\n  const secours = ['#HakimAutoPropre', '#Hannut', '#NettoyageAuto', '#NettoyageInterieur', '#VoiturePropre'];\n  for (const f of secours) {\n    if (tags.length >= 3) break;\n    if (!tags.includes(f)) tags.push(f);\n  }\n  tags = tags.slice(0, 8);\n\n  const promoFin = String(cfg.promoFin || '').trim();\n  const now = DateTime.now().setZone('Europe/Brussels').setLocale('fr');\n  const promoActive = (cfg.promoActive === true || cfg.promoActive === 'true') && (!promoFin || now.toISODate() <= promoFin);\n  const promo = promoActive ? String(cfg.promoTexte || '').trim() : '';\n  let promoFinTexte = '';\n  if (promo && promoFin) {\n    const dt = DateTime.fromISO(promoFin);\n    if (dt.isValid) promoFinTexte = dt.setLocale('fr').toFormat('d LLLL yyyy');\n  }\n\n  const lignePromo = promo ? '🎁 Offre spéciale : ' + promo + (promoFinTexte ? \" jusqu'au \" + promoFinTexte : '') : '';\n  const liens = 'Visitez notre site : https://shorturl.at/FnGfv\\nPour réserver votre place : https://shorturl.at/uQl9K';\n  const message = [title, body, lignePromo, liens, tags.join(' ')].filter(Boolean).join('\\n\\n');\n\n  return { title, body, promo, hashtags: tags.join(' '), message };\n})()) }}",
+        "options": {}
+      },
+      "id": "e17cf010-dfd3-4d51-b432-4053e85f6b2c",
+      "name": "Parser & valider2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        480
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {},
+      "id": "3f750135-77c6-45f1-8d77-dc6244d446f1",
+      "name": "Une seule image",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        288
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "e9dbe9d2-5c4c-4e7b-83b5-99c06d46687d",
+      "name": "Une seule video",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        704
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            },
+            {
+              "triggerAtHour": 12,
+              "triggerAtMinute": 30
+            },
+            {
+              "triggerAtHour": 18,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "id": "664072bb-ea8b-4041-9b3a-44d1e5037ace",
+      "name": "Post reel",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1312,
+        688
+      ]
+    },
+    {
+      "name": "NOTE — BRANCHE REEL FACEBOOK",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -520
+      ],
+      "parameters": {
+        "content": "## 🎬 BRANCHE 1 — REEL FACEBOOK\nDéclencheur : **Post reel**\n\nVidéo → météo → choix vidéo → génération du texte IA → **Publier Reel sur Facebook** → mémorisation de la vidéo utilisée.\n\nÀ configurer après import :\n- Credential OpenRouter\n- Credential Facebook Page / Graph API\n- Page ID Facebook\n- Data Table vidéo\n\n✅ Audit V2: expression du parseur Reel corrigée (`=={{` → `={{`).\n⚠️ Le Page ID, la Data Table et les credentials Facebook/OpenRouter doivent être sélectionnés après import.",
+        "height": 300,
+        "width": 420
+      }
+    },
+    {
+      "name": "NOTE — BRANCHE POST FACEBOOK NORMAL",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        500
+      ],
+      "parameters": {
+        "content": "## 🖼️ BRANCHE 2 — POST FACEBOOK NORMAL\nDéclencheur : **HEURE DE POST2**\n\nImage → météo → choix image → génération du texte IA → **Publier sur Facebook** → mémorisation de l'image utilisée.\n\nÀ configurer après import :\n- Credential OpenRouter\n- Credential Facebook Page / Graph API\n- Page ID Facebook\n- Data Table image\n\n✅ Audit V2: structure et connexions contrôlées.\n⚠️ Le Page ID, la Data Table et les credentials Facebook/OpenRouter doivent être sélectionnés après import.",
+        "height": 300,
+        "width": 420
+      }
+    }
+  ],
+  "connections": {
+    "Dernière vidéo utilisée1": {
+      "main": [
+        [
+          {
+            "node": "Une seule video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publier Reel sur Facebook": {
+      "main": [
+        [
+          {
+            "node": "Enregistrer vidéo postée1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Météo Hannut",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Météo Hannut": {
+      "main": [
+        [
+          {
+            "node": "Dernière vidéo utilisée1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer contexte": {
+      "main": [
+        [
+          {
+            "node": "Rédaction IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rédaction IA": {
+      "main": [
+        [
+          {
+            "node": "Parser & valider",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Rédaction IA",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parser & valider": {
+      "main": [
+        [
+          {
+            "node": "Publier Reel sur Facebook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config2": {
+      "main": [
+        [
+          {
+            "node": "Météo Hannut2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Météo Hannut2": {
+      "main": [
+        [
+          {
+            "node": "Dernière image utilisée",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dernière image utilisée": {
+      "main": [
+        [
+          {
+            "node": "Une seule image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer contexte2": {
+      "main": [
+        [
+          {
+            "node": "Rédaction IA2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rédaction IA2": {
+      "main": [
+        [
+          {
+            "node": "Parser & valider2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Rédaction IA2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publier sur Facebook": {
+      "main": [
+        [
+          {
+            "node": "Enregistrer image postée",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HEURE DE POST2": {
+      "main": [
+        [
+          {
+            "node": "Config2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parser & valider2": {
+      "main": [
+        [
+          {
+            "node": "Publier sur Facebook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Une seule image": {
+      "main": [
+        [
+          {
+            "node": "Préparer contexte2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Une seule video": {
+      "main": [
+        [
+          {
+            "node": "Préparer contexte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post reel": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "name": "N8N-FB-REELS-009 — Facebook Posts & Reels — AUDITÉ V2",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Brussels"
+  },
+  "versionId": "42a56774-2386-428e-a7ec-fc2efa08a34b"
+}
