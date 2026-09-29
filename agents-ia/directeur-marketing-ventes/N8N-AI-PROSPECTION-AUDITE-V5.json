@@ -206,7 +206,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const searches = $('🧭 Préparer recherches + catalogue').all();\nconst inputs = $input.all();\nconst out = [];\n\nfor (let i = 0; i < inputs.length; i++) {\n  const payload = inputs[i]?.json || {};\n\n  if (payload.error) {\n    throw new Error('SerpAPI: ' + String(payload.error));\n  }\n\n  const cfg = searches[i]?.json || searches[0]?.json || {};\n  const places = Array.isArray(payload.local_results) ? payload.local_results : [];\n\n  for (const p of places.slice(0, Number(cfg.maxPerQuery || 8))) {\n    const nom = String(p.title || '').trim();\n    if (!nom) continue;\n\n    let website = String(p.website || p.links?.website || '').trim();\n    const telephone = String(p.phone || '').trim();\n    const adresse = String(p.address || '').trim();\n    const rating = Number(p.rating || 0);\n    const reviews = Number(p.reviews || 0);\n\n    let domain = '';\n\n    if (website) {\n      if (!/^https?:\\/\\//i.test(website)) {\n        website = 'https://' + website.replace(/^\\/+/, '');\n      }\n\n      try {\n        domain = new URL(website).hostname.replace(/^www\\./, '').toLowerCase();\n      } catch (e) {\n        website = '';\n        domain = '';\n      }\n\n      if (domain.includes('google.')) {\n        website = '';\n        domain = '';\n      }\n    }\n\n    const stableId = String(\n      p.place_id ||\n      p.data_id ||\n      p.data_cid ||\n      domain ||\n      (nom + '|' + adresse)\n    ).trim();\n\n    if (!stableId) continue;\n\n    const key = stableId\n      .toLowerCase()\n      .replace(/\\s+/g, ' ')\n      .trim();\n\n    out.push({\n      json: {\n        nom,\n        categorie: String(cfg.query || ''),\n        adresse,\n        telephone,\n        website,\n        domain,\n        rating,\n        reviews,\n        googleMapsUrl: String(\n          p.place_id\n            ? `https://www.google.com/maps/search/?api=1&query_place_id=${p.place_id}`\n            : ''\n        ),\n        prospectKey: key,\n        dateRecherche: new Date().toISOString()\n      },\n      pairedItem: { item: i }\n    });\n  }\n}\n\nreturn out;"
+        "jsCode": "const searches = $('🧭 Préparer recherches + catalogue').all();\nconst inputs = $input.all();\nconst out = [];\n\nfor (let i = 0; i < inputs.length; i++) {\n  const payload = inputs[i]?.json || {};\n\n  if (payload.error) {\n    throw new Error('SerpAPI: ' + String(payload.error));\n  }\n\n  const cfg = searches[i]?.json || searches[0]?.json || {};\n  const places = Array.isArray(payload.local_results) ? payload.local_results : [];\n\n  for (const p of places.slice(0, Number(cfg.maxPerQuery || 8))) {\n    const nom = String(p.title || '').trim();\n    if (!nom) continue;\n\n    let website = String(p.website || p.links?.website || '').trim();\n    const telephone = String(p.phone || '').trim();\n    const adresse = String(p.address || '').trim();\n    const rating = Number(p.rating || 0);\n    const reviews = Number(p.reviews || 0);\n\n    let domain = '';\n\n    if (website) {\n      if (!/^https?:\\/\\//i.test(website)) {\n        website = 'https://' + website.replace(/^\\/+/, '');\n      }\n\n      try {\n        domain = new URL(website).hostname.replace(/^www\\./, '').toLowerCase();\n      } catch (e) {\n        website = '';\n        domain = '';\n      }\n\n      if (domain.includes('google.')) {\n        website = '';\n        domain = '';\n      }\n    }\n\n    const stableId = String(\n      p.place_id ||\n      p.data_id ||\n      p.data_cid ||\n      domain ||\n      (nom + '|' + adresse)\n    ).trim();\n\n    if (!stableId) continue;\n\n    const key = stableId\n      .toLowerCase()\n      .replace(/\\s+/g, ' ')\n      .trim();\n\n    out.push({\n      json: {\n        nom,\n        categorie: String(cfg.query || ''),\n        adresse,\n        telephone,\n        website,\n        domain,\n        rating,\n        reviews,\n        placeId:String(p.place_id || ''),\n        dataId:String(p.data_id || ''),\n        googleMapsUrl: String(\n          p.place_id\n            ? `https://www.google.com/maps/search/?api=1&query_place_id=${p.place_id}`\n            : ''\n        ),\n        prospectKey: key,\n        dateRecherche: new Date().toISOString()\n      },\n      pairedItem: { item: i }\n    });\n  }\n}\n\nreturn out;"
       },
       "id": "bdf86649-b757-40a4-bc70-8827888896cc",
       "name": "🧹 Normaliser prospects",
@@ -227,7 +227,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -60,
+        420,
         80
       ]
     },
@@ -264,7 +264,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        180,
+        660,
         80
       ],
       "onError": "continueRegularOutput"
@@ -279,7 +279,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        420,
+        900,
         80
       ]
     },
@@ -301,7 +301,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        660,
+        1140,
         80
       ],
       "executeOnce": false,
@@ -322,7 +322,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        900,
+        1380,
         80
       ]
     },
@@ -336,7 +336,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1140,
+        1620,
         80
       ]
     },
@@ -355,7 +355,7 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        1380,
+        1860,
         80
       ],
       "credentials": {
@@ -375,7 +375,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1620,
+        2100,
         80
       ]
     },
@@ -563,7 +563,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1860,
+        2340,
         80
       ],
       "credentials": {
@@ -575,7 +575,7 @@
     },
     {
       "parameters": {
-        "content": "## N8N Market AI — Prospection IA — AUDITÉ V5\n\nCe workflow ne fait **aucun envoi automatique**. Il cherche des entreprises via SerpAPI/Google Local, lit leur site public, récupère un email professionnel public, qualifie le prospect avec OpenRouter, associe un produit réellement publié sur N8N Market AI et crée des **brouillons Gmail**.\n\n### Configuration requise\n1. Définir `SERPAPI_API_KEY` dans l'environnement n8n.\n2. Credential OpenRouter: `OpenRouter account`.\n3. Credential Gmail: `FAOUZIGUERRIDA GMAIL`.\n4. Credential Google Sheets: `Google Sheets account`.\n5. Tester avec `▶️ Test manuel` avant activation.\n\n### Corrections V5\n- erreurs SerpAPI visibles au lieu d'être masquées;\n- URLs prospects normalisées;\n- lecture site forcée en texte avec redirections;\n- emails techniques/indésirables filtrés et email du même domaine privilégié;\n- réponse IA strictement liée au catalogue réel;\n- HTML email nettoyé;\n- score minimum 70/100;\n- maximum 10 brouillons;\n- déduplication de préparation 90 jours en production;\n- expressions Google Sheets corrigées;\n- aucune modification Shopify et aucun envoi automatique.\n\nImportant: la mémoire statique n8n est surtout destinée aux exécutions de production; pendant les tests manuels, vérifiez également les doublons visuellement.\n",
+        "content": "## N8N Market AI — Prospection IA — AUDITÉ V5\n\nCe workflow ne fait **aucun envoi automatique**. Il cherche des entreprises via SerpAPI/Google Local, lit leur site public, récupère un email professionnel public, qualifie le prospect avec OpenRouter, associe un produit réellement publié sur N8N Market AI et crée des **brouillons Gmail**.\n\n### Configuration requise\n1. Définir `SERPAPI_API_KEY` dans l'environnement n8n.\n2. Credential OpenRouter: `OpenRouter account`.\n3. Credential Gmail: `FAOUZIGUERRIDA GMAIL`.\n4. Credential Google Sheets: `Google Sheets account`.\n5. Tester avec `▶️ Test manuel` avant activation.\n\n### Corrections V5\n- erreurs SerpAPI visibles au lieu d'être masquées;\n- URLs prospects normalisées;\n- lecture site forcée en texte avec redirections;\n- emails techniques/indésirables filtrés et email du même domaine privilégié;\n- réponse IA strictement liée au catalogue réel;\n- HTML email nettoyé;\n- score minimum 70/100;\n- maximum 10 brouillons;\n- déduplication de préparation 90 jours en production;\n- expressions Google Sheets corrigées;\n- aucune modification Shopify et aucun envoi automatique.\n\nImportant: la mémoire statique n8n est surtout destinée aux exécutions de production; pendant les tests manuels, vérifiez également les doublons visuellement.\n\n- Si le site n'est pas présent dans local_results, une seconde requête SerpAPI par place_id récupère place_results.website avant le filtre avec site.\n",
         "height": 520,
         "width": 620,
         "color": 5
@@ -587,6 +587,72 @@
       "position": [
         -1480,
         -560
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google_maps"
+            },
+            {
+              "name": "type",
+              "value": "place"
+            },
+            {
+              "name": "place_id",
+              "value": "={{ $json.placeId }}"
+            },
+            {
+              "name": "hl",
+              "value": "fr"
+            },
+            {
+              "name": "gl",
+              "value": "lu"
+            },
+            {
+              "name": "api_key",
+              "value": "={{ $env.SERPAPI_API_KEY }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "prospection-place-details-v5",
+      "name": "📍 SerpAPI — Détails établissement",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -40,
+        80
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const leads = $('🧹 Normaliser prospects').all();\nconst inputs = $input.all();\nconst out = [];\n\nfor (let i = 0; i < inputs.length; i++) {\n  const lead = leads[i]?.json || {};\n  const payload = inputs[i]?.json || {};\n  const place = payload.place_results || {};\n\n  let website = String(lead.website || place.website || place.links?.website || '').trim();\n  let domain = String(lead.domain || '').trim();\n\n  if (website) {\n    if (!/^https?:\\/\\//i.test(website)) {\n      website = 'https://' + website.replace(/^\\/+/, '');\n    }\n    try {\n      domain = new URL(website).hostname.replace(/^www\\./, '').toLowerCase();\n    } catch (e) {\n      website = '';\n      domain = '';\n    }\n    if (domain.includes('google.')) {\n      website = '';\n      domain = '';\n    }\n  }\n\n  out.push({\n    json:{\n      ...lead,\n      website,\n      domain,\n      telephone:String(lead.telephone || place.phone || '').trim(),\n      adresse:String(lead.adresse || place.address || '').trim(),\n      rating:Number(lead.rating || place.rating || 0),\n      reviews:Number(lead.reviews || place.reviews || 0)\n    },\n    pairedItem:{item:i}\n  });\n}\n\nreturn out;"
+      },
+      "id": "prospection-enrich-v5",
+      "name": "🧩 Enrichir prospect",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        180,
+        80
       ]
     }
   ],
@@ -662,7 +728,7 @@
       "main": [
         [
           {
-            "node": "🛡️ Dédupliquer + avec site",
+            "node": "📍 SerpAPI — Détails établissement",
             "type": "main",
             "index": 0
           }
@@ -751,6 +817,28 @@
         [
           {
             "node": "📝 Journaliser Marketing IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📍 SerpAPI — Détails établissement": {
+      "main": [
+        [
+          {
+            "node": "🧩 Enrichir prospect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧩 Enrichir prospect": {
+      "main": [
+        [
+          {
+            "node": "🛡️ Dédupliquer + avec site",
             "type": "main",
             "index": 0
           }
