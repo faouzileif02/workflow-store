@@ -1,0 +1,547 @@
+{
+  "name": "Compte-rendu Zoom vers Notion avec prompt personnalisé",
+  "nodes": [
+    {
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        200,
+        200
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "zoom-recording",
+        "responseMode": "onReceived",
+        "options": {
+          "responseData": "successMessage",
+          "responseBody": "Webhook received. Processing recording..."
+        },
+        "headers": []
+      },
+      "webhookId": "zoom-recording-webhook"
+    },
+    {
+      "name": "Validate Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        200
+      ],
+      "parameters": {
+        "jsCode": "const input = $json;\nconst body = input.body || input || {};\nconst event = body.event || '';\nif(!event) {\n  throw new Error('Webhook payload missing event.');\n}\nif(event !== 'recording.completed') {\n  throw new Error('Ignored event: ' + event + '. This workflow expects recording.completed.');\n}\nconst obj = body.payload && body.payload.object ? body.payload.object : (body.object || null);\nif(!obj) {\n  throw new Error('Webhook payload does not contain expected payload.object; ensure Zoom webhook is configured for recording.completed and sends the full payload.');\n}\nconst files = obj.recording_files || [];\nif(!files || files.length === 0) {\n  throw new Error('No recording_files found in payload; recording might not yet be processed by Zoom. The workflow will stop.');\n}\nlet recordingUrl = null;\nfor(const f of files){\n  const ft = (f.file_type || f.recording_type || '').toString().toLowerCase();\n  if(['mp4','m4a','audio_only','audio'].some(t => ft.includes(t))){\n    recordingUrl = f.download_url || f.file_url || f.content_url || f.url;\n    break;\n  }\n}\nrecordingUrl = recordingUrl || (files[0].download_url || files[0].file_url);\nif(!recordingUrl){\n  throw new Error('No downloadable URL found for recording files.');\n}\nconst organizerEmail = obj.host_email || obj.user_email || obj.owner_email || null;\nconst meetingTopic = obj.topic || obj.meeting_topic || '';\nconst meetingStart = obj.start_time || null;\nconst defaultPrompt = \"Tu es un assistant qui produit un compte-rendu clair et structuré pour une réunion. Produis 1) un titre, 2) une date, 3) un résumé de 3-5 lignes, 4) une section Décisions, 5) une section Actions (avec responsables si identifiables), 6) une liste Participants. Ensuite ajoute la transcription complète dans un bloc toggle. Répond en français.\";\nreturn [{\n  json: {\n    recordingUrl,\n    organizerEmail,\n    meetingTopic,\n    meetingStart,\n    userPrompt: (body.userPrompt || defaultPrompt),\n    sendEmail: (typeof body.sendEmail !== 'undefined') ? !!body.sendEmail : true,\n    emailProvider: (body.emailProvider || 'gmail'),\n    notionDatabaseId: (body.notionDatabaseId || '')\n  }\n}];"
+      }
+    },
+    {
+      "name": "HTTP Request Download",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        600,
+        200
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{$json[\"recordingUrl\"]}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "zoomOAuth2Api",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "recording_file"
+            }
+          },
+          "redirect": {
+            "redirect": {
+              "followRedirects": true,
+              "maxRedirects": 5
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/octet-stream"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "zoomOAuth2Api": {
+          "id": "zoom-oauth-credential",
+          "name": "Zoom OAuth2"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "name": "Check File Size",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        200
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nif(!items || items.length === 0) {\n  throw new Error('No items after download step.');\n}\nconst item = items[0];\nif(!item.binary || !item.binary.recording_file){\n  throw new Error('Downloaded file missing from binary.recording_file — likely the download failed or file not yet available (Zoom may return a 403 until processing is complete).');\n}\nlet size = 0;\ntry{\n  const data = item.binary.recording_file.data;\n  if(Buffer.isBuffer(data)) size = data.length;\n  else if(typeof data === 'string') size = Buffer.from(data,'base64').length;\n  else if(data && data.length) size = data.length;\n} catch(error){\n  throw new Error('Unable to determine downloaded file size: ' + error.message);\n}\nitem.json.fileSize = size;\nconst limit = 25 * 1024 * 1024;\nitem.json.fileTooLarge = size > limit;\nreturn [item];"
+      }
+    },
+    {
+      "name": "File Too Large?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        200
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-file-too-large",
+              "leftValue": "={{$json[\"fileTooLarge\"]}}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "TooLarge Notice (Set)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1200,
+        100
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": true,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "assign-status",
+              "name": "status",
+              "value": "file_too_large",
+              "type": "string"
+            },
+            {
+              "id": "assign-message",
+              "name": "message",
+              "value": "Le fichier d'enregistrement est supérieur à la limite de 25 MB de Whisper. Avertissement généré — envoyez une notification manuelle ou configurez un service de découpage/trim avant de relancer.",
+              "type": "string"
+            },
+            {
+              "id": "assign-filesize",
+              "name": "fileSizeBytes",
+              "value": "={{$json[\"fileSize\"]}}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Whisper Transcription",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1200,
+        300
+      ],
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "binaryPropertyName": "recording_file",
+        "options": {
+          "model": "whisper-1"
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-credential",
+          "name": "OpenAI"
+        }
+      }
+    },
+    {
+      "name": "Generate Summary (OpenAI GPT)",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1400,
+        300
+      ],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Tu es un assistant expert en compte-rendu de réunion. Produit une sortie structurée et adaptée à insertion directe dans une page Notion: titre, date (ISO), résumé 3-5 lignes, décisions (liste), actions (liste avec responsables si trouvés), participants. Garde un ton professionnel et synthétique. Répond en français."
+            },
+            {
+              "role": "user",
+              "content": "Prompt utilisateur (personnalisable): {{$json[\"userPrompt\"]}}\n\nTranscription brute (ci-dessous) :\n\n{{$json[\"text\"]}}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.2,
+          "maxTokens": 1500
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-credential",
+          "name": "OpenAI"
+        }
+      }
+    },
+    {
+      "name": "Create Notion Page",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1600,
+        300
+      ],
+      "parameters": {
+        "resource": "page",
+        "operation": "create",
+        "parentType": "databaseId",
+        "databaseId": "={{$json[\"notionDatabaseId\"] || $env.NOTION_DATABASE_ID || ''}}",
+        "title": "={{$json[\"meetingTopic\"] ? $json[\"meetingTopic\"] : (new Date($json[\"meetingStart\"]).toLocaleString() || 'Compte-rendu réunion') }} — compte-rendu",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Date",
+              "type": "date",
+              "date": "={{$json[\"meetingStart\"] || new Date().toISOString()}}"
+            }
+          ]
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "type": "heading_2",
+              "text": "Résumé"
+            },
+            {
+              "type": "paragraph",
+              "text": "={{$json[\"choices\"] ? $json[\"choices\"][0].message.content : ($json[\"output\"] || 'Résumé généré par l\\'IA.')}}"
+            },
+            {
+              "type": "heading_2",
+              "text": "Transcription complète"
+            },
+            {
+              "type": "toggle",
+              "text": "Afficher la transcription",
+              "children": [
+                {
+                  "type": "paragraph",
+                  "text": "={{$json[\"text\"] || 'Transcription non disponible.'}}"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "notion-credential",
+          "name": "Notion"
+        }
+      }
+    },
+    {
+      "name": "Send Email?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1800,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-send-email",
+              "leftValue": "={{$json[\"sendEmail\"]}}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Choose Mailer",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-mailer",
+              "leftValue": "={{$json[\"emailProvider\"]}}",
+              "rightValue": "gmail",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Gmail Send",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2200,
+        200
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{$json[\"organizerEmail\"] || ''}}",
+        "subject": "Compte-rendu : {{$json[\"meetingTopic\"] || 'Réunion'}}",
+        "message": "={{$json[\"choices\"] ? $json[\"choices\"][0].message.content : 'Compte-rendu généré. Voir la page Notion.'}}",
+        "options": {}
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-credential",
+          "name": "Gmail OAuth2"
+        }
+      }
+    },
+    {
+      "name": "MicrosoftOutlook Send",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        400
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "toRecipients": "={{$json[\"organizerEmail\"] || ''}}",
+        "subject": "Compte-rendu : {{$json[\"meetingTopic\"] || 'Réunion'}}",
+        "bodyContent": "={{$json[\"choices\"] ? $json[\"choices\"][0].message.content : 'Compte-rendu généré. Voir la page Notion.'}}",
+        "bodyContentType": "text",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "outlook-credential",
+          "name": "Microsoft Outlook OAuth2"
+        }
+      }
+    },
+    {
+      "name": "Download Error Handler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        450
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\nfor(const item of items){\n  const err = item.json.error || item.json;\n  const status = err.statusCode || err.status || err.httpCode || 'unknown';\n  const message = err.message || err.error || 'Download failed';\n  let diagnostic = 'Erreur de téléchargement inconnue.';\n  if(status === 403 || status === '403'){\n    diagnostic = 'Zoom a retourné 403 : le fichier n\\'est probablement pas encore prêt (réunions longues) OU le token OAuth est expiré / scope cloud_recording:read:admin manquant. Vérifiez le scope du credential Zoom et relancez après quelques minutes.';\n  } else if(status === 404 || status === '404'){\n    diagnostic = 'URL de téléchargement introuvable (404). Le fichier a peut-être été supprimé côté Zoom.';\n  } else if(status === 401 || status === '401'){\n    diagnostic = 'Non autorisé (401) : le token OAuth Zoom est invalide ou expiré. Vérifiez le credential Zoom OAuth2.';\n  }\n  results.push({\n    json: {\n      status: 'download_error',\n      httpStatus: status,\n      errorMessage: message,\n      diagnostic,\n      recordingUrl: item.json.recordingUrl || null\n    }\n  });\n}\nreturn results;"
+      }
+    },
+    {
+      "name": "Setup Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        600,
+        50
+      ],
+      "parameters": {
+        "content": "Setup checklist:\n- Create Zoom app / OAuth credential with scope cloud_recording:read:admin and configure webhook URL to this workflow's /webhook/zoom-recording path.\n- Add OpenAI credential (no key here in workflow) for Whisper and GPT (whisper-1 & gpt-4o).\n- Add Notion integration token and share the target database with it; set NOTION_DATABASE_ID in environment or pass notionDatabaseId in webhook payload.\n- Optional: add Gmail or Microsoft Outlook credentials for email sending.\n\nArchitect notes:\n- httpRequest follows redirects (max 5) and saves binary to 'recording_file'. Zoom may return 403 if file not yet processed — the Download Error Handler surfaces a clear diagnostic.\n- Whisper limit enforced: 25 MB. If exceeded the workflow sets fileTooLarge = true and the TooLarge Notice node runs instead of calling Whisper.\n- The userPrompt can be supplied in the incoming webhook payload to control the summary format.\n\nAuditor notes:\n- Zoom envoie parfois recording.completed avant que le fichier soit réellement disponible (réunions longues). Le noeud HTTP Request a onError=continueErrorOutput : les erreurs 403/401/404 partent vers Download Error Handler qui produce un message exploitable au lieu d'un arrêt silencieux.\n- Le credential Zoom OAuth2 gère le refresh automatique du token. Vérifiez que le scope cloud_recording:read:admin est bien accordé, sinon 403 identique à un fichier indisponible."
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Payload": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request Download",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request Download": {
+      "main": [
+        [
+          {
+            "node": "Check File Size",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download Error Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check File Size": {
+      "main": [
+        [
+          {
+            "node": "File Too Large?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File Too Large?": {
+      "main": [
+        [
+          {
+            "node": "TooLarge Notice (Set)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Whisper Transcription",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Whisper Transcription": {
+      "main": [
+        [
+          {
+            "node": "Generate Summary (OpenAI GPT)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Summary (OpenAI GPT)": {
+      "main": [
+        [
+          {
+            "node": "Create Notion Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Notion Page": {
+      "main": [
+        [
+          {
+            "node": "Send Email?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email?": {
+      "main": [
+        [
+          {
+            "node": "Choose Mailer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Choose Mailer": {
+      "main": [
+        [
+          {
+            "node": "Gmail Send",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "MicrosoftOutlook Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
