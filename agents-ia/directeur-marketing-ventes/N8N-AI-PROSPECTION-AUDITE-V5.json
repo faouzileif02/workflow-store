@@ -163,6 +163,10 @@
               "value": "={{ $json.location }}"
             },
             {
+              "name": "z",
+              "value": "12"
+            },
+            {
               "name": "google_domain",
               "value": "google.lu"
             },
