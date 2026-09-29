@@ -1,0 +1,443 @@
+{
+  "name": "Salon RDV 02 - Reception reponses SMS",
+  "nodes": [
+    {
+      "name": "Webhook - Incoming SMS (Twilio)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        -100
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "twilio-incoming-sms",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "twilio-incoming-sms"
+    },
+    {
+      "name": "Switch - Incoming content",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        440,
+        -100
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose"
+                },
+                "conditions": [
+                  {
+                    "id": "cond-oui",
+                    "leftValue": "={{ $json[\"Body\"] }}",
+                    "rightValue": "oui",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "OUI"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose"
+                },
+                "conditions": [
+                  {
+                    "id": "cond-non",
+                    "leftValue": "={{ $json[\"Body\"] }}",
+                    "rightValue": "non",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "NON"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      }
+    },
+    {
+      "name": "Google Sheets - Find by Phone (for reply)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        640,
+        -200
+      ],
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Rendezvous",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Phone",
+              "lookupValue": "={{ $json[\"From\"] }}"
+            },
+            {
+              "lookupColumn": "Confirmation",
+              "lookupValue": "SMS_ENVOYE"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "name": "Google Sheets - Update CONFIRME",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        840,
+        -200
+      ],
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Rendezvous",
+          "mode": "name"
+        },
+        "columns": {
+          "matchingColumns": [
+            "ID"
+          ],
+          "schema": [
+            {
+              "id": "Confirmation",
+              "displayName": "Confirmation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ConfirmedAt",
+              "displayName": "ConfirmedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "value": {
+            "Confirmation": "CONFIRME",
+            "ConfirmedAt": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}"
+          }
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "name": "Google Sheets - Find by Phone (for cancel)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        640,
+        -50
+      ],
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Rendezvous",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Phone",
+              "lookupValue": "={{ $json[\"From\"] }}"
+            },
+            {
+              "lookupColumn": "Confirmation",
+              "lookupValue": "SMS_ENVOYE"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "name": "Google Sheets - Update ANNULE and clear slot",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        840,
+        -50
+      ],
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Rendezvous",
+          "mode": "name"
+        },
+        "columns": {
+          "matchingColumns": [
+            "ID"
+          ],
+          "schema": [
+            {
+              "id": "Confirmation",
+              "displayName": "Confirmation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Client",
+              "displayName": "Client",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Booked",
+              "displayName": "Booked",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CancelledAt",
+              "displayName": "CancelledAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "value": {
+            "Confirmation": "ANNULE",
+            "Client": "",
+            "Booked": "FALSE",
+            "CancelledAt": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}"
+          }
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "name": "Gmail - Notify slot freed",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1040,
+        -50
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "gerant@example.com",
+        "subject": "Créneau libéré — action possible",
+        "message": "Le client {{$json[\"Prenom\"] || $json[\"Nom\"]}} a annulé son rendez-vous prévu le {{$json[\"Date\"]}} à {{$json[\"Heure\"]}}. Le créneau est libéré et peut être proposé à d'autres clients.",
+        "options": {}
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "name": "Gmail - Notify ambiguous reply",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        640,
+        0
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "gerant@example.com",
+        "subject": "Réponse SMS ambiguë ou autre",
+        "message": "Le client {{$json[\"From\"]}} a répondu : \"{{$json[\"Body\"]}}\". Merci de vérifier la réponse et confirmer manuellement le rendez-vous si besoin.",
+        "options": {}
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "name": "Sticky Note - Setup Reception",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        240,
+        220
+      ],
+      "parameters": {
+        "content": "WORKFLOW 2/2 — RÉCEPTION DES RÉPONSES SMS\n\nConfiguration Twilio :\n- Webhook entrant POST -> <N8N_BASE_URL>/webhook/twilio-incoming-sms\n- Google Sheet identique au workflow 1\n- Colonne Phone au format E.164 (+352..., +33..., etc.)\n- Remplacer YOUR_SPREADSHEET_ID et gerant@example.com\n- Configurer credentials Google Sheets + Gmail\n\nOUI => CONFIRME\nNON => ANNULE + libération du créneau + email gérant\nAutre réponse => email gérant pour traitement manuel",
+        "height": 260,
+        "width": 440
+      }
+    }
+  ],
+  "connections": {
+    "Webhook - Incoming SMS (Twilio)": {
+      "main": [
+        [
+          {
+            "node": "Switch - Incoming content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch - Incoming content": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Find by Phone (for reply)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets - Find by Phone (for cancel)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gmail - Notify ambiguous reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Find by Phone (for reply)": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Update CONFIRME",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Find by Phone (for cancel)": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Update ANNULE and clear slot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Update ANNULE and clear slot": {
+      "main": [
+        [
+          {
+            "node": "Gmail - Notify slot freed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
