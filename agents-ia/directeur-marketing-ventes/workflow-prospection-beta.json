@@ -1,5 +1,5 @@
 {
-  "name": "N8N Market AI — Prospection IA → Brouillons Gmail",
+  "name": "N8N Market AI — Prospection IA → Brouillons Gmail — CORRIGÉ V5",
   "nodes": [
     {
       "parameters": {},
@@ -180,7 +180,7 @@
           "timeout": 30000,
           "response": {
             "response": {
-              "neverError": true,
+              "neverError": false,
               "responseFormat": "json"
             }
           }
@@ -193,13 +193,12 @@
       "position": [
         -540,
         80
-      ],
-      "onError": "continueRegularOutput"
+      ]
     },
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const searches = $('🧭 Préparer recherches + catalogue').all();\nconst out = [];\n\nfor (let i = 0; i < $input.all().length; i++) {\n  const payload = $input.all()[i]?.json || {};\n  const cfg = searches[i]?.json || searches[0]?.json || {};\n  const places = Array.isArray(payload.local_results) ? payload.local_results : [];\n\n  for (const p of places.slice(0, Number(cfg.maxPerQuery || 8))) {\n    const nom = String(p.title || '').trim();\n    const website = String(p.website || p.links?.website || '').trim();\n    const telephone = String(p.phone || '').trim();\n    const adresse = String(p.address || '').trim();\n    const rating = Number(p.rating || 0);\n    const reviews = Number(p.reviews || 0);\n    if (!nom) continue;\n\n    let domain = '';\n    if (website) {\n      try { domain = new URL(website).hostname.replace(/^www\\./,'').toLowerCase(); } catch (e) {}\n    }\n\n    const key = (domain || (nom + '|' + adresse)).toLowerCase().replace(/\\s+/g,' ').trim();\n    out.push({\n      json: {\n        nom,\n        categorie: String(cfg.query || ''),\n        adresse,\n        telephone,\n        website,\n        domain,\n        rating,\n        reviews,\n        googleMapsUrl: String(p.place_id ? `https://www.google.com/maps/search/?api=1&query_place_id=${p.place_id}` : ''),\n        prospectKey: key,\n        dateRecherche: new Date().toISOString()\n      }\n    });\n  }\n}\nreturn out;"
+        "jsCode": "const searches = $('🧭 Préparer recherches + catalogue').all();\nconst out = [];\nfor (let i = 0; i < $input.all().length; i++) {\n  const payload = $input.all()[i]?.json || {};\n  if (payload.error) throw new Error('SerpAPI: '+String(payload.error));\n  const cfg = searches[i]?.json || searches[0]?.json || {};\n  const places = Array.isArray(payload.local_results) ? payload.local_results : [];\n  for (const p of places.slice(0, Number(cfg.maxPerQuery || 8))) {\n    const nom = String(p.title || '').trim();\n    let website = String(p.website || p.links?.website || '').trim();\n    const telephone = String(p.phone || '').trim();\n    const adresse = String(p.address || '').trim();\n    const rating = Number(p.rating || 0);\n    const reviews = Number(p.reviews || 0);\n    if (!nom || !website) continue;\n    if (!/^https?:\\/\\//i.test(website)) website='https://'+website.replace(/^\\/+/, '');\n    let domain = '';\n    try { domain = new URL(website).hostname.replace(/^www\\./,'').toLowerCase(); } catch (e) { continue; }\n    if(!domain || domain.includes('google.')) continue;\n    const key = (domain || (nom + '|' + adresse)).toLowerCase().replace(/\\s+/g,' ').trim();\n    out.push({json:{\n      nom,categorie:String(cfg.query || ''),adresse,telephone,website,domain,rating,reviews,\n      googleMapsUrl:String(p.place_id ? `https://www.google.com/maps/search/?api=1&query_place_id=${p.place_id}` : ''),\n      prospectKey:key,dateRecherche:new Date().toISOString()\n    }});\n  }\n}\nreturn out;"
       },
       "id": "bdf86649-b757-40a4-bc70-8827888896cc",
       "name": "🧹 Normaliser prospects",
@@ -213,7 +212,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const cfg = $('⚙️ Configuration prospection').first().json;\nconst maxAgeMs = Number(cfg.dedupDays || 90) * 86400000;\nconst now = Date.now();\nconst data = $getWorkflowStaticData('global');\ndata.contactedProspects = data.contactedProspects || {};\n\nfor (const [k,ts] of Object.entries(data.contactedProspects)) {\n  if (!ts || now - Number(ts) > maxAgeMs) delete data.contactedProspects[k];\n}\n\nconst seenRun = new Set();\nconst out = [];\nfor (const item of $input.all()) {\n  const j = item.json || {};\n  const key = String(j.prospectKey || '').trim();\n  if (!key || seenRun.has(key) || data.contactedProspects[key]) continue;\n  seenRun.add(key);\n  if (!j.website) continue;\n  out.push({json:j});\n}\nreturn out;"
+        "jsCode": "const cfg = $('⚙️ Configuration prospection').first().json;\nconst maxAgeMs = Number(cfg.dedupDays || 90) * 86400000;\nconst now = Date.now();\nconst data = $getWorkflowStaticData('global');\ndata.preparedProspects = data.preparedProspects || {};\nfor (const [k,ts] of Object.entries(data.preparedProspects)) {\n  if (!ts || now - Number(ts) > maxAgeMs) delete data.preparedProspects[k];\n}\nconst seenRun = new Set();\nconst out = [];\nfor (const item of $input.all()) {\n  const j = item.json || {};\n  const key = String(j.prospectKey || '').trim();\n  if (!key || seenRun.has(key) || data.preparedProspects[key]) continue;\n  seenRun.add(key);\n  if (!/^https?:\\/\\//i.test(String(j.website||''))) continue;\n  out.push({json:j});\n}\nreturn out;"
       },
       "id": "4f3834df-67c3-4228-9292-fa7be1df35fa",
       "name": "🛡️ Dédupliquer + avec site",
@@ -234,7 +233,22 @@
               "maxRedirects": 5
             }
           },
-          "timeout": 10000
+          "timeout": 12000,
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "neverError": true
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (compatible; N8NMarketAI/1.0; +https://n8nmarketai.com)"
+            }
+          ]
         }
       },
       "id": "30871345-4d2f-4794-9cdc-e36f2ac62dd5",
@@ -250,7 +264,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const leads = $('🛡️ Dédupliquer + avec site').all();\nconst blocked = ['example.com','sentry.io','wixpress.com','cloudflare.com','schema.org','wordpress.org'];\nconst out = [];\n\nfor (let i = 0; i < $input.all().length; i++) {\n  const lead = leads[i]?.json || {};\n  const raw = JSON.stringify($input.all()[i]?.json || {}).replace(/\\\\u003c/g,'<');\n  const matches = [...raw.matchAll(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/gi)]\n    .map(m => m[0].toLowerCase().replace(/[\"'<>),;]+$/g,''));\n\n  const email = [...new Set(matches)].find(e =>\n    !blocked.some(d => e.includes(d)) &&\n    !e.endsWith('.png') &&\n    !e.endsWith('.jpg') &&\n    !e.endsWith('.jpeg') &&\n    !e.endsWith('.svg')\n  ) || '';\n\n  if (!email) continue;\n  out.push({json:{...lead,email,sourceEmail:'site web public'}});\n}\nreturn out;"
+        "jsCode": "const leads = $('🛡️ Dédupliquer + avec site').all();\nconst blockedDomains = ['example.com','sentry.io','wixpress.com','cloudflare.com','schema.org','wordpress.org','google.com','googleusercontent.com'];\nconst blockedLocal = /^(noreply|no-reply|donotreply|mailer-daemon|privacy|abuse|webmaster)$/i;\nconst out = [];\nfor (let i = 0; i < $input.all().length; i++) {\n  const lead = leads[i]?.json || {};\n  const raw = JSON.stringify($input.all()[i]?.json ?? '').replace(/\\\\u003c/g,'<').replace(/&commat;/gi,'@');\n  const matches = [...raw.matchAll(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/gi)]\n    .map(m => m[0].toLowerCase().replace(/[\"'<>),;\\\\]+$/g,''));\n  const unique=[...new Set(matches)].filter(e=>{\n    const [local,domain='']=e.split('@');\n    if(!local||!domain||blockedLocal.test(local)) return false;\n    if(blockedDomains.some(d=>domain===d||domain.endsWith('.'+d))) return false;\n    if(/\\.(png|jpg|jpeg|gif|svg|webp)$/i.test(e)) return false;\n    return true;\n  });\n  const sameDomain=unique.find(e=>lead.domain && (e.endsWith('@'+lead.domain)||e.split('@')[1]?.endsWith('.'+lead.domain)));\n  const generic=unique.find(e=>/^(contact|info|hello|bonjour|office|admin|sales|commercial|reservation|booking)@/i.test(e));\n  const email=sameDomain||generic||unique[0]||'';\n  if (!email) continue;\n  out.push({json:{...lead,email,sourceEmail:'site web public'}});\n}\nreturn out;"
       },
       "id": "cfd5a579-938f-4527-8da3-01a6a4fb24eb",
       "name": "📧 Emails publics trouvés",
@@ -288,13 +302,12 @@
           "id": "FWdNJAqsZh3EfcAw",
           "name": "OpenRouter account"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const leads = $('📧 Emails publics trouvés').all();\nconst catalog = $('🧭 Préparer recherches + catalogue').first().json.catalog || [];\nconst minScore = Number($('⚙️ Configuration prospection').first().json.minScore || 70);\nconst out = [];\n\nfor (let i = 0; i < $input.all().length; i++) {\n  const lead = leads[i]?.json || {};\n  let raw = String($input.all()[i]?.json?.choices?.[0]?.message?.content || '').trim();\n  raw = raw.replace(/^```(?:json)?\\s*/i,'').replace(/\\s*```$/,'');\n  let ai = {};\n  try { ai = JSON.parse(raw); } catch (e) { continue; }\n\n  const score = Math.max(0, Math.min(100, Number(ai.score || 0)));\n  const handle = String(ai.recommended_handle || '').trim();\n  let product = catalog.find(p => p.handle === handle);\n  if (!product && ai.recommended_title) {\n    product = catalog.find(p => p.title.toLowerCase() === String(ai.recommended_title).toLowerCase());\n  }\n  if (!product) continue;\n\n  let html = String(ai.body_html || '').trim();\n  const productUrl = product.url;\n  if (html && !html.includes(productUrl)) {\n    html += `<p><a href=\"${productUrl}\">Voir le workflow</a></p>`;\n  }\n  if (!/ne plus.*recontact|plus être recontact|ne pas.*recontact/i.test(html)) {\n    html += `<p style=\"font-size:12px;color:#666\">Si ce sujet ne vous concerne pas, dites-le-moi simplement et je ne vous recontacterai plus.</p>`;\n  }\n\n  if (score < minScore || !ai.subject || !html) continue;\n\n  out.push({\n    json:{\n      ...lead,\n      score,\n      fit:String(ai.fit || ''),\n      produit:product.title,\n      produitHandle:product.handle,\n      produitUrl:productUrl,\n      raison:String(ai.reason || ''),\n      angle:String(ai.angle || ''),\n      subject:String(ai.subject || '').trim(),\n      html,\n      statut:'A_VALIDER'\n    }\n  });\n}\nreturn out;"
+        "jsCode": "const leads = $('📧 Emails publics trouvés').all();\nconst catalog = $('🧭 Préparer recherches + catalogue').first().json.catalog || [];\nconst minScore = Number($('⚙️ Configuration prospection').first().json.minScore || 70);\nconst out = [];\nfor (let i = 0; i < $input.all().length; i++) {\n  const lead = leads[i]?.json || {};\n  const payload=$input.all()[i]?.json||{};\n  let raw = String(payload?.choices?.[0]?.message?.content || '').trim();\n  if(!raw) continue;\n  raw = raw.replace(/^```(?:json)?\\s*/i,'').replace(/\\s*```$/,'');\n  const a=raw.indexOf('{'), b=raw.lastIndexOf('}');\n  if(a>=0&&b>=a) raw=raw.slice(a,b+1);\n  let ai;\n  try { ai = JSON.parse(raw); } catch (e) { continue; }\n  const score = Math.max(0, Math.min(100, Number(ai.score || 0)));\n  const handle = String(ai.recommended_handle || '').trim();\n  let product = catalog.find(p => p.handle === handle);\n  if (!product && ai.recommended_title) {\n    product = catalog.find(p => p.title.toLowerCase() === String(ai.recommended_title).toLowerCase());\n  }\n  if (!product || score < minScore) continue;\n  const subject=String(ai.subject||'').replace(/[\\r\\n]+/g,' ').trim().slice(0,140);\n  let html = String(ai.body_html || '').trim();\n  if (!subject || !html) continue;\n  html=html\n    .replace(/<script[\\s\\S]*?<\\/script>/gi,'')\n    .replace(/<style[\\s\\S]*?<\\/style>/gi,'')\n    .replace(/\\son\\w+\\s*=\\s*([\"']).*?\\1/gi,'')\n    .replace(/javascript:/gi,'');\n  const productUrl = product.url;\n  if (!html.includes(productUrl)) html += `<p><a href=\"${productUrl}\">Voir le workflow</a></p>`;\n  if (!/ne plus.*recontact|plus être recontact|ne pas.*recontact/i.test(html)) {\n    html += `<p style=\"font-size:12px;color:#666\">Si ce sujet ne vous concerne pas, répondez simplement que vous ne souhaitez plus être recontacté.</p>`;\n  }\n  if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(String(lead.email||''))) continue;\n  out.push({json:{...lead,score,fit:String(ai.fit||''),produit:product.title,produitHandle:product.handle,produitUrl:productUrl,raison:String(ai.reason||''),angle:String(ai.angle||''),subject,html,statut:'A_VALIDER'}});\n}\nreturn out;"
       },
       "id": "7866c842-e36a-4a88-918e-059313d24638",
       "name": "✅ Garder prospects qualifiés",
@@ -347,7 +360,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const selected = $('🏆 Top prospects').all().map(i=>i.json);\nconst data = $getWorkflowStaticData('global');\ndata.contactedProspects = data.contactedProspects || {};\nconst now = Date.now();\n\nfor (const p of selected) {\n  if (p.prospectKey) data.contactedProspects[p.prospectKey] = now;\n}\n\nconst avg = selected.length\n  ? Math.round(selected.reduce((s,p)=>s+Number(p.score||0),0)/selected.length)\n  : 0;\nconst products = [...new Set(selected.map(p=>p.produit).filter(Boolean))].slice(0,5);\nconst segments = [...new Set(selected.map(p=>p.categorie).filter(Boolean))].slice(0,8);\n\nreturn [{\n  json:{\n    \"Timestamp\": new Date().toISOString(),\n    \"Période\": \"Prospection IA\",\n    \"CA analysé\": \"\",\n    \"Commandes\": selected.length,\n    \"Produit prioritaire\": products.join(\" | \"),\n    \"Objectif\": \"Trouver des prospects B2B pertinents pour N8N Market AI\",\n    \"Action principale\": `${selected.length} brouillon(s) Gmail créé(s) — validation humaine requise`,\n    \"SEO proposé\": \"\",\n    \"Contenu proposé\": selected.slice(0,5).map(p=>`${p.nom}: ${p.subject}`).join(\" || \"),\n    \"Segment client\": segments.join(\" | \"),\n    \"Confiance\": avg,\n    \"Validation requise\": \"OUI\",\n    \"Statut\": selected.length ? \"BROUILLONS_CREES\" : \"AUCUN_PROSPECT\",\n    \"Résumé IA\": selected.slice(0,10).map(p=>`${p.rank}. ${p.nom} — ${p.score}/100 — ${p.produit} — ${p.email}`).join(\"\\n\")\n  }\n}];"
+        "jsCode": "const selected = $('🏆 Top prospects').all().map(i=>i.json);\nconst data = $getWorkflowStaticData('global');\ndata.preparedProspects = data.preparedProspects || {};\nconst now = Date.now();\nfor (const p of selected) if (p.prospectKey) data.preparedProspects[p.prospectKey] = now;\nconst avg = selected.length ? Math.round(selected.reduce((s,p)=>s+Number(p.score||0),0)/selected.length) : 0;\nconst products = [...new Set(selected.map(p=>p.produit).filter(Boolean))].slice(0,5);\nconst segments = [...new Set(selected.map(p=>p.categorie).filter(Boolean))].slice(0,8);\nreturn [{json:{\n  'Timestamp':new Date().toISOString(),\n  'Période':'Prospection IA',\n  'CA analysé':'',\n  'Commandes':selected.length,\n  'Produit prioritaire':products.join(' | '),\n  'Objectif':'Trouver des prospects B2B pertinents pour N8N Market AI',\n  'Action principale':`${selected.length} brouillon(s) Gmail créé(s) — validation humaine requise`,\n  'SEO proposé':'',\n  'Contenu proposé':selected.slice(0,5).map(p=>`${p.nom}: ${p.subject}`).join(' || '),\n  'Segment client':segments.join(' | '),\n  'Confiance':avg,\n  'Validation requise':'OUI',\n  'Statut':selected.length?'BROUILLONS_CREES':'AUCUN_PROSPECT',\n  'Résumé IA':selected.slice(0,10).map(p=>`${p.rank}. ${p.nom} — ${p.score}/100 — ${p.produit} — ${p.email}`).join('\\n')\n}}];"
       },
       "id": "8e6b311f-f08b-4bd4-ac49-93c0d66a2bf1",
       "name": "📊 Résumé prospection",
@@ -374,20 +387,20 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "Timestamp": "={ $json['Timestamp'] }",
-            "Période": "={ $json['Période'] }",
-            "CA analysé": "={ $json['CA analysé'] }",
-            "Commandes": "={ $json['Commandes'] }",
-            "Produit prioritaire": "={ $json['Produit prioritaire'] }",
-            "Objectif": "={ $json['Objectif'] }",
-            "Action principale": "={ $json['Action principale'] }",
-            "SEO proposé": "={ $json['SEO proposé'] }",
-            "Contenu proposé": "={ $json['Contenu proposé'] }",
-            "Segment client": "={ $json['Segment client'] }",
-            "Confiance": "={ $json['Confiance'] }",
-            "Validation requise": "={ $json['Validation requise'] }",
-            "Statut": "={ $json['Statut'] }",
-            "Résumé IA": "={ $json['Résumé IA'] }"
+            "Timestamp": "={{ $json['Timestamp'] }}",
+            "Période": "={{ $json['Période'] }}",
+            "CA analysé": "={{ $json['CA analysé'] }}",
+            "Commandes": "={{ $json['Commandes'] }}",
+            "Produit prioritaire": "={{ $json['Produit prioritaire'] }}",
+            "Objectif": "={{ $json['Objectif'] }}",
+            "Action principale": "={{ $json['Action principale'] }}",
+            "SEO proposé": "={{ $json['SEO proposé'] }}",
+            "Contenu proposé": "={{ $json['Contenu proposé'] }}",
+            "Segment client": "={{ $json['Segment client'] }}",
+            "Confiance": "={{ $json['Confiance'] }}",
+            "Validation requise": "={{ $json['Validation requise'] }}",
+            "Statut": "={{ $json['Statut'] }}",
+            "Résumé IA": "={{ $json['Résumé IA'] }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -554,7 +567,7 @@
     },
     {
       "parameters": {
-        "content": "## N8N Market AI — Prospection IA\n\n**Ce workflow ne fait aucun envoi automatique.** Il cherche des entreprises, récupère uniquement un email public trouvé sur leur site, les qualifie avec OpenRouter, associe un workflow réellement publié sur n8nmarketai.com, puis crée des **brouillons Gmail**.\n\n### Avant le premier test\n1. Dans l'environnement n8n, définir `SERPAPI_API_KEY`.\n2. Vérifier le credential **OpenRouter account**.\n3. Vérifier le credential **FAOUZIGUERRIDA GMAIL**.\n4. Vérifier **Google Sheets account**.\n5. Exécuter `▶️ Test manuel`.\n\n### Garde-fous\n- score minimum 70/100 ;\n- maximum 10 brouillons par exécution ;\n- déduplication 90 jours via la mémoire du workflow ;\n- pas de prix/remise modifié ;\n- pas d'envoi sans validation humaine ;\n- phrase de refus de contact dans chaque brouillon.",
+        "content": "## N8N Market AI — Prospection IA — AUDITÉ V5\n\nCe workflow ne fait **aucun envoi automatique**. Il cherche des entreprises via SerpAPI/Google Local, lit leur site public, récupère un email professionnel public, qualifie le prospect avec OpenRouter, associe un produit réellement publié sur N8N Market AI et crée des **brouillons Gmail**.\n\n### Configuration requise\n1. Définir `SERPAPI_API_KEY` dans l'environnement n8n.\n2. Credential OpenRouter: `OpenRouter account`.\n3. Credential Gmail: `FAOUZIGUERRIDA GMAIL`.\n4. Credential Google Sheets: `Google Sheets account`.\n5. Tester avec `▶️ Test manuel` avant activation.\n\n### Corrections V5\n- erreurs SerpAPI visibles au lieu d'être masquées;\n- URLs prospects normalisées;\n- lecture site forcée en texte avec redirections;\n- emails techniques/indésirables filtrés et email du même domaine privilégié;\n- réponse IA strictement liée au catalogue réel;\n- HTML email nettoyé;\n- score minimum 70/100;\n- maximum 10 brouillons;\n- déduplication de préparation 90 jours en production;\n- expressions Google Sheets corrigées;\n- aucune modification Shopify et aucun envoi automatique.\n\nImportant: la mémoire statique n8n est surtout destinée aux exécutions de production; pendant les tests manuels, vérifiez également les doublons visuellement.\n",
         "height": 520,
         "width": 620,
         "color": 5
