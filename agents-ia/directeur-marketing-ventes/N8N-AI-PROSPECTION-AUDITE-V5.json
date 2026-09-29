@@ -148,7 +148,11 @@
           "parameters": [
             {
               "name": "engine",
-              "value": "google_local"
+              "value": "google_maps"
+            },
+            {
+              "name": "type",
+              "value": "search"
             },
             {
               "name": "q",
