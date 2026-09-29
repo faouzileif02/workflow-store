@@ -1,0 +1,523 @@
+{
+  "name": "N8N-SALON-RET-017 — Relance clients inactifs 90j — AUDITÉ V2",
+  "nodes": [
+    {
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        200
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Google Sheets Read Clients",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        400,
+        200
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Clients",
+          "mode": "name"
+        },
+        "options": {
+          "returnAll": true
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "name": "Code Filter 90 jours",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        200
+      ],
+      "parameters": {
+        "jsCode": "const days = 90;\nconst threshold = new Date();\nthreshold.setDate(threshold.getDate() - days);\nconst out = [];\nfor (const item of items) {\n  const data = item.json;\n  const lastRaw = data.lastAppointment || data.last_appointment || data['Dernier RDV'] || data['LastAppointment'] || data.lastAppointmentDate;\n  if (!lastRaw) continue;\n  const parsed = new Date(lastRaw);\n  if (isNaN(parsed)) {\n    const parts = String(lastRaw).split(/[\\/\\-\\.]/);\n    if (parts.length === 3) {\n      const d = parseInt(parts[0], 10);\n      const m = parseInt(parts[1], 10) - 1;\n      const y = parseInt(parts[2], 10);\n      const dt = new Date(y, m, d);\n      if (!isNaN(dt) && dt < threshold) out.push({ json: data });\n    }\n    continue;\n  }\n  if (parsed < threshold) out.push({ json: data });\n}\nreturn out;"
+      }
+    },
+    {
+      "name": "Loop Over Items — 1 client",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        800,
+        200
+      ],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "name": "IF Check Phone",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1000,
+        120
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "phone-check",
+              "leftValue": "={{ $json.phone }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Google Sheets Lookup Relances",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1200,
+        120
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Relances",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "phone",
+              "lookupValue": "={{ $json.phone }}"
+            }
+          ]
+        },
+        "options": {
+          "returnAllMatches": true
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "name": "Code Check Recent Relance",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        120
+      ],
+      "parameters": {
+        "jsCode": "const rows = items.map(i => i.json);\nlet hasRecent = false;\nconst now = new Date();\nfor (const r of rows) {\n  const dRaw = r.date || r.dateSent || r['Date'] || r['date_envoi'];\n  if (!dRaw) continue;\n  const d = new Date(dRaw);\n  if (isNaN(d)) continue;\n  const diffDays = (now - d) / (1000 * 60 * 60 * 24);\n  if (diffDays <= 30) {\n    hasRecent = true;\n    break;\n  }\n}\nconst client = $('IF Check Phone').item.json;\nreturn [{ json: Object.assign({}, client, { hasRecent }) }];"
+      }
+    },
+    {
+      "name": "IF No Recent Relance",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1600,
+        120
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "has-recent-check",
+              "leftValue": "={{ $json.hasRecent }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Twilio SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        120
+      ],
+      "parameters": {
+        "resource": "sms",
+        "operation": "send",
+        "from": "REPLACE_WITH_TWILIO_PHONE_NUMBER",
+        "to": "={{ $json.phone }}",
+        "message": "=Bonjour {{ $json.firstName || $json.first_name || $json.nom || 'client' }}, ça fait un moment que nous n'avons pas de vos nouvelles ! Profitez de 10% sur votre prochaine visite. Réservez ici : https://votre-salon.example.com/reservation",
+        "options": {}
+      },
+      "credentials": {
+        "twilioApi": {
+          "id": "REPLACE_WITH_TWILIO_CREDENTIAL_ID",
+          "name": "Twilio account"
+        }
+      }
+    },
+    {
+      "name": "Google Sheets Append Relance",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2000,
+        120
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Relances",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ new Date().toISOString().split('T')[0] }}",
+            "phone": "={{ $json.phone }}",
+            "firstName": "={{ $json.firstName }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "name": "Wait 2s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2200,
+        120
+      ],
+      "parameters": {
+        "amount": 2,
+        "unit": "seconds"
+      },
+      "webhookId": "wait-2s-webhook"
+    },
+    {
+      "name": "Google Sheets Read Relances Summary",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1000,
+        420
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Relances",
+          "mode": "name"
+        },
+        "options": {
+          "returnAll": true
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "name": "Code Build Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        420
+      ],
+      "parameters": {
+        "jsCode": "const rows = items.map(i => i.json);\nconst now = new Date();\nconst week = 7;\nconst recent = [];\nfor (const r of rows) {\n  const dRaw = r.date || r.dateSent || r['Date'];\n  if (!dRaw) continue;\n  const d = new Date(dRaw);\n  if (isNaN(d)) continue;\n  const diffDays = (now - d) / (1000 * 60 * 60 * 24);\n  if (diffDays <= week) {\n    recent.push({ date: r.date, phone: r.phone, firstName: r.firstName });\n  }\n}\nconst body = `Récapitulatif hebdomadaire des relances SMS:\\n\\nNombre de relances (7 derniers jours): ${recent.length}\\n\\nListe :\\n` + recent.map(x => `- ${x.firstName || 'client'} — ${x.phone} — ${x.date}`).join('\\n');\nreturn [{ json: { count: recent.length, list: recent, message: body } }];"
+      }
+    },
+    {
+      "name": "Gmail Send Summary",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1400,
+        420
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "manager@example.com",
+        "subject": "Récapitulatif hebdomadaire : relances SMS",
+        "message": "={{ $json.message }}",
+        "options": {}
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        400,
+        420
+      ],
+      "parameters": {
+        "content": "## N8N-SALON-RET-017 — Audit V2\nOnglet clients : firstName | phone | lastVisit\nOnglet Relances : date | phone | firstName\n\nLe Loop traite 1 client à la fois.\nAprès chaque SMS (ou client ignoré), `Wait 2s` retourne au Loop avant le client suivant.\nUne nouvelle relance est bloquée si le même client a été relancé dans les 30 derniers jours.",
+        "height": 320,
+        "width": 400,
+        "color": 4
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets Read Clients",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Read Clients": {
+      "main": [
+        [
+          {
+            "node": "Code Filter 90 jours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Filter 90 jours": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items — 1 client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Check Phone": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets Lookup Relances",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 2s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Lookup Relances": {
+      "main": [
+        [
+          {
+            "node": "Code Check Recent Relance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Check Recent Relance": {
+      "main": [
+        [
+          {
+            "node": "IF No Recent Relance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF No Recent Relance": {
+      "main": [
+        [
+          {
+            "node": "Twilio SMS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 2s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twilio SMS": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets Append Relance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Append Relance": {
+      "main": [
+        [
+          {
+            "node": "Wait 2s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 2s": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items — 1 client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Read Relances Summary": {
+      "main": [
+        [
+          {
+            "node": "Code Build Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Build Summary": {
+      "main": [
+        [
+          {
+            "node": "Gmail Send Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items — 1 client": {
+      "main": [
+        [
+          {
+            "node": "IF Check Phone",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets Read Relances Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "versionId": "ad4f9d16-02a2-44e9-8d11-efe9f2e65b4b"
+}
