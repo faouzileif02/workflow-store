@@ -4,14 +4,14 @@
 
 **SKU :** N8N-AI-MKT-DIR-018  
 **Prix Shopify :** 29 €  
-**Statut :** DISPONIBLE — BETA PERSONNALISÉE SUR COMMANDE  
+**Statut :** LIVRABLE  
 **Type :** Agent IA n8n multi-agent
 
 ## Acheter
 
 [Commander sur N8N Market AI](https://n8nmarketai.com/products/agent-ia-directeur-marketing-ventes-multi-agent-n8n)
 
-La personnalisation est incluse : après achat, le workflow est adapté à l'activité, aux outils et aux objectifs du client avant livraison finale.
+Les workflows audités sont prêts à être livrés et configurés dans l'environnement n8n du client.
 
 ## Objectif
 
@@ -29,12 +29,12 @@ Créer un **directeur marketing virtuel** qui analyse le catalogue et les perfor
 - validation humaine avant action sensible ;
 - branche de prospection B2B avec brouillons Gmail.
 
-## Versions auditée actuelles
+## Versions auditées actuelles
 
 - `N8N-AI-MKT-DIR-018-AUDITE-V5.json` : version auditée et validée du Directeur Marketing Shopify.
-- `N8N-AI-PROSPECTION-AUDITE-V5.1.json` : version auditée V5.1 de la prospection IA.
+- `N8N-Market-AI-Prospection-AUDITE-V5.1.json` : version auditée V5.1 de la prospection IA.
 
-Les anciennes versions bêta Shopify et Prospection ont été supprimées pour éviter les doublons. Les fichiers audités V5 sont les versions de référence.
+Les anciennes versions bêta Shopify et Prospection ont été supprimées pour éviter les doublons. Les fichiers audités V5 et V5.1 sont les versions de référence et sont livrables.
 
 ### Corrections importantes intégrées
 
