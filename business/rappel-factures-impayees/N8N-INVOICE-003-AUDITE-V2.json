@@ -1,0 +1,570 @@
+{
+  "name": "N8N-INVOICE-003 — Rappel factures impayées — AUDITÉ V2",
+  "nodes": [
+    {
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Read Invoices",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID_HERE",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Invoices",
+          "mode": "name"
+        },
+        "options": {
+          "returnAllMatches": true,
+          "headerRow": 1
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "name": "Calculate Delay",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javascript",
+        "jsCode": "const items = $input.all();\nconst out = [];\nconst today = new Date();\ntoday.setHours(0,0,0,0);\n\nfor (const item of items) {\n  const json = JSON.parse(JSON.stringify(item.json || {}));\n  const dueRaw = json['date echeance'] || json['date_echeance'] || json['dateEcheance'] || json['Date echeance'] || json['dueDate'] || json['Due Date'] || json['date'];\n  const due = dueRaw ? new Date(dueRaw) : new Date(NaN);\n\n  if (!isNaN(due.getTime())) {\n    due.setHours(0,0,0,0);\n    json.daysLate = Math.floor((today - due) / 86400000);\n  } else {\n    json.daysLate = 0;\n  }\n\n  const lastRaw = json['Derniere Relance'] || json['Dernière Relance'] || json['derniere_relance'] || json['lastReminder'] || '';\n  const last = lastRaw ? new Date(lastRaw) : new Date(NaN);\n  if (!isNaN(last.getTime())) {\n    last.setHours(0,0,0,0);\n    json.daysSinceLastReminder = Math.floor((today - last) / 86400000);\n  } else {\n    json.daysSinceLastReminder = 99999;\n  }\n\n  json.client = json.client || json.Client || json['Nom client'] || '';\n  json.montant = json.montant || json.amount || json.Amount || json.Montant || '';\n  json.email = String(json.email || json.Email || json['Adresse email'] || '').trim();\n  json.statut = json.statut || json.Statut || json.status || json.Status || '';\n  json.date_echeance = dueRaw || json.date_echeance || '';\n  json.lastReminder = lastRaw;\n  json.reminderEligible = json.daysLate > 0 && json.daysSinceLastReminder >= 7 && !!json.email;\n  out.push({ json });\n}\nreturn out;"
+      }
+    },
+    {
+      "name": "Filter Overdue",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-statut",
+              "leftValue": "={{ $json.statut }}",
+              "rightValue": "Payé",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "cond-dayslate",
+              "leftValue": "={{ $json.daysLate }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "cond-frequency",
+              "leftValue": "={{ $json.reminderEligible }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      }
+    },
+    {
+      "name": "Switch Delay Tier",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1000,
+        300
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "tier1",
+                    "leftValue": "={{ $json.daysLate }}",
+                    "rightValue": 7,
+                    "operator": {
+                      "type": "number",
+                      "operation": "lte"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "1-7 jours"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "tier2a",
+                    "leftValue": "={{ $json.daysLate }}",
+                    "rightValue": 8,
+                    "operator": {
+                      "type": "number",
+                      "operation": "gte"
+                    }
+                  },
+                  {
+                    "id": "tier2b",
+                    "leftValue": "={{ $json.daysLate }}",
+                    "rightValue": 30,
+                    "operator": {
+                      "type": "number",
+                      "operation": "lte"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "8-30 jours"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "tier3",
+                    "leftValue": "={{ $json.daysLate }}",
+                    "rightValue": 30,
+                    "operator": {
+                      "type": "number",
+                      "operation": "gt"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": ">30 jours"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      }
+    },
+    {
+      "name": "Gmail Soft",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1200,
+        200
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ 'Relance douce : facture en retard de ' + $json.daysLate + ' jour(s) - ' + ($json.client || 'client') }}",
+        "message": "={{ 'Bonjour ' + ($json.client || '') + ',\\n\\nNous constatons que la facture d\\'un montant de ' + ($json.montant || '') + '€ dont l\\'échéance était le ' + ($json.date_echeance || '') + ' est en retard de ' + $json.daysLate + ' jour(s). Il est possible qu\\'il s\\'agisse d\\'un oubli. Pourriez-vous vérifier et procéder au paiement si nécessaire ?\\n\\nMerci beaucoup et bonne journée,\\nVotre équipe' }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "name": "Gmail Firm",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1200,
+        350
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ 'Relance : facture en retard de ' + $json.daysLate + ' jour(s) - ' + ($json.client || 'client') }}",
+        "message": "={{ 'Bonjour ' + ($json.client || '') + ',\\n\\nLa facture d\\'un montant de ' + ($json.montant || '') + '€ échéance le ' + ($json.date_echeance || '') + ' est toujours impayée et affiche un retard de ' + $json.daysLate + ' jour(s). Merci de procéder au règlement sous 7 jours ou de nous contacter pour convenir d\\'un échéancier.\\n\\nCordialement,\\nVotre équipe' }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "name": "Gmail Final",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1200,
+        500
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ 'Dernier rappel : facture en retard de ' + $json.daysLate + ' jour(s) - ' + ($json.client || 'client') }}",
+        "message": "={{ 'Bonjour ' + ($json.client || '') + ',\\n\\nCeci est un dernier avertissement concernant la facture de ' + ($json.montant || '') + '€ échéance le ' + ($json.date_echeance || '') + ', en retard de ' + $json.daysLate + ' jour(s). Si nous ne recevons pas de réponse ou de paiement sous 5 jours, nous serons contraints d\\'envisager d\\'autres mesures.\\n\\nMerci de revenir vers nous rapidement,\\nVotre équipe' }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "name": "Update Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1400,
+        300
+      ],
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID_HERE",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Invoices",
+          "mode": "name"
+        },
+        "columns": {
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Derniere Relance",
+              "displayName": "Derniere Relance",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "value": {
+            "email": "={{ $json.email }}",
+            "Derniere Relance": "={{ new Date().toISOString().split('T')[0] }}"
+          }
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "name": "Merge Recap",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1600,
+        300
+      ],
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 3
+      }
+    },
+    {
+      "name": "Format Recap",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1800,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javascript",
+        "jsCode": "const rows = $input.all().map(i => i.json || {}).filter(j => j.email);\nconst uniq = new Map();\nfor (const j of rows) {\n  const key = String(j.email || '') + '|' + String(j.date_echeance || '');\n  if (!uniq.has(key)) uniq.set(key, j);\n}\nconst list = [...uniq.values()];\nconst lines = list.map(j =>\n  `- ${j.client || 'Client'} · ${j.montant || ''} EUR · ${j.email} · retard ${j.daysLate || 0}j`\n);\nreturn [{\n  json: {\n    to: $env.OWNER_EMAIL || 'owner@example.com',\n    subject: `Récapitulatif des relances du ${new Date().toLocaleDateString('fr-LU')}`,\n    text: lines.length ? `Relances envoyées aujourd'hui :\\n${lines.join('\\n')}` : `Aucune relance envoyée aujourd'hui.`\n  }\n}];"
+      }
+    },
+    {
+      "name": "Gmail Recap",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2000,
+        300
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.to || 'owner@example.com' }}",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.text }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "name": "Setup Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        0
+      ],
+      "parameters": {
+        "width": 600,
+        "height": 400,
+        "color": 4,
+        "content": "## N8N-INVOICE-003 — Audit V2\nColonnes Google Sheets recommandées :\nclient, email, montant, date_echeance, statut, Derniere Relance.\n\nGarde-fous :\n- aucune relance si statut = Payé ;\n- aucune relance si échéance non dépassée ;\n- minimum 7 jours entre deux relances ;\n- une seule synthèse propriétaire ;\n- renseigner OWNER_EMAIL ou remplacer owner@example.com.\n\nTester avec des lignes factices avant activation."
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read Invoices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Invoices": {
+      "main": [
+        [
+          {
+            "node": "Calculate Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Delay": {
+      "main": [
+        [
+          {
+            "node": "Filter Overdue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Overdue": {
+      "main": [
+        [
+          {
+            "node": "Switch Delay Tier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Delay Tier": {
+      "main": [
+        [
+          {
+            "node": "Gmail Soft",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gmail Firm",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gmail Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Soft": {
+      "main": [
+        [
+          {
+            "node": "Update Sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Recap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Firm": {
+      "main": [
+        [
+          {
+            "node": "Update Sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Recap",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Gmail Final": {
+      "main": [
+        [
+          {
+            "node": "Update Sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Recap",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge Recap": {
+      "main": [
+        [
+          {
+            "node": "Format Recap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Recap": {
+      "main": [
+        [
+          {
+            "node": "Gmail Recap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Luxembourg"
+  },
+  "active": false,
+  "versionId": "7bdf4602-d805-44cf-b312-e0c3c620513f"
+}
