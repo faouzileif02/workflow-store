@@ -1,0 +1,492 @@
+{
+  "name": "N8N-LEAD-SLACK-001 — Fiche client Sheets + Slack — AUDITÉ V2",
+  "nodes": [
+    {
+      "name": "Form Trigger",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2,
+      "position": [
+        200,
+        300
+      ],
+      "parameters": {
+        "formName": "Contact - Site Web",
+        "description": "Formulaire natif n8n embarqué (iframe ou lien direct). Champs attendus: fullName, email, phone, message, source",
+        "fields": [
+          {
+            "name": "fullName",
+            "type": "string",
+            "label": "Nom complet",
+            "required": true
+          },
+          {
+            "name": "email",
+            "type": "string",
+            "label": "Email",
+            "required": true
+          },
+          {
+            "name": "phone",
+            "type": "string",
+            "label": "Téléphone",
+            "required": false
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "label": "Message",
+            "required": false
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "label": "Source (ex: site, campagne)",
+            "required": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "Normalize Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": true,
+        "assignments": {
+          "assignments": [
+            {
+              "name": "nameUpper",
+              "value": "={{ $json[\"fullName\"] ? $json[\"fullName\"].toUpperCase() : '' }}",
+              "type": "string"
+            },
+            {
+              "name": "emailLower",
+              "value": "={{ $json[\"email\"] ? $json[\"email\"].toLowerCase() : '' }}",
+              "type": "string"
+            },
+            {
+              "name": "phoneClean",
+              "value": "={{ $json[\"phone\"] ? $json[\"phone\"].replace(/[^0-9+]/g, '') : '' }}",
+              "type": "string"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json[\"message\"] || '' }}",
+              "type": "string"
+            },
+            {
+              "name": "source",
+              "value": "={{ $json[\"source\"] || 'site' }}",
+              "type": "string"
+            },
+            {
+              "name": "firstName",
+              "value": "={{ (() => { const n = $json[\"fullName\"] || ''; return n.split(' ')[0] || ''; })() }}",
+              "type": "string"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Google Sheets - Add Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        600,
+        200
+      ],
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Prospects",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{$json[\"timestamp\"]}}",
+            "Nom": "={{$json[\"nameUpper\"]}}",
+            "Email": "={{$json[\"emailLower\"]}}",
+            "Téléphone": "={{$json[\"phoneClean\"]}}",
+            "Message": "={{$json[\"message\"]}}",
+            "Source": "={{$json[\"source\"]}}",
+            "Statut": "Nouveau"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nom",
+              "displayName": "Nom",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Téléphone",
+              "displayName": "Téléphone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Statut",
+              "displayName": "Statut",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "Google Account"
+        }
+      }
+    },
+    {
+      "name": "Check Phone",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        200
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "phone-check",
+              "leftValue": "={{ $json[\"phoneClean\"] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Slack - With Phone",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1000,
+        120
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#commercial",
+          "mode": "name"
+        },
+        "text": "Nouveau lead reçu : *{{$json[\"nameUpper\"]}}*\n• Email: {{$json[\"emailLower\"]}}\n• Téléphone: {{$json[\"phoneClean\"]}}\n• Extrait: {{$json[\"message\"].slice(0,200)}}\n• Source: {{$json[\"source\"]}}\n• Fiche: ligne ajoutée dans Google Sheets",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "Slack Account"
+        }
+      }
+    },
+    {
+      "name": "Slack - No Phone",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1000,
+        280
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#commercial",
+          "mode": "name"
+        },
+        "text": "Nouveau lead reçu (sans téléphone) : *{{$json[\"nameUpper\"]}}*\n• Email: {{$json[\"emailLower\"]}}\n• Message: {{$json[\"message\"].slice(0,200)}}\n• Source: {{$json[\"source\"]}}\nMerci de relancer rapidement via email.",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "Slack Account"
+        }
+      }
+    },
+    {
+      "name": "Gmail - Send Acknowledgement",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1200,
+        200
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json[\"emailLower\"] }}",
+        "subject": "Merci {{$json[\"firstName\"]}} — Nous avons bien reçu votre message",
+        "message": "Bonjour {{$json[\"firstName\"]}},\n\nMerci pour votre message. Nous l'avons bien reçu et un membre de l'équipe commerciale vous contactera sous peu.\n\nRésumé de votre demande :\n{{$json[\"message\"]}}\n\nCordialement,\nL'équipe commerciale",
+        "options": {}
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "Google Account"
+        }
+      }
+    },
+    {
+      "name": "Google Sheets - Update Statut",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1400,
+        200
+      ],
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Prospects",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json[\"emailLower\"] }}",
+            "Statut": "Email envoyé"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Statut",
+              "displayName": "Statut",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "Google Account"
+        }
+      }
+    },
+    {
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        100
+      ],
+      "parameters": {
+        "content": "## N8N-LEAD-SLACK-001 — Audit V2\nCréer l'onglet `Prospects` avec exactement :\nTimestamp | Nom | Email | Téléphone | Message | Source | Statut\n\nLe workflow :\n1. normalise les données du formulaire ;\n2. ajoute le prospect ;\n3. notifie Slack ;\n4. envoie l'accusé de réception ;\n5. met à jour la ligne par la colonne Email avec `Email envoyé`.\n\nLe statut `Contacté` n'est plus utilisé pour un simple accusé automatique.",
+        "height": 320,
+        "width": 420,
+        "color": 4
+      }
+    }
+  ],
+  "connections": {
+    "Form Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Fields": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Add Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Add Row": {
+      "main": [
+        [
+          {
+            "node": "Check Phone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Phone": {
+      "main": [
+        [
+          {
+            "node": "Slack - With Phone",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack - No Phone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack - With Phone": {
+      "main": [
+        [
+          {
+            "node": "Gmail - Send Acknowledgement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack - No Phone": {
+      "main": [
+        [
+          {
+            "node": "Gmail - Send Acknowledgement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail - Send Acknowledgement": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Update Statut",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Update Statut": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "versionId": "a609cae2-dcce-4f06-bdac-138931cd54f2"
+}
