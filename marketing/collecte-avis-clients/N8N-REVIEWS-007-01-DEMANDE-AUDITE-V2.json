@@ -1,0 +1,109 @@
+{
+  "name": "N8N REVIEWS 007 — 01 Demande avis après achat — AUDITÉ V2",
+  "nodes": [
+    {
+      "name": "StickyNote - Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        100
+      ],
+      "parameters": {
+        "content": "## N8N-REVIEWS-007 — Étape 1/2\nCe workflow reçoit une commande terminée/livrée, attend 24 h, puis envoie le lien Typeform.\n\nTypeform doit avoir les champs cachés : `orderId`, `email`, `name`.\nLe lien envoyé transmet automatiquement ces valeurs.\n\nÀ configurer : URL publique Typeform, SMTP/Email, appel webhook depuis la boutique.\nAucun avis public n'est publié automatiquement.",
+        "height": 360,
+        "width": 540,
+        "color": 5
+      }
+    },
+    {
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        200,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "collecte-avis",
+        "responseMode": "onReceived",
+        "responseData": "{\"status\":\"received\"}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "amount": 24,
+        "unit": "hours"
+      }
+    },
+    {
+      "name": "Envoyer Typeform",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        600,
+        200
+      ],
+      "parameters": {
+        "fromEmail": "no-reply@votresite.com",
+        "toEmail": "={{$json[\"body\"][\"email\"]}}",
+        "subject": "Aidez-nous : donnez votre avis sur votre commande {{$json[\"body\"][\"orderId\"]}}",
+        "text": "Bonjour {{$json[\"body\"][\"name\"]}},\n\nMerci pour votre commande. Pouvez-vous évaluer votre expérience ?\n\nhttps://TYPEFORM_PUBLIC_URL#orderId={{encodeURIComponent($json[\"body\"][\"orderId\"] || '')}}&email={{encodeURIComponent($json[\"body\"][\"email\"] || '')}}&name={{encodeURIComponent($json[\"body\"][\"name\"] || '')}}\n\nMerci !",
+        "html": "<p>Bonjour {{$json[\"body\"][\"name\"]}},</p><p>Merci pour votre commande. Pouvez-vous évaluer votre expérience ?</p><p><a href=\"https://TYPEFORM_PUBLIC_URL#orderId={{encodeURIComponent($json[\"body\"][\"orderId\"] || '')}}&email={{encodeURIComponent($json[\"body\"][\"email\"] || '')}}&name={{encodeURIComponent($json[\"body\"][\"name\"] || '')}}\">Donner mon avis</a></p><p>Merci !</p>",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": {
+          "id": "SMTP_CREDENTIAL_ID",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Envoyer Typeform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Luxembourg"
+  },
+  "versionId": "00cd14a2-c58e-4040-8512-3f7bad9f08d1",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
