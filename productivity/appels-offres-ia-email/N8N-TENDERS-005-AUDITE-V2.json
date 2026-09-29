@@ -1,0 +1,493 @@
+{
+  "name": "N8N-TENDERS-005 — Alerte IA appels d’offres BOAMP — AUDITÉ V2",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "a64a8f10-5364-417f-b2cc-e6feca3fe4f0",
+      "name": "▶️ Test manuel",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1400,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 7 * * *"
+            }
+          ]
+        }
+      },
+      "id": "10f81a07-43e5-496e-a04d-6fd6b8d82950",
+      "name": "⏰ Tous les jours 07:30",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1400,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "kw",
+              "name": "keywords",
+              "value": "nettoyage,entretien,bâtiment,informatique,conseil",
+              "type": "string"
+            },
+            {
+              "id": "score",
+              "name": "minScore",
+              "value": 7,
+              "type": "number"
+            },
+            {
+              "id": "limit",
+              "name": "maxRecords",
+              "value": 30,
+              "type": "number"
+            },
+            {
+              "id": "model",
+              "name": "model",
+              "value": "openai/gpt-4.1-mini",
+              "type": "string"
+            },
+            {
+              "id": "email",
+              "name": "alertEmail",
+              "value": "REPLACE_WITH_ALERT_EMAIL",
+              "type": "string"
+            },
+            {
+              "id": "sheet",
+              "name": "spreadsheetId",
+              "value": "REPLACE_WITH_SPREADSHEET_ID",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4000d3ee-0a98-4489-bf78-bae6922f72dc",
+      "name": "⚙️ Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('⚙️ Configuration').first().json.spreadsheetId }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Historique",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "5e554ce1-85d7-4619-b657-d32e8318d8e6",
+      "name": "📚 Lire historique",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -920,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oGQjGfx2O5kULzam",
+          "name": "Google Sheets account"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const ids=$input.all().map(i=>String(i.json.identifiant_avis||'').trim()).filter(Boolean); return [{json:{sentIds:[...new Set(ids)]}}];"
+      },
+      "id": "87af51b2-7fbf-4972-b4be-a3d2c59b30b9",
+      "name": "🧠 IDs déjà envoyés",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -700,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://boamp-datadila.opendatasoft.com/api/explore/v2.1/catalog/datasets/boamp/records",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "={{ $('⚙️ Configuration').first().json.maxRecords }}"
+            },
+            {
+              "name": "order_by",
+              "value": "dateparution desc"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "N8N-Market-AI-Tenders/1.0"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json",
+              "neverError": false
+            }
+          }
+        }
+      },
+      "id": "f0216958-ed73-4035-8a2b-c0af3440fa7b",
+      "name": "🏛️ BOAMP — Avis récents",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -460,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const cfg=$('⚙️ Configuration').first().json;\nconst sent=new Set($('🧠 IDs déjà envoyés').first().json.sentIds||[]);\nconst rows=Array.isArray($json.results)?$json.results:[];\nconst kws=String(cfg.keywords||'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);\nconst out=[];\nfor(const r of rows){\n  const id=String(r.idweb||r.id||'').trim(); if(!id||sent.has(id)) continue;\n  const title=String(r.objet||'').trim(); if(!title) continue;\n  const description=String(r.DONNEES||r.criteres||r.descripteur_libelle||'').replace(/<[^>]+>/g,' ').replace(/\\s+/g,' ').trim();\n  const hay=(title+' '+description+' '+String(r.type_marche||'')+' '+String(r.nomacheteur||'')).toLowerCase();\n  const hits=kws.filter(k=>hay.includes(k));\n  if(kws.length && !hits.length) continue;\n  out.push({json:{identifiant_avis:id,titre:title,acheteur:String(r.nomacheteur||''),dateParution:String(r.dateparution||''),dateLimite:String(r.datelimitereponse||''),typeMarche:String(r.type_marche||''),departement:String(r.code_departement_prestation||r.code_departement||''),url:String(r.url_avis||''),description:description.slice(0,500),keywordsMatched:hits}});\n}\nreturn out.slice(0,20);"
+      },
+      "id": "f621ac28-a75f-4052-b01e-65489ea8ce9e",
+      "name": "🧹 Normaliser + anti-doublon",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({model:$('⚙️ Configuration').first().json.model,temperature:0,max_tokens:150,response_format:{type:'json_object'},messages:[{role:'system',content:'Tu qualifies un avis BOAMP pour une TPE. Retourne uniquement un JSON strict {score: entier 0-10, summary: deux phrases maximum, reason: courte}. Ne fabrique rien. Base-toi uniquement sur les données fournies.'},{role:'user',content:JSON.stringify($json)}]}) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "5c5474a7-975e-4d57-ab61-661949988031",
+      "name": "🧠 IA — Pertinence appel d’offre",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        20,
+        0
+      ],
+      "credentials": {
+        "openRouterApi": {
+          "id": "FWdNJAqsZh3EfcAw",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const src=$('🧹 Normaliser + anti-doublon').all(); const min=Number($('⚙️ Configuration').first().json.minScore||7); const out=[];\nfor(let i=0;i<$input.all().length;i++){\n const raw=String($input.all()[i].json?.choices?.[0]?.message?.content||'').replace(/^```(?:json)?\\s*/i,'').replace(/```\\s*$/,'').trim();\n let ai; try{ai=JSON.parse(raw);}catch(e){continue;} const score=Math.max(0,Math.min(10,Math.round(Number(ai.score||0))));\n if(score<min) continue; out.push({json:{...src[i].json,score,summary:String(ai.summary||'').trim(),reason:String(ai.reason||'').trim()}});\n}\nreturn out.slice(0,10);"
+      },
+      "id": "19117fe3-a654-44b9-b430-b69584dcc2e1",
+      "name": "✅ Valider score IA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('⚙️ Configuration').first().json.alertEmail }}",
+        "subject": "=Appel d’offres pertinent — {{$json.titre}}",
+        "emailType": "html",
+        "message": "=<h2>{{$json.titre}}</h2><p><strong>Score IA :</strong> {{$json.score}}/10</p><p>{{$json.summary}}</p><p><strong>Acheteur :</strong> {{$json.acheteur || '—'}}<br><strong>Date limite :</strong> {{$json.dateLimite || '—'}}<br><strong>Département :</strong> {{$json.departement || '—'}}</p><p><a href=\"{{$json.url}}\">Voir l’avis BOAMP</a></p>",
+        "options": {}
+      },
+      "id": "da1f1b01-cc1d-430c-be69-2bd866b5d7e2",
+      "name": "✉️ Gmail — Alerte",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        500,
+        0
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UhLduFjFWV90ly9j",
+          "name": "FAOUZIGUERRIDA GMAIL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('⚙️ Configuration').first().json.spreadsheetId }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Historique",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "identifiant_avis": "={{ $('✅ Valider score IA').item.json.identifiant_avis }}",
+            "titre": "={{ $('✅ Valider score IA').item.json.titre }}",
+            "date_envoi": "={{ $now.toISO() }}",
+            "url": "={{ $('✅ Valider score IA').item.json.url }}",
+            "score": "={{ $('✅ Valider score IA').item.json.score }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "identifiant_avis",
+              "displayName": "identifiant_avis",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "titre",
+              "displayName": "titre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "date_envoi",
+              "displayName": "date_envoi",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "831aca17-8c67-4572-a476-999972a364be",
+      "name": "📝 Google Sheets — Historique",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        740,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oGQjGfx2O5kULzam",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## N8N-TENDERS-005 — AUDITÉ V2\n\nSource: API officielle BOAMP / OpenDataSoft.\n\nAvant le test:\n1. Dans `⚙️ Configuration`, remplacer `REPLACE_WITH_ALERT_EMAIL`.\n2. Remplacer `REPLACE_WITH_SPREADSHEET_ID`.\n3. Créer un onglet Google Sheets `Historique` avec: `identifiant_avis`, `titre`, `date_envoi`, `url`, `score`.\n4. Adapter les mots-clés métier.\n5. Vérifier les credentials OpenRouter, Gmail et Google Sheets.\n\nGarde-fous:\n- description tronquée à 500 caractères avant IA;\n- max_tokens = 150;\n- score entier 0–10;\n- seuil par défaut 7/10;\n- maximum 10 alertes par exécution;\n- anti-doublon via `identifiant_avis`;\n- aucune candidature automatique.\n",
+        "height": 430,
+        "width": 520,
+        "color": 5
+      },
+      "id": "d2fab6b8-79de-4c8d-8571-2a557d41ea77",
+      "name": "📖 Configuration",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1380,
+        -520
+      ]
+    }
+  ],
+  "connections": {
+    "▶️ Test manuel": {
+      "main": [
+        [
+          {
+            "node": "⚙️ Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⏰ Tous les jours 07:30": {
+      "main": [
+        [
+          {
+            "node": "⚙️ Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⚙️ Configuration": {
+      "main": [
+        [
+          {
+            "node": "📚 Lire historique",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📚 Lire historique": {
+      "main": [
+        [
+          {
+            "node": "🧠 IDs déjà envoyés",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 IDs déjà envoyés": {
+      "main": [
+        [
+          {
+            "node": "🏛️ BOAMP — Avis récents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🏛️ BOAMP — Avis récents": {
+      "main": [
+        [
+          {
+            "node": "🧹 Normaliser + anti-doublon",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧹 Normaliser + anti-doublon": {
+      "main": [
+        [
+          {
+            "node": "🧠 IA — Pertinence appel d’offre",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 IA — Pertinence appel d’offre": {
+      "main": [
+        [
+          {
+            "node": "✅ Valider score IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✅ Valider score IA": {
+      "main": [
+        [
+          {
+            "node": "✉️ Gmail — Alerte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✉️ Gmail — Alerte": {
+      "main": [
+        [
+          {
+            "node": "📝 Google Sheets — Historique",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Luxembourg"
+  },
+  "versionId": "266f678c-1d1c-49f3-ac5d-50426bc250d8",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}
