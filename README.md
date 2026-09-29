@@ -24,8 +24,8 @@ Catalogue privé de workflows n8n professionnels préparés pour une future comm
 
 ### Marketing
 - [Collecte automatique d'avis clients après achat](marketing/collecte-avis-clients/)
-- [Publication Facebook auto météo locale + IA](marketing/facebook-meteo-ia/)
-- [Facebook Posts + Reels — image + vidéo](marketing/facebook-posts-reels/)
+- [Publication Facebook auto météo locale + IA](marketing/facebook-meteo-ia/) — **LIVRABLE**
+- [Facebook Posts + Reels — image + vidéo](marketing/facebook-posts-reels/) — **LIVRABLE**
 - [Publication automatique LinkedIn depuis Google Sheets](marketing/linkedin-google-sheets/)
 - [Réponse automatique aux avis Google Business](marketing/reponse-avis-google-business/)
 - [Veille marque automatique Twitter/X vers Google Sheets](marketing/veille-marque-twitter-google-sheets/)
@@ -49,6 +49,8 @@ Catalogue privé de workflows n8n professionnels préparés pour une future comm
 - **22 fiches catalogue au total**.
 - **Agent IA Directeur Marketing & Ventes** est **LIVRABLE**.
 - **Prospection IA — Brouillons Gmail V5.1** est **LIVRABLE**.
+- **Publication Facebook auto météo locale + IA** est **LIVRABLE**.
+- **Facebook Posts + Reels — image + vidéo** est **LIVRABLE**.
 - **Alerte rupture de stock Google Sheets** est classé **PUBLIABLE**.
 - Les autres workflows restent à leur statut actuel tant qu'ils ne sont pas revalidés.
 
