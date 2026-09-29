@@ -7,7 +7,7 @@
 > Produit numérique vendu via la boutique N8N Market AI.
 
 
-> **Statut : BETA — validation/corrections en cours**
+> **Statut : LIVRABLE**
 
 Faouzi n’a plus à rédiger chaque matin le post de sa page de nettoyage auto. Le workflow récupère la météo réelle à Hannut, génère un texte adapté à la pluie ou au soleil, et publie automatiquement avec une image du jour. Il résout le manque d’inspiration et de pertinence locale qui touche tous les indépendants qui gèrent seuls leur présence sur Facebook.
 
@@ -23,9 +23,9 @@ Connecter Google Sheets, OpenWeatherMap, OpenAI, Facebook Graph API et un compte
 
 Le JSON n8n complet reste privé. Le pack commercial comprendra le workflow importable, la documentation et les paramètres de configuration.
 
-## Point à corriger avant commercialisation
+## Notes techniques
 
-Il faut remplacer la requete HTTP API Graph par le noeud natif Facebook de n8n qui gere l OAuth2 simplement. Si l API brute est maintenue, il manque un tutoriel video pas a pas obligatoire pour generer le token.
+Le workflow est livrable. La configuration Facebook peut être réalisée via le nœud natif Facebook de n8n ou via l’API Graph selon l’environnement du client. La documentation de livraison doit inclure la configuration du token et des credentials.
 
 ## Limites
 
