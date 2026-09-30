@@ -1,5 +1,7 @@
 # Publication Facebook auto météo locale + IA pour Hannut
 
+![Publication Facebook auto météo locale + IA pour Hannut](./workflow-banner.svg)
+
 ## 🛒 Acheter ce workflow
 
 [**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/publication-facebook-auto-meteo-locale-ia-workflow-n8n)
