@@ -2,7 +2,31 @@
 
 ![Tri automatique des CV par email vers Notion](./workflow-banner.svg)
 
-> **Statut : BETA — 3 variantes regroupées**
+## 🛒 Offre N8N Market AI
+
+| | |
+|---|---|
+| 💰 **Prix** | **29 €** |
+| 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
+| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 🧩 **Niveau** | Intermédiaire |
+| ⏱️ **Installation estimée** | 30–60 min* |
+| 🔧 **Personnalisation** | Disponible |
+
+[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
+
+<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+
+## 📦 Ce que vous recevez
+
+- une version finalisée et adaptée à votre environnement ;
+- le workflow n8n importable après validation ;
+- le guide de configuration ;
+- la liste des comptes, API et credentials à connecter ;
+- les paramètres à personnaliser.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
+
 
 Les RH de petites structures perdent un temps fou à copier manuellement les CV reçus par email dans leur tableau de suivi. Ce workflow détecte automatiquement les nouvelles candidatures, extrait les informations clés du PDF et crée une fiche structurée dans Notion. Un email de confirmation est envoyé au candidat et une notification arrive sur Slack.
 
@@ -31,3 +55,7 @@ Le workflow ne lit pas les CV au format Word ou image scannee, seulement les PDF
 ## Tags
 
 recrutement, cv, notion, automatisation, rh, email, parsing
+
+---
+
+[← Retour au catalogue N8N Market AI](../../README.md)
