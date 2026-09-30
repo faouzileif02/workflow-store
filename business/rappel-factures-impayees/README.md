@@ -1,5 +1,7 @@
 # Rappel automatique de factures impayées par email
 
+![Rappel automatique de factures impayées par email](./workflow-banner.svg)
+
 ## 🛒 Acheter ce workflow
 
 [**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/rappel-automatique-de-factures-impayees-par-email-workflow-n8n)
