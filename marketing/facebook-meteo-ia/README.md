@@ -2,14 +2,31 @@
 
 ![Publication Facebook auto météo locale + IA pour Hannut](./workflow-banner.svg)
 
-## 🛒 Acheter ce workflow
+## 🛒 Offre N8N Market AI
 
-[**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/publication-facebook-auto-meteo-locale-ia-workflow-n8n)
+| | |
+|---|---|
+| 💰 **Prix** | **29 €** |
+| 📌 **Statut** | **✅ LIVRABLE** |
+| 📦 **Livraison** | Prêt à livrer après achat |
+| 🧩 **Niveau** | Intermédiaire |
+| ⏱️ **Installation estimée** | 30–60 min* |
+| 🔧 **Personnalisation** | Disponible |
 
-> Produit numérique vendu via la boutique N8N Market AI.
+[**🛒 Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/publication-facebook-auto-meteo-locale-ia-workflow-n8n)
 
+<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
 
-> **Statut : LIVRABLE**
+## 📦 Ce que vous recevez
+
+- le workflow n8n importable ;
+- le guide d'installation et de configuration ;
+- la liste des comptes, API et credentials à connecter ;
+- les paramètres à personnaliser ;
+- une base prête pour votre environnement.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
+
 
 Faouzi n’a plus à rédiger chaque matin le post de sa page de nettoyage auto. Le workflow récupère la météo réelle à Hannut, génère un texte adapté à la pluie ou au soleil, et publie automatiquement avec une image du jour. Il résout le manque d’inspiration et de pertinence locale qui touche tous les indépendants qui gèrent seuls leur présence sur Facebook.
 
@@ -31,8 +48,12 @@ Le workflow est livrable. La configuration Facebook peut être réalisée via le
 
 ## Limites
 
-le workflow ne vérifie pas si l'image Imgur est encore accessible au moment de la publication. Il ne gère pas les commentaires ni les réponses aux abonnés. Il ne détecte pas si Facebook a rejeté le post pour cause de contenu ou de limite d'API. Le token Facebook devra être rafraîchi manuellement tous les 60 jours environ, sans quoi les publications s'arrêtent. --- MISSION ARCHITECTE : construis le noeud IF de fallback météo en priorité absolue avant de brancher OpenAI. Le point technique à surveiller est la structure exacte du JSON retourné par OpenWeatherMap, notamment le champ weather[0].description qui peut être absent si la ville n'est pas reconnue. Si ce champ est vide ou null, le Set de fallback doit injecter la chaîne "temps variable" pour que le prompt OpenAI reçoive toujours une valeur valide et ne génère jamais un post avec une variable non résolue visible dans le texte publié. MISSION AUDITEUR : ton risque prioritaire est la limite de l'API Facebook Graph sur la publication d'images via URL externe. Vérifie si le endpoint /page-id/photos accepte un paramètre url pointant vers Imgur sans que Facebook ne télécharge et rejette l'image pour format ou taille non conformes. Vérifie également le quota gratuit d'OpenWeatherMap en appels par minute pour confirmer qu'un appel unique par jour ne risque pas d'être bloqué par un rate limit partagé avec d'autres utilisateurs du même compte. MISSION VENDEUR : vise les groupes Facebook et forums dédiés aux indépendants du secteur automobile et de la carrosserie en Belgique et dans le nord de la France. L'angle de vente est concret et local : ton post Facebook parle de pluie quand il pleut à Hannut, pas d'un soleil imaginaire. Mets en avant le fait que c'est le seul template n8n qui connecte la météo locale au contenu publié pour un commerce de proximité, et que la communauté des créateurs de templates confirme que ça n'existe pas encore. MISSION COMMUNAUTE : est-ce qu'un gérant de petite entreprise locale qui n'a jamais touché à n8n peut configurer ce workflow en moins d'une heure avec uniquement le README fourni, ou bien l'étape de création du token Facebook Graph longue durée est-elle un point de blocage suffisant pour qu'il abandonne avant la première publication ?
+le workflow ne vérifie pas si l'image Imgur est encore accessible au moment de la publication. Il ne gère pas les commentaires ni les réponses aux abonnés. Il ne détecte pas si Facebook a rejeté le post pour cause de contenu ou de limite d'API. Le token Facebook devra être rafraîchi manuellement tous les 60 jours environ, sans quoi les publications s'arrêtent.
 
 ## Tags
 
 facebook, meteo, openai, publication auto, hannut, automobile, contenu local
+
+---
+
+[← Retour au catalogue N8N Market AI](../../README.md)
