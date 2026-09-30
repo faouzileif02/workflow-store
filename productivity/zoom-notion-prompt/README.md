@@ -1,6 +1,10 @@
-# Compte-rendu Zoom vers Notion avec prompt personnalisé
+# Compte-rendu Zoom vers Notion avec prompt personnalisé — n8n
 
-![Compte-rendu Zoom vers Notion avec prompt personnalisé](./workflow-banner.svg)
+![Compte-rendu Zoom vers Notion](./workflow-banner.svg)
+
+> **Un workflow pour récupérer un enregistrement Zoom Cloud, le transcrire, appliquer votre propre prompt de synthèse et créer une page Notion structurée.**
+
+[**🛠️ Commander une version personnalisée — 29 € →**](https://n8nmarketai.com/products/compte-rendu-zoom-vers-notion-avec-prompt-personnalise-workflow-n8n)
 
 ## 🛒 Offre N8N Market AI
 
@@ -8,54 +12,132 @@
 |---|---|
 | 💰 **Prix** | **29 €** |
 | 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
-| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 📦 **Livraison** | Finalisation + validation avant livraison |
 | 🧩 **Niveau** | Avancé |
 | ⏱️ **Installation estimée** | 45–90 min* |
 | 🔧 **Personnalisation** | Disponible |
 
-[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
+<sub>*Estimation hors récupération, création ou validation des accès externes.</sub>
 
-<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+---
 
-## 📦 Ce que vous recevez
+## Pourquoi ce produit ?
 
-- une version finalisée et adaptée à votre environnement ;
-- le workflow n8n importable après validation ;
-- le guide de configuration ;
-- la liste des comptes, API et credentials à connecter ;
-- les paramètres à personnaliser.
+Après une réunion client, la transcription et la mise en forme d’un compte-rendu peuvent devenir un travail répétitif, surtout lorsque l’équipe souhaite conserver une structure précise.
 
-> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
-
-
-Les consultants et chefs de projet perdent jusqu’à deux heures après chaque appel client à retranscrire, structurer et mettre en page un compte-rendu exploitable. Les outils SaaS comme Fathom ou Fireflies produisent un format figé sans aucun contrôle sur la structure ni sur le prompt. Ce workflow crée automatiquement une page Notion parfaitement structurée selon votre propre prompt et votre mise en page exacte.
+Il vise à :
+- récupérer l’enregistrement automatiquement ;
+- transcrire l’audio ;
+- appliquer votre propre structure de compte-rendu ;
+- créer une page Notion ;
+- standardiser les livrables de réunion.
 
 ## Pour qui ?
 
-Consultants indépendants et petites agences qui facturent au temps et qui veulent arrêter de perdre des heures sur les comptes-rendus.
+- consultants ;
+- chefs de projet ;
+- petites agences ;
+- équipes utilisant Zoom Cloud et Notion ;
+- professionnels qui veulent contrôler le format final.
 
-## Prérequis
+## Avant / Après
 
-Connectez votre compte Zoom (webhook + Cloud Recordings), OpenAI et Notion.
+| Avant | Avec le workflow |
+|---|---|
+| Télécharger l'enregistrement manuellement | Récupération automatisée |
+| Transcrire à la main | Transcription automatique |
+| Réécrire le compte-rendu | Synthèse par prompt |
+| Copier dans Notion | Création de page structurée |
+| Formats variables | Structure reproductible |
 
-## Version commerciale
+## Architecture
 
-Le fichier JSON n8n complet reste privé. Le pack commercial est prévu pour inclure le workflow importable, les instructions de configuration et les paramètres à personnaliser.
+![Architecture Compte-rendu Zoom vers Notion](./architecture-zoom-notion.svg)
 
-## Validation technique
+**Zoom Cloud → Téléchargement → Transcription → Prompt → Notion**
 
-La fiche de conception indique que ce workflow doit encore être retravaillé avant commercialisation.
+## Fonctionnement cible
 
-**Point principal à corriger :** Le code JSON du workflow est totalement absent. Il faut absolument integrer un decoupage du fichier audio car le simple avertissement propose pour la limite de 25 Mo de Whisper rendra le template inoperant. Il manque aussi un systeme de retry pour palier le delai de disponibilite du fichier chez Zoom.
+1. Recevoir l’événement Zoom approprié.
+2. Attendre que l’enregistrement soit disponible.
+3. Télécharger le fichier avec l’autorisation adéquate.
+4. Transcrire l’audio.
+5. Appliquer le prompt personnalisé.
+6. Créer la page Notion.
+
+## Cas d'usage
+
+### Consultant
+Créer un compte-rendu client dans son format standard.
+
+### Agence
+Uniformiser les comptes-rendus de réunions de projet.
+
+### Équipe interne
+Centraliser les décisions et actions dans Notion.
+
+## ⚠️ À finaliser avant livraison
+
+La version commerciale doit être finalisée et testée dans l’environnement du client, notamment :
+- construire/revalider le JSON complet ;
+- gérer le délai de disponibilité des enregistrements Zoom avec retry ;
+- prévoir un traitement pour les fichiers audio volumineux ;
+- valider les permissions OAuth Zoom nécessaires ;
+- tester la création de page Notion avec la structure du client.
 
 ## Limites
 
-le workflow ne fonctionne qu'avec les enregistrements Zoom Cloud, pas les enregistrements locaux. Il ne détecte pas automatiquement les locuteurs, la diarisation n'est pas incluse. Il ne relit pas les pages Notion existantes ni ne fusionne plusieurs réunions. Le coût Whisper d'environ 0,006 dollar par minute audio est réel et à la charge de l'utilisateur.
+- centré sur Zoom Cloud dans cette conception ;
+- pas de diarisation avancée prévue par défaut ;
+- ne fusionne pas automatiquement plusieurs réunions ;
+- les coûts de transcription/IA dépendent du fournisseur choisi.
 
-## Tags
+## 🛡️ Garde-fous recommandés
 
-compte-rendu, notion, zoom, prompt personnalisé, réunion
+- retry contrôlé avant abandon ;
+- validation du fichier téléchargé ;
+- limite de taille et stratégie de découpage ;
+- credentials OAuth stockés dans n8n ;
+- journalisation des erreurs.
+
+## 📦 Ce que vous recevez
+
+Après finalisation :
+- workflow finalisé ;
+- guide Zoom OAuth ;
+- prompt de compte-rendu personnalisable ;
+- structure Notion adaptée ;
+- guide d’installation ;
+- paramètres de transcription.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés dans ce dépôt.
+
+## Prérequis
+
+- n8n ;
+- Zoom Cloud Recordings ;
+- Notion ;
+- fournisseur de transcription/IA ;
+- credentials OAuth appropriés.
+
+## FAQ
+
+### Puis-je choisir mon propre format de compte-rendu ?
+Oui. C’est l’un des objectifs principaux du workflow.
+
+### Fonctionne-t-il avec un enregistrement local ?
+La conception actuelle cible Zoom Cloud.
+
+### Peut-il reconnaître automatiquement chaque intervenant ?
+Pas dans la version standard prévue.
+
+### Pourquoi faut-il gérer les gros fichiers ?
+Les services de transcription imposent des limites qui doivent être prises en compte dans la version finale.
 
 ---
+
+## Transformez vos réunions en comptes-rendus structurés
+
+[**🛠️ Commander la version personnalisée — 29 € →**](https://n8nmarketai.com/products/compte-rendu-zoom-vers-notion-avec-prompt-personnalise-workflow-n8n)
 
 [← Retour au catalogue N8N Market AI](../../README.md)
