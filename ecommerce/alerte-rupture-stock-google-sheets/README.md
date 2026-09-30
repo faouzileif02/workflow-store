@@ -4,13 +4,14 @@
 
 > **Un workflow simple pour surveiller un stock géré dans Google Sheets, détecter les produits sous leur seuil d’alerte et envoyer un seul récapitulatif au responsable.**
 
-[**🛒 Voir le workflow sur N8N Market AI →**](https://n8nmarketai.com/products/alerte-automatique-rupture-de-stock-google-sheets-workflow-n8n)
+[**🆓 Tester gratuitement N8N Market AI →**](https://n8nmarketai.com/products/alerte-automatique-rupture-de-stock-google-sheets-workflow-n8n)
 
 ## 🛒 Offre N8N Market AI
 
 | | |
 |---|---|
-| 💰 **Prix Shopify actuel** | **0 €** |
+| 💰 **Prix** | **GRATUIT — 0 €** |
+| 🆓 **Offre** | **Workflow découverte N8N Market AI** |
 | 📌 **Statut** | **🟢 PUBLIABLE** |
 | 📦 **Livraison** | Après contrôle final |
 | 🧩 **Niveau** | Facile |
@@ -20,6 +21,12 @@
 <sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
 
 ---
+
+## Pourquoi ce workflow est gratuit ?
+
+Ce workflow sert de **produit découverte** : il permet de tester la qualité de nos automatisations, notre documentation et notre approche n8n avant d’acheter un workflow premium.
+
+Il reste volontairement simple, utile et personnalisable, sans remplacer les produits plus avancés du catalogue.
 
 ## Pourquoi ce produit ?
 
@@ -152,6 +159,6 @@ Pas dans cette version standard. Cela demanderait une adaptation.
 
 ## Transformez votre Google Sheet en système d’alerte stock
 
-[**🛒 Voir l’offre actuelle →**](https://n8nmarketai.com/products/alerte-automatique-rupture-de-stock-google-sheets-workflow-n8n)
+[**🆓 Tester gratuitement ce workflow →**](https://n8nmarketai.com/products/alerte-automatique-rupture-de-stock-google-sheets-workflow-n8n)
 
 [← Retour au catalogue N8N Market AI](../../README.md)
