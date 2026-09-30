@@ -2,16 +2,31 @@
 
 ![Agent IA Directeur Marketing & Ventes — Multi-Agent n8n](./workflow-banner.svg)
 
-**SKU :** N8N-AI-MKT-DIR-018  
-**Prix Shopify :** 29 €  
-**Statut :** LIVRABLE  
-**Type :** Agent IA n8n multi-agent
+## 🛒 Offre N8N Market AI
 
-## Acheter
+| | |
+|---|---|
+| 💰 **Prix** | **29 €** |
+| 📌 **Statut** | **✅ LIVRABLE** |
+| 📦 **Livraison** | Prêt à livrer après achat |
+| 🧩 **Niveau** | Avancé |
+| ⏱️ **Installation estimée** | 45–90 min* |
+| 🔧 **Personnalisation** | Disponible |
 
-[🛒 Acheter sur N8N Market AI](https://n8nmarketai.com/products/agent-ia-directeur-marketing-ventes-multi-agent-n8n)
+[**🛒 Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/agent-ia-directeur-marketing-ventes-multi-agent-n8n)
 
-> Le workflow complet n'est pas publié sur GitHub. Il est livré après achat.
+<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+
+## 📦 Ce que vous recevez
+
+- le workflow n8n importable ;
+- le guide d'installation et de configuration ;
+- la liste des comptes, API et credentials à connecter ;
+- les paramètres à personnaliser ;
+- une base prête pour votre environnement.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
+
 
 ## Objectif
 
@@ -39,3 +54,7 @@ La version commerciale auditée est conservée hors du dépôt public et livrée
 - pas de remise automatique ;
 - pas d'envoi massif sans autorisation ;
 - validation humaine avant action sensible.
+
+---
+
+[← Retour au catalogue N8N Market AI](../../README.md)
