@@ -4,7 +4,7 @@
 
 > **Un workflow de prospection B2B qui recherche des prospects, filtre les profils peu pertinents, qualifie les opportunités avec l’IA et prépare des brouillons Gmail — sans envoyer automatiquement les emails.**
 
-[**🛒 Commander Prospection IA — 29 € →**](https://n8nmarketai.com/)
+[**🛒 Commander Prospection IA — 29 € →**](https://n8nmarketai.com/products/prospection-ia-brouillons-gmail-workflow-n8n)
 
 ## 🛒 Offre N8N Market AI
 
@@ -158,6 +158,6 @@ Non. Elles restent configurées dans l’environnement n8n du client.
 
 Automatisez la recherche et la qualification, puis gardez la décision finale avant chaque envoi.
 
-[**🛒 Commander Prospection IA — 29 € →**](https://n8nmarketai.com/)
+[**🛒 Commander Prospection IA — 29 € →**](https://n8nmarketai.com/products/prospection-ia-brouillons-gmail-workflow-n8n)
 
 [← Retour au catalogue N8N Market AI](../../README.md)
