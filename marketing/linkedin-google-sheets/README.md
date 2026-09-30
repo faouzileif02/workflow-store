@@ -1,5 +1,7 @@
 # Publication automatique LinkedIn depuis Google Sheets
 
+![Publication automatique LinkedIn depuis Google Sheets](./workflow-banner.svg)
+
 ## 🛒 Acheter ce workflow
 
 [**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/publication-automatique-linkedin-depuis-google-sheets-workflow-n8n)
