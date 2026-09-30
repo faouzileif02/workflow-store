@@ -1,5 +1,7 @@
 # Prospection IA — Brouillons Gmail — n8n
 
+![Prospection IA — Brouillons Gmail — n8n](./workflow-banner.svg)
+
 **Statut :** LIVRABLE  
 **Version de référence :** V5.1
 
