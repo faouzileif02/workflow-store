@@ -15,6 +15,7 @@
 - **Personnalisation possible** : adaptation aux outils, données, règles métier et canaux du client.
 - **Sécurité** : aucun mot de passe, token ou credential client n'est publié dans GitHub.
 - **Livraison commerciale privée** : les fichiers JSON complets payants ne sont pas exposés publiquement.
+- **Test gratuit** : un workflow découverte à 0 € permet d’évaluer N8N Market AI avant d’acheter.
 
 ## Statuts
 
@@ -22,6 +23,7 @@
 |---|---|
 | ✅ **LIVRABLE** | Workflow validé et préparé pour livraison commerciale. |
 | 🟢 **PUBLIABLE** | Fiche et structure prêtes ; contrôle final recommandé avant livraison. |
+| 🆓 **GRATUIT / DÉCOUVERTE** | Workflow proposé à 0 € pour tester la qualité du service. |
 | 🟠 **BETA / PERSONNALISATION** | Workflow visible au catalogue, à finaliser ou adapter avant livraison au client. |
 
 ---
@@ -61,7 +63,7 @@
 <td width="50%" valign="top">
 <a href="ecommerce/alerte-rupture-stock-google-sheets/"><img src="ecommerce/alerte-rupture-stock-google-sheets/workflow-banner.svg" alt="Alerte rupture de stock Google Sheets"></a><br>
 <strong>Alerte automatique rupture de stock Google Sheets</strong><br>
-<sub>🟢 PUBLIABLE · stock · Sheets · email</sub><br>
+<sub>🆓 GRATUIT · 🟢 PUBLIABLE · stock · Sheets · email</sub><br>
 <a href="ecommerce/alerte-rupture-stock-google-sheets/">Voir la fiche →</a>
 </td>
 <td width="50%" valign="top">
@@ -204,7 +206,7 @@ Les workflows BETA peuvent être adaptés aux outils, règles et données du cli
 <td width="50%" valign="top">
 <a href="ecommerce/alerte-rupture-stock-google-sheets/"><img src="ecommerce/alerte-rupture-stock-google-sheets/workflow-banner.svg" alt="Alerte rupture stock"></a><br>
 <strong>Alerte automatique rupture de stock Google Sheets</strong><br>
-<sub>🟢 PUBLIABLE</sub><br><a href="ecommerce/alerte-rupture-stock-google-sheets/">Voir la fiche →</a>
+<sub>🆓 GRATUIT · 🟢 PUBLIABLE</sub><br><a href="ecommerce/alerte-rupture-stock-google-sheets/">Tester gratuitement →</a>
 </td>
 </tr>
 </table>
