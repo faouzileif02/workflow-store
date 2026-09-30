@@ -1,6 +1,10 @@
-# Veille marque automatique Twitter vers Google Sheets
+# Veille de marque X/Twitter vers Google Sheets — n8n
 
-![Veille marque automatique Twitter vers Google Sheets](./workflow-banner.svg)
+![Veille de marque X Twitter](./workflow-banner.svg)
+
+> **Un workflow pour centraliser les mentions de marque disponibles via l’API X/Twitter, appliquer des règles d’importance et alerter uniquement lorsqu’un signal mérite votre attention.**
+
+[**🛠️ Commander une version personnalisée — 29 € →**](https://n8nmarketai.com/products/veille-marque-automatique-twitter-x-vers-google-sheets-workflow-n8n)
 
 ## 🛒 Offre N8N Market AI
 
@@ -8,52 +12,129 @@
 |---|---|
 | 💰 **Prix** | **29 €** |
 | 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
-| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 📦 **Livraison** | Finalisation + validation avant livraison |
 | 🧩 **Niveau** | Intermédiaire |
 | ⏱️ **Installation estimée** | 30–60 min* |
 | 🔧 **Personnalisation** | Disponible |
 
-[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
+<sub>*Estimation hors récupération, création ou validation des accès externes.</sub>
 
-<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+---
 
-## 📦 Ce que vous recevez
+## Pourquoi ce produit ?
 
-- une version finalisée et adaptée à votre environnement ;
-- le workflow n8n importable après validation ;
-- le guide de configuration ;
-- la liste des comptes, API et credentials à connecter ;
-- les paramètres à personnaliser.
+Suivre manuellement les conversations autour d’une marque est difficile à tenir dans la durée. Une veille automatisée aide à centraliser les signaux dans un tableau exploitable.
 
-> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
-
-
-Ce workflow surveille automatiquement les mentions de votre marque sur Twitter/X et les centralise dans un tableau Google Sheets. Vous recevez un email d’alerte uniquement pour les tweets importants (plus de 5 likes ou contenant des mots négatifs). Fini de passer à côté des conversations qui vous concernent.
+Il vise à :
+- collecter les mentions accessibles ;
+- filtrer par mots-clés ;
+- appliquer des règles d’importance ;
+- historiser dans Google Sheets ;
+- déclencher une alerte email.
 
 ## Pour qui ?
 
-Gérants de petites marques, community managers freelances et entrepreneurs qui veulent suivre leur e-réputation sur Twitter sans y passer des heures.
+- petites marques ;
+- community managers ;
+- agences ;
+- entrepreneurs ;
+- équipes qui suivent leur e-réputation sur X/Twitter.
 
-## Prérequis
+## Avant / Après
 
-Connexion compte Twitter/X (Bearer Token) + compte Google (Sheets & Gmail)
+| Avant | Avec le workflow |
+|---|---|
+| Recherche manuelle | Collecte planifiée |
+| Mentions dispersées | Centralisation dans Sheets |
+| Tout semble urgent | Règles d'importance |
+| Risque de rater un signal | Alerte ciblée |
+| Peu d'historique | Journalisation |
 
-## Version commerciale
+## Architecture
 
-Le JSON n8n complet reste privé. Le pack commercial comprendra le workflow importable, la documentation et les paramètres de configuration.
+![Architecture Veille de marque X Twitter](./architecture-brand-monitoring.svg)
 
-## Point à corriger avant commercialisation
+**X / Twitter → Filtrage → Importance → Google Sheets → Email**
 
-Il faut corriger les limites car le plan gratuit de l API Twitter ne permet plus de chercher des tweets (plan Basic payant requis). Remplacer aussi Split In Batches par le noeud Loop et optimiser la recherche Google Sheets pour ne pas la faire en boucle.
+## Fonctionnement cible
+
+1. Interroger l’accès API configuré.
+2. Filtrer les résultats selon la marque et les règles.
+3. Comparer avec l’historique.
+4. Enregistrer les nouvelles mentions.
+5. Déclencher une alerte pour les signaux importants.
+
+## Cas d'usage
+
+### Petite marque
+Conserver un historique simple des mentions.
+
+### Community manager
+Recevoir une alerte lorsque certaines règles sont remplies.
+
+### Agence
+Créer une base de veille adaptée à un client.
+
+## ⚠️ À finaliser avant livraison
+
+La version commerciale doit être finalisée et testée dans l’environnement du client, notamment :
+- vérifier l’offre et les permissions API X disponibles au moment de l’installation ;
+- remplacer les anciennes boucles par une logique Loop adaptée à la version n8n utilisée ;
+- optimiser la déduplication Google Sheets ;
+- tester les limites de fréquence de l’API du compte client.
 
 ## Limites
 
-Le plan gratuit de l'API Twitter/X v2 limite à 500 000 tweets lus par mois et impose des délais, ce qui peut bloquer un compte avec beaucoup de mentions. Le workflow ne couvre pas Instagram, TikTok ou Facebook dont les API sont fermées ou payantes. L'analyse de sentiment est rudimentaire, basée sur une liste de mots définis à la main, pas sur un modèle IA. Les tweets supprimés entre le moment de la collecte et la consultation ne seront pas retirés de la feuille.
+- dépend fortement des capacités et conditions actuelles de l’API X ;
+- ne couvre pas automatiquement Instagram, TikTok ou Facebook ;
+- les règles de sentiment simples peuvent manquer de nuance ;
+- une publication supprimée peut rester dans l’historique.
 
-## Tags
+## 🛡️ Garde-fous recommandés
 
-veille marque, twitter monitoring, google sheets, alerte email, community management
+- déduplication ;
+- limite du nombre de requêtes ;
+- journalisation ;
+- règles d’alerte configurables ;
+- credentials API conservés dans n8n.
+
+## 📦 Ce que vous recevez
+
+Après finalisation :
+- workflow finalisé ;
+- structure Google Sheets ;
+- règles de filtre ;
+- configuration email ;
+- guide API X ;
+- documentation d’installation.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés dans ce dépôt.
+
+## Prérequis
+
+- n8n ;
+- accès API X/Twitter compatible ;
+- Google Sheets ;
+- Gmail ou SMTP.
+
+## FAQ
+
+### Le workflow fonctionne-t-il sans accès API X ?
+Non. Il dépend d’un accès compatible.
+
+### Peut-il surveiller Instagram aussi ?
+Pas dans cette version standard.
+
+### Puis-je changer les règles d’alerte ?
+Oui.
+
+### Les mentions sont-elles dédupliquées ?
+La version finale doit intégrer cette logique.
 
 ---
+
+## Centralisez votre veille de marque dans un tableau exploitable
+
+[**🛠️ Commander la version personnalisée — 29 € →**](https://n8nmarketai.com/products/veille-marque-automatique-twitter-x-vers-google-sheets-workflow-n8n)
 
 [← Retour au catalogue N8N Market AI](../../README.md)
