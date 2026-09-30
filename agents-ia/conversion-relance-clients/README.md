@@ -1,6 +1,6 @@
 # Agent IA Conversion & Relance Clients — Shopify + n8n
 
-![Agent IA Conversion & Relance Clients](https://cdn.shopify.com/s/files/1/1021/9726/4768/files/agent-ia-conversion-relance-clients.png?v=1790628831)
+![Agent IA Conversion & Relance Clients — Shopify + n8n](./workflow-banner.svg)
 
 **SKU :** N8N-AI-CONVERT-020  
 **Prix Shopify :** 29 €  
