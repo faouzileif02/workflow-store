@@ -1,6 +1,6 @@
 # Agent IA SEO & Fiches Produits — Shopify + n8n
 
-![Agent IA SEO & Fiches Produits](https://cdn.shopify.com/s/files/1/1021/9726/4768/files/agent-ia-seo-fiches-produits.png?v=1790628822)
+![Agent IA SEO & Fiches Produits — Shopify + n8n](./workflow-banner.svg)
 
 **SKU :** N8N-AI-SEO-PROD-019  
 **Prix Shopify :** 29 €  
