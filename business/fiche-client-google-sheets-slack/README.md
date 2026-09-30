@@ -1,6 +1,10 @@
-# Création auto fiche client Google Sheets + alerte Slack
+# Nouveau lead → Google Sheets + Slack — Workflow n8n
 
 ![Création auto fiche client Google Sheets + alerte Slack](./workflow-banner.svg)
+
+> **Un workflow pour transformer chaque nouveau formulaire en fiche prospect, accusé de réception et notification immédiate à l’équipe commerciale.**
+
+[**🛠️ Commander une version personnalisée — 29 € →**](https://n8nmarketai.com/)
 
 ## 🛒 Offre N8N Market AI
 
@@ -8,54 +12,111 @@
 |---|---|
 | 💰 **Prix** | **29 €** |
 | 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
-| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 📦 **Livraison** | Finalisation + validation avant livraison |
 | 🧩 **Niveau** | Facile à intermédiaire |
 | ⏱️ **Installation estimée** | 15–30 min* |
-| 🔧 **Personnalisation** | Disponible |
+| 🔧 **Personnalisation** | Formulaire, colonnes Sheets, Slack et statuts |
 
-[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
+<sub>*Estimation hors création, validation ou récupération des accès externes.</sub>
 
-<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+---
 
-## 📦 Ce que vous recevez
+## Pourquoi ce produit ?
 
-- une version finalisée et adaptée à votre environnement ;
-- le workflow n8n importable après validation ;
-- le guide de configuration ;
-- la liste des comptes, API et credentials à connecter ;
-- les paramètres à personnaliser.
+Lorsqu’un prospect remplit un formulaire, le délai entre sa demande et la prise en charge commerciale compte.
 
-> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
+Ce workflow prépare une chaîne simple :
 
-
-Quand un prospect remplit votre formulaire de contact, ses informations sont immédiatement ajoutées dans un Google Sheet et l'équipe commerciale reçoit une notification Slack en temps réel. Plus besoin de surveiller sa boîte mail ou de perdre les leads dans les premières minutes critiques. Un accusé de réception automatique est également envoyé au prospect.
+- enregistrer automatiquement le prospect ;
+- envoyer un accusé de réception ;
+- prévenir l’équipe dans Slack ;
+- centraliser le suivi dans Google Sheets.
 
 ## Pour qui ?
 
-Équipes commerciales et marketeurs qui veulent traiter instantanément les nouveaux leads venant de leur site web.
+- petites équipes commerciales ;
+- agences ;
+- indépendants ;
+- services qui reçoivent des demandes via formulaire ;
+- entreprises sans CRM complexe.
 
-## Prérequis
+## Avant / Après
 
-Connecter un compte Google et un compte Slack.
+| Avant | Avec le workflow |
+|---|---|
+| Copier les données du formulaire | Création automatique dans Sheets |
+| Vérifier régulièrement les nouveaux leads | Notification Slack immédiate |
+| Répondre manuellement à chaque demande | Accusé de réception automatisé |
+| Statuts dispersés | Suivi centralisé |
+| Risque d’oublier une demande | Processus reproductible |
 
-## Version commerciale
+## Architecture
 
-Le fichier JSON n8n complet reste privé. Le pack commercial est prévu pour inclure le workflow importable, les instructions de configuration et les paramètres à personnaliser.
+![Architecture lead entrant](./architecture-lead-intake.svg)
 
-## Validation technique
+**Formulaire → Google Sheets → Email → Slack → Suivi**
 
-La fiche de conception indique que ce workflow doit encore être retravaillé avant commercialisation.
+## Fonctionnement prévu
 
-**Point principal à corriger :** L entete exacte des colonnes Google Sheets doit etre precisee dans le setup pour eviter les erreurs d insertion. Le statut Contacte pour un simple email automatique fausse le suivi commercial, il vaut mieux utiliser Email envoye. Le mapping du Row ID pour la mise a jour finale doit etre explicite.
+1. réception d’un nouveau formulaire ;
+2. création de la fiche prospect dans Google Sheets ;
+3. envoi d’un accusé de réception ;
+4. notification de l’équipe dans Slack ;
+5. mise à jour des informations de suivi.
+
+## Cas d’usage
+
+### Demande de devis
+Créer automatiquement une ligne prospect et avertir le commercial.
+
+### Formulaire de contact
+Centraliser toutes les demandes entrantes dans un tableau unique.
+
+### Petite agence
+Distribuer plus rapidement les nouveaux leads à l’équipe.
+
+## À finaliser avant livraison
+
+La version commerciale doit être adaptée et vérifiée sur l’environnement du client, notamment :
+
+- définir précisément les colonnes Google Sheets attendues ;
+- utiliser un statut cohérent comme **Email envoyé** plutôt que **Contacté** si aucun commercial n’a encore pris contact ;
+- vérifier le mapping du **Row ID** pour les mises à jour ;
+- décider si une déduplication par email doit être ajoutée.
 
 ## Limites
 
-Le workflow ne déduplique pas les prospects déjà présents dans le Google Sheet, il créera une nouvelle ligne même si l'email existe déjà. Il ne s'intègre pas à un CRM tiers comme HubSpot ou Pipedrive. Le formulaire n8n natif est fonctionnel mais basique visuellement, une intégration avec Typeform ou Tally nécessiterait un noeud Webhook à la place du Form Trigger.
+- pas de CRM tiers natif dans cette version ;
+- déduplication à prévoir si le client en a besoin ;
+- le formulaire n8n natif reste fonctionnel mais simple visuellement ;
+- Typeform ou Tally nécessitent une adaptation du déclencheur.
 
-## Tags
+## 📦 Ce que vous recevez
 
-formulaire contact, google sheets, notification slack, lead entrant, automation commerciale
+- une version finalisée pour votre environnement ;
+- le workflow n8n importable après validation ;
+- le guide de configuration ;
+- la structure Google Sheets requise ;
+- les paramètres Slack et email à personnaliser.
+
+## FAQ
+
+### Puis-je utiliser Typeform ou Tally ?
+Oui, avec adaptation du déclencheur.
+
+### Peut-on éviter les doublons ?
+Oui, une règle de déduplication peut être ajoutée.
+
+### Slack est-il obligatoire ?
+Non, le canal de notification peut être adapté.
+
+### Le workflow remplace-t-il un CRM ?
+Non. Il propose une gestion simple basée sur Google Sheets.
 
 ---
+
+## Répondez plus vite aux nouveaux prospects
+
+[**🛠️ Commander la version personnalisée — 29 € →**](https://n8nmarketai.com/)
 
 [← Retour au catalogue N8N Market AI](../../README.md)
