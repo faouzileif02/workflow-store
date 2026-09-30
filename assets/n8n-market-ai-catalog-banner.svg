@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="620" viewBox="0 0 1800 620">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#050b19"/>
+    <stop offset=".52" stop-color="#0a1730"/>
+    <stop offset="1" stop-color="#1a1030"/>
+  </linearGradient>
+  <radialGradient id="g1"><stop offset="0" stop-color="#ff6b35" stop-opacity=".55"/><stop offset="1" stop-color="#ff6b35" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g2"><stop offset="0" stop-color="#4cc9ff" stop-opacity=".45"/><stop offset="1" stop-color="#4cc9ff" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="1800" height="620" rx="34" fill="url(#bg)"/>
+<circle cx="1460" cy="140" r="360" fill="url(#g1)"/>
+<circle cx="1320" cy="520" r="430" fill="url(#g2)"/>
+<g opacity=".2" stroke="#6fa8ff" stroke-width="2" fill="none">
+  <path d="M980 110 C1180 40 1350 230 1670 120"/>
+  <path d="M940 190 C1170 110 1390 330 1690 210"/>
+  <path d="M960 280 C1200 190 1370 420 1660 310"/>
+  <path d="M930 380 C1200 290 1410 510 1680 420"/>
+</g>
+<g transform="translate(1080,120)">
+  <circle cx="250" cy="190" r="126" fill="#0b1834" stroke="#ff7a3d" stroke-width="6"/>
+  <circle cx="250" cy="190" r="76" fill="#102247" stroke="#6fd2ff" stroke-opacity=".7" stroke-width="3"/>
+  <circle cx="250" cy="190" r="22" fill="#ff7a3d"/>
+  <g stroke="#6fd2ff" stroke-width="5" stroke-linecap="round">
+    <line x1="250" y1="62" x2="250" y2="114"/>
+    <line x1="250" y1="266" x2="250" y2="318"/>
+    <line x1="122" y1="190" x2="174" y2="190"/>
+    <line x1="326" y1="190" x2="378" y2="190"/>
+    <line x1="158" y1="98" x2="195" y2="135"/>
+    <line x1="305" y1="245" x2="342" y2="282"/>
+    <line x1="342" y1="98" x2="305" y2="135"/>
+    <line x1="195" y1="245" x2="158" y2="282"/>
+  </g>
+  <g fill="#0d1a38" stroke="#ff7a3d" stroke-width="4">
+    <circle cx="250" cy="48" r="18"/><circle cx="250" cy="332" r="18"/>
+    <circle cx="108" cy="190" r="18"/><circle cx="392" cy="190" r="18"/>
+    <circle cx="148" cy="88" r="18"/><circle cx="352" cy="88" r="18"/>
+    <circle cx="148" cy="292" r="18"/><circle cx="352" cy="292" r="18"/>
+  </g>
+  <text x="250" y="199" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="28" font-weight="800" fill="#fff">n8n</text>
+</g>
+<g transform="translate(92,78)">
+  <circle cx="22" cy="22" r="10" fill="#ff7a3d"/>
+  <circle cx="50" cy="8" r="8" fill="#5bd7ff"/>
+  <circle cx="50" cy="36" r="8" fill="#5bd7ff"/>
+  <path d="M30 18 L42 11 M30 26 L42 33" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  <text x="78" y="31" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="30" font-weight="800" fill="#fff">N8N Market AI</text>
+</g>
+<text x="92" y="225" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="76" font-weight="900" fill="#fff">Workflows n8n</text>
+<text x="92" y="307" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="70" font-weight="900" fill="#ff8a42">prêts à automatiser votre business</text>
+<text x="94" y="376" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="28" font-weight="500" fill="#b9cbea">IA • Marketing • Business • E-commerce • RH • Productivité • Salons</text>
+<g transform="translate(94,445)">
+  <rect width="210" height="58" rx="29" fill="#13233f" stroke="#ff8a42"/>
+  <text x="105" y="38" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="23" font-weight="800" fill="#fff">22 WORKFLOWS</text>
+  <rect x="232" width="260" height="58" rx="29" fill="#13233f" stroke="#56cfff"/>
+  <text x="362" y="38" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="23" font-weight="800" fill="#fff">PERSONNALISABLES</text>
+  <rect x="514" width="256" height="58" rx="29" fill="#13233f" stroke="#63e6a8"/>
+  <text x="642" y="38" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="23" font-weight="800" fill="#fff">LIVRAISON GUIDÉE</text>
+</g>
+</svg>
