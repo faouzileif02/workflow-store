@@ -1,5 +1,7 @@
 # Alerte automatique rupture de stock Google Sheets
 
+![Alerte automatique rupture de stock Google Sheets](./workflow-banner.svg)
+
 ## 🛒 Acheter ce workflow
 
 [**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/alerte-automatique-rupture-de-stock-google-sheets-workflow-n8n)
