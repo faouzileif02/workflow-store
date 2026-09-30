@@ -1,5 +1,7 @@
 # Compte-rendu Zoom vers Notion avec prompt personnalisé
 
+![Compte-rendu Zoom vers Notion avec prompt personnalisé](./workflow-banner.svg)
+
 > **Statut : BETA — validation/corrections en cours**
 
 Les consultants et chefs de projet perdent jusqu’à deux heures après chaque appel client à retranscrire, structurer et mettre en page un compte-rendu exploitable. Les outils SaaS comme Fathom ou Fireflies produisent un format figé sans aucun contrôle sur la structure ni sur le prompt. Ce workflow crée automatiquement une page Notion parfaitement structurée selon votre propre prompt et votre mise en page exacte.
