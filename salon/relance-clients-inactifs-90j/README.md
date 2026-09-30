@@ -1,5 +1,7 @@
 # Relance SMS automatique clients inactifs 90 jours
 
+![Relance SMS automatique clients inactifs 90 jours](./workflow-banner.svg)
+
 > **Statut : BETA — workflow salon générique, séparé de SalonPilot**
 
 Votre salon perd régulièrement des clients fidèles qui ne reviennent plus sans que vous le remarquiez. Ce workflow identifie automatiquement les clients qui n’ont pas pris rendez-vous depuis plus de 90 jours et leur envoie un SMS de relance personnalisé. Vous recevez chaque lundi un récapitulatif par email avec le nombre de personnes relancées.
