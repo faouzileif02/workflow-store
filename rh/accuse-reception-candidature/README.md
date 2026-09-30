@@ -2,7 +2,31 @@
 
 ![Accusé réception automatique candidature formulaire](./workflow-banner.svg)
 
-> **Statut : BETA — validation/corrections en cours**
+## 🛒 Offre N8N Market AI
+
+| | |
+|---|---|
+| 💰 **Prix** | **29 €** |
+| 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
+| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 🧩 **Niveau** | Facile à intermédiaire |
+| ⏱️ **Installation estimée** | 20–40 min* |
+| 🔧 **Personnalisation** | Disponible |
+
+[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
+
+<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+
+## 📦 Ce que vous recevez
+
+- une version finalisée et adaptée à votre environnement ;
+- le workflow n8n importable après validation ;
+- le guide de configuration ;
+- la liste des comptes, API et credentials à connecter ;
+- les paramètres à personnaliser.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
+
 
 Les entreprises qui reçoivent des candidatures via un formulaire en ligne ne répondent jamais immédiatement, ce qui donne une image peu professionnelle et laisse les candidats sans nouvelle. Ce workflow envoie automatiquement un accusé de réception personnalisé au candidat dès la soumission, ajoute sa candidature dans un tableau de suivi et notifie le recruteur. Il permet de gagner du temps tout en offrant une meilleure expérience candidat.
 
@@ -29,3 +53,7 @@ Le workflow ne lit pas le contenu du CV joint, ne fait aucun scoring ou classeme
 ## Tags
 
 candidature, accusé réception, recrutement, formulaire, google sheets
+
+---
+
+[← Retour au catalogue N8N Market AI](../../README.md)
