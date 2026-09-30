@@ -2,7 +2,31 @@
 
 ![Veille marque automatique Twitter vers Google Sheets](./workflow-banner.svg)
 
-> **Statut : BETA — validation/corrections en cours**
+## 🛒 Offre N8N Market AI
+
+| | |
+|---|---|
+| 💰 **Prix** | **29 €** |
+| 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
+| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 🧩 **Niveau** | Intermédiaire |
+| ⏱️ **Installation estimée** | 30–60 min* |
+| 🔧 **Personnalisation** | Disponible |
+
+[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
+
+<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+
+## 📦 Ce que vous recevez
+
+- une version finalisée et adaptée à votre environnement ;
+- le workflow n8n importable après validation ;
+- le guide de configuration ;
+- la liste des comptes, API et credentials à connecter ;
+- les paramètres à personnaliser.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
+
 
 Ce workflow surveille automatiquement les mentions de votre marque sur Twitter/X et les centralise dans un tableau Google Sheets. Vous recevez un email d’alerte uniquement pour les tweets importants (plus de 5 likes ou contenant des mots négatifs). Fini de passer à côté des conversations qui vous concernent.
 
@@ -29,3 +53,7 @@ Le plan gratuit de l'API Twitter/X v2 limite à 500 000 tweets lus par mois et i
 ## Tags
 
 veille marque, twitter monitoring, google sheets, alerte email, community management
+
+---
+
+[← Retour au catalogue N8N Market AI](../../README.md)
