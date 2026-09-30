@@ -1,6 +1,6 @@
 # Agent IA Directeur Marketing & Ventes — Multi-Agent n8n
 
-![Agent IA Directeur Marketing & Ventes](https://cdn.shopify.com/s/files/1/1021/9726/4768/files/agent-ia-directeur-marketing-ventes.png?v=1790628814)
+![Agent IA Directeur Marketing & Ventes — Multi-Agent n8n](./workflow-banner.svg)
 
 **SKU :** N8N-AI-MKT-DIR-018  
 **Prix Shopify :** 29 €  
