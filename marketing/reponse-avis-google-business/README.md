@@ -2,7 +2,31 @@
 
 ![Réponse automatique aux avis Google My Business](./workflow-banner.svg)
 
-> **Statut : BETA — validation/corrections en cours**
+## 🛒 Offre N8N Market AI
+
+| | |
+|---|---|
+| 💰 **Prix** | **29 €** |
+| 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
+| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 🧩 **Niveau** | Intermédiaire |
+| ⏱️ **Installation estimée** | 30–60 min* |
+| 🔧 **Personnalisation** | Disponible |
+
+[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
+
+<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+
+## 📦 Ce que vous recevez
+
+- une version finalisée et adaptée à votre environnement ;
+- le workflow n8n importable après validation ;
+- le guide de configuration ;
+- la liste des comptes, API et credentials à connecter ;
+- les paramètres à personnaliser.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
+
 
 Les petits commerces reçoivent régulièrement des avis Google qu’ils n’ont jamais le temps de traiter. Ce workflow récupère automatiquement les nouveaux avis, génère une réponse adaptée et personnalisée grâce à l’IA, puis la publie directement sur Google. Le gérant reçoit chaque jour un email récapitulatif de toutes les réponses publiées.
 
@@ -29,3 +53,7 @@ Le workflow ne détecte pas le sarcasme ou l'ironie dans les avis, il ne gère p
 ## Tags
 
 Google My Business, avis clients, réponse automatique, OpenAI, e-réputation
+
+---
+
+[← Retour au catalogue N8N Market AI](../../README.md)
