@@ -2,14 +2,31 @@
 
 ![Rappel automatique de factures impayées par email](./workflow-banner.svg)
 
-## 🛒 Acheter ce workflow
+## 🛒 Offre N8N Market AI
 
-[**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/rappel-automatique-de-factures-impayees-par-email-workflow-n8n)
+| | |
+|---|---|
+| 💰 **Prix** | **29 €** |
+| 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
+| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 🧩 **Niveau** | Facile à intermédiaire |
+| ⏱️ **Installation estimée** | 20–40 min* |
+| 🔧 **Personnalisation** | Disponible |
 
-> Produit numérique vendu via la boutique N8N Market AI.
+[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
 
+<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
 
-> **Statut : BETA — validation/corrections en cours**
+## 📦 Ce que vous recevez
+
+- une version finalisée et adaptée à votre environnement ;
+- le workflow n8n importable après validation ;
+- le guide de configuration ;
+- la liste des comptes, API et credentials à connecter ;
+- les paramètres à personnaliser.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
+
 
 Ce workflow détecte chaque matin les factures en retard dans votre Google Sheets et envoie automatiquement le bon niveau de relance par email selon l’ancienneté du retard. Il adapte le ton du message en fonction du palier (relance douce, ferme ou avertissement final) et tient à jour la date de dernière relance. Vous n’avez plus à chasser manuellement vos clients.
 
@@ -36,3 +53,7 @@ Le workflow ne detecte pas les paiements partiels, le statut Paye doit etre mis 
 ## Tags
 
 relance facture, rappel paiement, automatisation freelance, recouvrement, google sheets
+
+---
+
+[← Retour au catalogue N8N Market AI](../../README.md)
