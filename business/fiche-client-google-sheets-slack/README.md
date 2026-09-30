@@ -1,5 +1,7 @@
 # Création auto fiche client Google Sheets + alerte Slack
 
+![Création auto fiche client Google Sheets + alerte Slack](./workflow-banner.svg)
+
 ## 🛒 Acheter ce workflow
 
 [**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/creation-auto-fiche-client-google-sheets-alerte-slack-workflow-n8n)
