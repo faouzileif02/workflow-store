@@ -1,5 +1,7 @@
 # Sauvegarde automatique factures et devis vers Google Drive
 
+![Sauvegarde automatique factures et devis vers Google Drive](./workflow-banner.svg)
+
 ## 🛒 Acheter ce workflow
 
 [**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/sauvegarde-automatique-factures-et-devis-vers-google-drive-workflow-n8n)
