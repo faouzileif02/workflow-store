@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="760" viewBox="0 0 1600 760">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#071226"/>
+    <stop offset=".55" stop-color="#0b1831"/>
+    <stop offset="1" stop-color="#1b1029"/>
+  </linearGradient>
+  <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#112243"/>
+    <stop offset="1" stop-color="#0d1932"/>
+  </linearGradient>
+  <filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-opacity=".28"/></filter>
+</defs>
+
+<rect width="1600" height="760" rx="30" fill="url(#bg)"/>
+<text x="70" y="75" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="38" font-weight="800" fill="#ffffff">Architecture multi-agent</text>
+<text x="70" y="115" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="22" font-weight="500" fill="#9fb6d8">Données → Analyse → Priorisation → Actions → Validation humaine → Reporting</text>
+
+<!-- data sources -->
+<g filter="url(#shadow)">
+  <rect x="70" y="180" width="235" height="105" rx="20" fill="url(#card)" stroke="#47c9ff" stroke-width="2"/>
+  <text x="187" y="220" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25" font-weight="800" fill="#fff">Shopify</text>
+  <text x="187" y="253" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" fill="#a9bdd9">catalogue + produits</text>
+</g>
+<g filter="url(#shadow)">
+  <rect x="70" y="335" width="235" height="105" rx="20" fill="url(#card)" stroke="#47c9ff" stroke-width="2"/>
+  <text x="187" y="375" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25" font-weight="800" fill="#fff">Ventes</text>
+  <text x="187" y="408" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" fill="#a9bdd9">signaux de performance</text>
+</g>
+
+<!-- director -->
+<g filter="url(#shadow)">
+  <rect x="455" y="235" width="330" height="175" rx="26" fill="#17203d" stroke="#ff7a3d" stroke-width="4"/>
+  <circle cx="620" cy="280" r="26" fill="#ff7a3d"/>
+  <text x="620" y="289" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="20" font-weight="900" fill="#08101f">IA</text>
+  <text x="620" y="333" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27" font-weight="800" fill="#fff">Directeur Marketing</text>
+  <text x="620" y="367" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" fill="#b9cbe5">analyse • priorise • orchestre</text>
+</g>
+
+<!-- specialist agents -->
+<g filter="url(#shadow)">
+  <rect x="930" y="160" width="245" height="95" rx="18" fill="url(#card)" stroke="#a275ff" stroke-width="2"/>
+  <text x="1052" y="200" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="22" font-weight="800" fill="#fff">Agent SEO / CRO</text>
+  <text x="1052" y="230" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" fill="#a9bdd9">optimisations</text>
+</g>
+<g filter="url(#shadow)">
+  <rect x="930" y="285" width="245" height="95" rx="18" fill="url(#card)" stroke="#ff9d52" stroke-width="2"/>
+  <text x="1052" y="325" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="22" font-weight="800" fill="#fff">Agent Contenu</text>
+  <text x="1052" y="355" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" fill="#a9bdd9">briefs + réseaux sociaux</text>
+</g>
+<g filter="url(#shadow)">
+  <rect x="930" y="410" width="245" height="95" rx="18" fill="url(#card)" stroke="#56dca1" stroke-width="2"/>
+  <text x="1052" y="450" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="22" font-weight="800" fill="#fff">Agent Ventes</text>
+  <text x="1052" y="480" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" fill="#a9bdd9">priorités + offres</text>
+</g>
+
+<!-- validation -->
+<g filter="url(#shadow)">
+  <rect x="1265" y="255" width="260" height="135" rx="24" fill="#11243a" stroke="#58d7ff" stroke-width="3"/>
+  <text x="1395" y="304" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24" font-weight="800" fill="#fff">Validation humaine</text>
+  <text x="1395" y="338" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" fill="#b4c9e3">avant action sensible</text>
+  <text x="1395" y="365" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" fill="#7fd9ff">contrôle final</text>
+</g>
+
+<!-- reporting -->
+<g filter="url(#shadow)">
+  <rect x="560" y="560" width="430" height="110" rx="22" fill="url(#card)" stroke="#5fe2a4" stroke-width="2"/>
+  <text x="775" y="603" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25" font-weight="800" fill="#fff">Reporting Google Sheets</text>
+  <text x="775" y="637" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" fill="#a9bdd9">priorités • recommandations • suivi</text>
+</g>
+
+<!-- connectors -->
+<g stroke="#5abcf0" stroke-width="5" fill="none" stroke-linecap="round">
+  <path d="M305 232 C360 232 395 280 455 300"/>
+  <path d="M305 387 C360 387 400 350 455 335"/>
+  <path d="M785 290 C845 255 880 215 930 207"/>
+  <path d="M785 320 C850 320 875 332 930 332"/>
+  <path d="M785 350 C850 395 875 450 930 457"/>
+</g>
+<g stroke="#ff8a45" stroke-width="5" fill="none" stroke-linecap="round">
+  <path d="M1175 207 C1220 215 1235 285 1265 300"/>
+  <path d="M1175 332 C1225 332 1235 325 1265 325"/>
+  <path d="M1175 457 C1225 445 1235 370 1265 355"/>
+</g>
+<g stroke="#62dca0" stroke-width="5" fill="none" stroke-linecap="round">
+  <path d="M1395 390 C1395 535 1040 615 990 615"/>
+  <path d="M620 410 C620 475 700 520 730 560"/>
+</g>
+
+<!-- arrow heads -->
+<g fill="#5abcf0">
+  <polygon points="447,296 430,286 433,305"/>
+  <polygon points="447,337 430,329 433,347"/>
+  <polygon points="922,207 905,198 908,216"/>
+  <polygon points="922,332 905,323 908,341"/>
+  <polygon points="922,457 905,448 908,466"/>
+</g>
+<g fill="#ff8a45">
+  <polygon points="1257,300 1240,291 1243,309"/>
+  <polygon points="1257,325 1240,316 1243,334"/>
+  <polygon points="1257,355 1240,346 1243,364"/>
+</g>
+
+<text x="70" y="720" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="600" fill="#7f98bd">N8N Market AI • architecture simplifiée à des fins de présentation</text>
+</svg>
