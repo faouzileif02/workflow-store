@@ -1,6 +1,10 @@
-# Confirmation RDV automatique par SMS pour salon de coiffure
+# Confirmation de rendez-vous par SMS pour salon — n8n
 
-![Confirmation RDV automatique par SMS pour salon de coiffure](./workflow-banner.svg)
+![Confirmation RDV automatique par SMS](./workflow-banner.svg)
+
+> **Une automatisation pour envoyer un SMS de confirmation, traiter la réponse du client et mettre à jour le rendez-vous dans Google Sheets.**
+
+[**🛠️ Commander une version personnalisée — 29 € →**](https://n8nmarketai.com/products/confirmation-rdv-automatique-par-sms-pour-salon-workflow-n8n)
 
 ## 🛒 Offre N8N Market AI
 
@@ -8,52 +12,131 @@
 |---|---|
 | 💰 **Prix** | **29 €** |
 | 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
-| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 📦 **Livraison** | Finalisation + validation avant livraison |
 | 🧩 **Niveau** | Intermédiaire |
 | ⏱️ **Installation estimée** | 30–60 min* |
 | 🔧 **Personnalisation** | Disponible |
 
-[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
+<sub>*Estimation hors récupération, création ou validation des accès externes.</sub>
 
-<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+---
 
-## 📦 Ce que vous recevez
+## Pourquoi ce produit ?
 
-- une version finalisée et adaptée à votre environnement ;
-- le workflow n8n importable après validation ;
-- le guide de configuration ;
-- la liste des comptes, API et credentials à connecter ;
-- les paramètres à personnaliser.
+Le suivi manuel des confirmations de rendez-vous demande du temps et peut laisser des annulations sans traitement clair.
 
-> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
-
-
-Les salons de coiffure perdent 10 à 20 % de leurs rendez-vous à cause des no-shows. Ce workflow envoie automatiquement un SMS de confirmation la veille et met à jour le planning selon la réponse du client. Le gérant est alerté par email en cas d'annulation pour pouvoir réattribuer le créneau rapidement.
+Il vise à :
+- sélectionner les rendez-vous à confirmer ;
+- envoyer le SMS ;
+- recevoir la réponse ;
+- retrouver le bon rendez-vous ;
+- mettre à jour le statut ;
+- alerter le gérant en cas d’annulation.
 
 ## Pour qui ?
 
-Gérants et propriétaires de salons de coiffure qui utilisent Google Sheets pour gérer leurs rendez-vous.
+- salons de coiffure ;
+- instituts ;
+- barbiers ;
+- petites structures gérant les RDV dans Sheets ;
+- professionnels utilisant Twilio ou un canal SMS compatible.
 
-## Prérequis
+## Avant / Après
 
-Compte Twilio (numéro SMS actif) + Compte Google (Sheets et Gmail)
+| Avant | Avec le workflow |
+|---|---|
+| Relance manuelle | SMS planifié |
+| Réponse reçue sans lien clair | Recherche du RDV par numéro |
+| Statut mis à jour à la main | Mise à jour automatisée |
+| Annulation découverte tard | Alerte gérant |
+| Un seul flux fragile | Envoi et réception séparés |
 
-## Version commerciale
+## Architecture
 
-Le JSON n8n complet reste privé. Ce workflow est présenté comme automatisation indépendante pour salons et n'est pas intégré à SalonPilot dans ce dépôt.
+![Architecture Confirmation RDV automatique par SMS](./architecture-appointment-sms.svg)
 
-## Point à corriger avant commercialisation
+**Planning → SMS sortant → Réponse client → Recherche RDV → Mise à jour**
 
-L architecture est fausse, il faut separer l envoi et la reception en deux workflows distincts. Placer un noeud Trigger au milieu d un flux apres un noeud Wait est impossible dans n8n. Il manque aussi la logique de recherche pour lier le numero du SMS entrant a la bonne ligne du Google Sheet.
+## Fonctionnement cible
+
+1. Identifier les rendez-vous à confirmer.
+2. Envoyer le SMS via le fournisseur choisi.
+3. Recevoir la réponse dans un workflow/webhook séparé.
+4. Associer le numéro au bon rendez-vous.
+5. Mettre à jour confirmé/annulé.
+6. Notifier le gérant si nécessaire.
+
+## Cas d'usage
+
+### Salon de coiffure
+Confirmer les rendez-vous du lendemain.
+
+### Institut
+Centraliser les réponses SMS dans le planning.
+
+### Barbier
+Être averti rapidement d’une annulation.
+
+## ⚠️ À finaliser avant livraison
+
+- séparer l’envoi et la réception en deux workflows adaptés ;
+- lier de manière fiable le numéro entrant à la bonne ligne Sheets ;
+- définir les mots de réponse acceptés ;
+- tester les erreurs et numéros invalides ;
+- documenter les coûts et paramètres du fournisseur SMS.
 
 ## Limites
 
-Le workflow ne rebooке pas automatiquement le creneau libere avec un client en liste d'attente, il se contente d'alerter le gerant par email. Il ne gere pas les annulations faites moins d'une heure avant le rendez-vous. Si le salon utilise un logiciel de caisse avec sa propre base de donnees, il faudra exporter les rendez-vous manuellement vers Google Sheets.
+- ne remplit pas automatiquement le créneau avec une liste d’attente ;
+- les RDV doivent être disponibles dans la source configurée ;
+- l’intégration avec un logiciel de caisse/réservation demande une adaptation ;
+- les SMS ont un coût selon le fournisseur.
 
-## Tags
+## 🛡️ Garde-fous recommandés
 
-salon coiffure, confirmation rdv, sms automatique, no-show, relance client
+- opt-out et règles de consentement à prévoir ;
+- journalisation des SMS ;
+- aucun message si numéro invalide ;
+- limite de fréquence ;
+- credentials Twilio dans n8n.
+
+## 📦 Ce que vous recevez
+
+Après finalisation :
+- workflows envoi + réception finalisés ;
+- modèle Google Sheets ;
+- templates SMS ;
+- guide Twilio ;
+- règles de statut ;
+- configuration alertes.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés dans ce dépôt.
+
+## Prérequis
+
+- n8n ;
+- Google Sheets ;
+- fournisseur SMS compatible ;
+- Gmail ou email si l’alerte gérant est conservée.
+
+## FAQ
+
+### Pourquoi deux workflows ?
+Parce que l’envoi planifié et la réception d’un SMS entrant utilisent des déclencheurs différents.
+
+### Peut-on changer le texte du SMS ?
+Oui.
+
+### Le créneau libéré est-il automatiquement réattribué ?
+Pas dans la version standard.
+
+### Peut-on connecter un logiciel de réservation ?
+Oui, via une adaptation si une API est disponible.
 
 ---
+
+## Automatisez les confirmations sans perdre la réponse du client
+
+[**🛠️ Commander la version personnalisée — 29 € →**](https://n8nmarketai.com/products/confirmation-rdv-automatique-par-sms-pour-salon-workflow-n8n)
 
 [← Retour au catalogue N8N Market AI](../../README.md)
