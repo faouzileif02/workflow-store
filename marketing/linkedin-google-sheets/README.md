@@ -1,6 +1,10 @@
-# Publication automatique LinkedIn depuis Google Sheets
+# Publication LinkedIn automatique depuis Google Sheets — n8n
 
-![Publication automatique LinkedIn depuis Google Sheets](./workflow-banner.svg)
+![Publication LinkedIn depuis Google Sheets](./workflow-banner.svg)
+
+> **Un workflow qui lit votre calendrier éditorial dans Google Sheets, sélectionne le contenu prévu et automatise sa publication LinkedIn.**
+
+[**🛠️ Commander une version personnalisée — 29 € →**](https://n8nmarketai.com/products/publication-automatique-linkedin-depuis-google-sheets-workflow-n8n)
 
 ## 🛒 Offre N8N Market AI
 
@@ -8,52 +12,130 @@
 |---|---|
 | 💰 **Prix** | **29 €** |
 | 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
-| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 📦 **Livraison** | Finalisation + validation avant livraison |
 | 🧩 **Niveau** | Intermédiaire |
 | ⏱️ **Installation estimée** | 20–45 min* |
 | 🔧 **Personnalisation** | Disponible |
 
-[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
+<sub>*Estimation hors récupération, création ou validation des accès externes.</sub>
 
-<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+---
 
-## 📦 Ce que vous recevez
+## Pourquoi ce produit ?
 
-- une version finalisée et adaptée à votre environnement ;
-- le workflow n8n importable après validation ;
-- le guide de configuration ;
-- la liste des comptes, API et credentials à connecter ;
-- les paramètres à personnaliser.
+Un planning éditorial dans Sheets reste inutile si quelqu’un doit encore copier-coller chaque publication manuellement au bon moment.
 
-> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
-
-
-Les community managers et fondateurs perdent beaucoup de temps à copier-coller manuellement leurs posts LinkedIn chaque jour. Ce workflow lit automatiquement votre planning dans Google Sheets et publie le contenu prévu à 9h00. Il met à jour le statut et vous envoie un email de confirmation ou d’alerte.
+Il vise à :
+- utiliser Google Sheets comme calendrier éditorial ;
+- sélectionner la ligne du jour ;
+- publier le contenu configuré ;
+- mettre à jour le statut ;
+- recevoir une confirmation ou une alerte.
 
 ## Pour qui ?
 
-Community managers, fondateurs et solopreneurs qui publient régulièrement sur LinkedIn.
+- community managers ;
+- fondateurs ;
+- solopreneurs ;
+- petites équipes marketing ;
+- professionnels qui planifient déjà leur contenu dans Sheets.
 
-## Prérequis
+## Avant / Après
 
-Connecter un compte Google (Sheets + Gmail) et un compte LinkedIn Personal (OAuth).
+| Avant | Avec le workflow |
+|---|---|
+| Copier-coller le post | Lecture automatique de la ligne |
+| Vérifier la date manuellement | Sélection selon le planning |
+| Oublier une publication | Déclencheur planifié |
+| Statut non mis à jour | Suivi dans Sheets |
+| Erreur silencieuse | Notification prévue |
 
-## Version commerciale
+## Architecture
 
-Le JSON n8n complet reste privé. Le pack commercial comprendra le workflow importable, la documentation et les paramètres de configuration.
+![Architecture Publication LinkedIn depuis Google Sheets](./architecture-linkedin-sheets.svg)
 
-## Point à corriger avant commercialisation
+**Google Sheets → Date du jour → Validation → LinkedIn → Suivi**
 
-Il faut preciser la methode de recherche du noeud Google Sheets pour identifier exactement la ligne du jour. Il manque une gestion d erreur si l API LinkedIn echoue avant de marquer le post comme publie. Les tags doivent etre en anglais pour correspondre aux categories natives de n8n.
+## Fonctionnement cible
+
+1. Lire le planning éditorial.
+2. Identifier la ligne correspondant au jour/état attendu.
+3. Vérifier que le contenu est publiable.
+4. Publier via l’accès LinkedIn configuré.
+5. Mettre à jour le statut uniquement en cas de succès.
+6. Notifier le responsable.
+
+## Cas d'usage
+
+### Personal branding
+Préparer les posts à l’avance dans une feuille simple.
+
+### Petite équipe
+Partager un planning éditorial sans outil supplémentaire.
+
+### Agence
+Adapter le modèle à différents calendriers clients.
+
+## ⚠️ À finaliser avant livraison
+
+La version commerciale doit être finalisée et testée dans l’environnement du client, notamment :
+- définir précisément la méthode de recherche de la ligne du jour ;
+- ajouter une gestion d’erreur avant de marquer un post comme publié ;
+- vérifier le fuseau horaire de l’instance n8n ;
+- tester les permissions LinkedIn utilisées.
 
 ## Limites
 
-ne gere pas les images ni les videos dans les posts, uniquement du texte brut. Ne publie pas sur les pages entreprise LinkedIn, seulement sur les profils personnels. Ne cree pas le contenu, il doit etre redige a l avance dans le Google Sheets. Ne gere pas les fuseaux horaires autres que celui du serveur n8n.
+- version standard centrée sur le texte ;
+- pas de publication vidéo/image dans la conception actuelle ;
+- la configuration visée concerne un profil compatible avec l’accès API retenu ;
+- le contenu doit être préparé dans Sheets.
 
-## Tags
+## 🛡️ Garde-fous recommandés
 
-LinkedIn, Google Sheets, automatisation, publication, reseaux sociaux
+- ne jamais marquer publié si l’appel LinkedIn échoue ;
+- journalisation des erreurs ;
+- credentials OAuth stockés dans n8n ;
+- contrôle de la date et du statut avant publication.
+
+## 📦 Ce que vous recevez
+
+Après finalisation :
+- workflow finalisé ;
+- modèle de Google Sheets ;
+- guide OAuth LinkedIn ;
+- configuration horaire ;
+- emails de confirmation/alerte ;
+- documentation des colonnes.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés dans ce dépôt.
+
+## Prérequis
+
+- n8n ;
+- Google Sheets ;
+- Gmail si les notifications sont conservées ;
+- accès LinkedIn compatible ;
+- credentials OAuth.
+
+## FAQ
+
+### Le workflow crée-t-il le texte du post ?
+Pas dans la version standard décrite ; le contenu vient de Google Sheets.
+
+### Puis-je changer l'heure de publication ?
+Oui.
+
+### Gère-t-il les images ?
+Pas dans cette conception standard.
+
+### Le statut est-il mis à jour automatiquement ?
+La version finale doit le faire uniquement après publication réussie.
 
 ---
+
+## Transformez votre Google Sheet en calendrier LinkedIn automatisé
+
+[**🛠️ Commander la version personnalisée — 29 € →**](https://n8nmarketai.com/products/publication-automatique-linkedin-depuis-google-sheets-workflow-n8n)
 
 [← Retour au catalogue N8N Market AI](../../README.md)
