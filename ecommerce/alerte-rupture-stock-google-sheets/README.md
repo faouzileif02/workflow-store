@@ -2,11 +2,30 @@
 
 ![Alerte automatique rupture de stock Google Sheets](./workflow-banner.svg)
 
-## 🛒 Acheter ce workflow
+## 🛒 Offre N8N Market AI
 
-[**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/alerte-automatique-rupture-de-stock-google-sheets-workflow-n8n)
+| | |
+|---|---|
+| 💰 **Prix** | **0 € actuellement sur Shopify** |
+| 📌 **Statut** | **🟢 PUBLIABLE** |
+| 📦 **Livraison** | Après contrôle final |
+| 🧩 **Niveau** | Facile |
+| ⏱️ **Installation estimée** | 15–30 min* |
+| 🔧 **Personnalisation** | Disponible |
 
-> Produit numérique vendu via la boutique N8N Market AI.
+[**🛒 Voir sur N8N Market AI →**](https://n8nmarketai.com/products/alerte-automatique-rupture-de-stock-google-sheets-workflow-n8n)
+
+<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+
+## 📦 Ce que vous recevez
+
+- le workflow n8n importable ;
+- le guide d'installation et de configuration ;
+- la liste des comptes, API et credentials à connecter ;
+- les paramètres à personnaliser ;
+- une base prête pour votre environnement.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
 
 
 Workflow n8n pour petites boutiques, e-commerçants et responsables logistiques utilisant Google Sheets pour suivre leur stock.
@@ -87,3 +106,7 @@ La version commerciale peut inclure :
 ## Tags
 
 `n8n` `google-sheets` `gmail` `inventory` `stock` `automation`
+
+---
+
+[← Retour au catalogue N8N Market AI](../../README.md)
