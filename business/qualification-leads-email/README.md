@@ -2,14 +2,31 @@
 
 ![Qualification automatique des leads par email](./workflow-banner.svg)
 
-## 🛒 Acheter ce workflow
+## 🛒 Offre N8N Market AI
 
-[**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/qualification-automatique-des-leads-par-email-workflow-n8n)
+| | |
+|---|---|
+| 💰 **Prix** | **29 €** |
+| 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
+| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 🧩 **Niveau** | Intermédiaire |
+| ⏱️ **Installation estimée** | 30–45 min* |
+| 🔧 **Personnalisation** | Disponible |
 
-> Produit numérique vendu via la boutique N8N Market AI.
+[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
 
+<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
 
-> **Statut : BETA — validation/corrections en cours**
+## 📦 Ce que vous recevez
+
+- une version finalisée et adaptée à votre environnement ;
+- le workflow n8n importable après validation ;
+- le guide de configuration ;
+- la liste des comptes, API et credentials à connecter ;
+- les paramètres à personnaliser.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
+
 
 Les commerciaux perdent chaque jour plus d’une heure à trier manuellement les emails de prospects. Ce workflow identifie automatiquement les leads chauds, extrait les informations clés et notifie immédiatement le bon commercial. Les prospects reçoivent une réponse automatique tandis que tous les échanges sont tracés dans un tableau de suivi.
 
@@ -36,3 +53,7 @@ Le workflow ne lit pas les pièces jointes ni les emails en image. Il ne met pas
 ## Tags
 
 qualification leads, triage email, lead scoring, automatisation commerciale, openai, google sheets, gmail
+
+---
+
+[← Retour au catalogue N8N Market AI](../../README.md)
