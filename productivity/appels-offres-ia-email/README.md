@@ -1,6 +1,10 @@
-# Alerte IA appels d'offres publics par email
+# Veille IA des appels d'offres publics par email — n8n
 
-![Alerte IA appels d'offres publics par email](./workflow-banner.svg)
+![Alerte IA appels d'offres](./workflow-banner.svg)
+
+> **Un workflow pour collecter des annonces, filtrer selon vos mots-clés métier, évaluer leur pertinence et envoyer uniquement les opportunités à examiner.**
+
+[**🛠️ Commander une version personnalisée — 29 € →**](https://n8nmarketai.com/products/alerte-ia-appels-d-offres-publics-par-email-workflow-n8n)
 
 ## 🛒 Offre N8N Market AI
 
@@ -8,54 +12,132 @@
 |---|---|
 | 💰 **Prix** | **29 €** |
 | 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
-| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 📦 **Livraison** | Finalisation + validation avant livraison |
 | 🧩 **Niveau** | Intermédiaire |
 | ⏱️ **Installation estimée** | 30–60 min* |
 | 🔧 **Personnalisation** | Disponible |
 
-[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
+<sub>*Estimation hors récupération, création ou validation des accès externes.</sub>
 
-<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+---
 
-## 📦 Ce que vous recevez
+## Pourquoi ce produit ?
 
-- une version finalisée et adaptée à votre environnement ;
-- le workflow n8n importable après validation ;
-- le guide de configuration ;
-- la liste des comptes, API et credentials à connecter ;
-- les paramètres à personnaliser.
+Surveiller manuellement plusieurs sources d'appels d'offres prend du temps et augmente le risque de passer à côté d'une annonce pertinente.
 
-> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
-
-
-Les artisans, TPE et freelances ratent quotidiennement des marchés publics par manque de temps pour surveiller BOAMP et Marchés Publics. Ce template envoie automatiquement par email uniquement les appels d'offres réellement pertinents selon vos mots-clés métier. Il remplace les services de veille payants à plusieurs centaines d'euros par an.
+Il vise à :
+- centraliser la veille ;
+- filtrer par métier et mots-clés ;
+- qualifier la pertinence avec l’IA ;
+- éviter les doublons ;
+- envoyer une alerte ciblée par email.
 
 ## Pour qui ?
 
-Artisans du bâtiment, TPE et consultants indépendants qui ont déjà perdu des marchés faute d'alerte ciblée.
+- artisans ;
+- TPE ;
+- consultants indépendants ;
+- petites équipes commerciales ;
+- entreprises qui répondent ponctuellement à des marchés publics.
 
-## Prérequis
+## Avant / Après
 
-OpenAI + Gmail (ou SMTP) + Google Sheets
+| Avant | Avec le workflow |
+|---|---|
+| Consulter les sources une par une | Collecte automatisée |
+| Lire toutes les annonces | Préfiltrage par critères |
+| Décider manuellement de la pertinence | Analyse IA selon les règles |
+| Risque d'alerte en double | Mémoire anti-doublon |
+| Veille irrégulière | Routine planifiée |
 
-## Version commerciale
+## Architecture
 
-Le fichier JSON n8n complet reste privé. Le pack commercial est prévu pour inclure le workflow importable, les instructions de configuration et les paramètres à personnaliser.
+![Architecture Alerte IA appels d'offres](./architecture-tenders.svg)
 
-## Validation technique
+**Sources → Filtrage → Analyse IA → Anti-doublon → Email**
 
-La fiche de conception indique que ce workflow doit encore être retravaillé avant commercialisation.
+## Fonctionnement cible
 
-**Point principal à corriger :** le code JSON est completement casse par des erreurs de syntaxe et doit etre nettoye de ses regex. Il manque le lien vers un template Google Sheets pret a l emploi pour le systeme anti-doublon. Le prompt OpenAI doit inclure une limite stricte de tokens pour rassurer sur les couts.
+1. Lire les sources configurées.
+2. Filtrer les annonces selon les mots-clés métier.
+3. Préparer un contexte réduit pour l’analyse IA.
+4. Évaluer la pertinence.
+5. Vérifier l’identifiant dans Google Sheets.
+6. Envoyer l’alerte si l’annonce est nouvelle et pertinente.
+
+## Cas d'usage
+
+### Artisan du bâtiment
+Suivre les annonces correspondant à ses spécialités sans consulter chaque portail manuellement.
+
+### Consultant
+Recevoir une sélection ciblée selon quelques mots-clés d'expertise.
+
+### TPE
+Conserver dans Sheets l’historique des annonces déjà examinées.
+
+## ⚠️ À finaliser avant livraison
+
+La version commerciale doit être finalisée et testée dans l’environnement du client, notamment :
+- nettoyer/reconstruire l’export JSON de référence ;
+- valider le parsing des sources réellement utilisées ;
+- fournir un modèle Google Sheets pour l’anti-doublon ;
+- limiter la quantité de texte envoyée au modèle IA ;
+- tester la pertinence des critères avec le client.
 
 ## Limites
 
-Le workflow ne télécharge pas les cahiers des charges complets, il ne candidate pas automatiquement, il ne couvre pas les plateformes régionales privées hors flux RSS public, et la pertinence des alertes dépend directement de la qualité des mots-clés que l'utilisateur aura renseignés dans les paramètres.
+- ne télécharge pas automatiquement tous les dossiers de consultation ;
+- ne candidate pas à la place de l’entreprise ;
+- la couverture dépend des sources configurées ;
+- la pertinence dépend des mots-clés et règles définis.
 
-## Tags
+## 🛡️ Garde-fous recommandés
 
-appels d'offres, marchés publics, veille commerciale, filtre IA, alerte email
+- anti-doublon avant envoi ;
+- limite de taille du contenu analysé ;
+- journalisation des alertes ;
+- credentials stockés dans n8n ;
+- validation des sources avant mise en production.
+
+## 📦 Ce que vous recevez
+
+Après finalisation :
+- workflow n8n finalisé ;
+- guide de configuration ;
+- modèle Google Sheets ;
+- mots-clés et règles personnalisés ;
+- configuration email ;
+- documentation des sources utilisées.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés dans ce dépôt.
+
+## Prérequis
+
+- n8n ;
+- source(s) d’appels d’offres compatibles ;
+- Google Sheets ;
+- Gmail ou SMTP ;
+- fournisseur IA.
+
+## FAQ
+
+### Le workflow répond-il automatiquement aux appels d'offres ?
+Non. Il sert à détecter et prioriser les annonces.
+
+### Puis-je changer les mots-clés ?
+Oui. Ils sont personnalisables.
+
+### Évite-t-il les doublons ?
+La version finale doit utiliser Google Sheets comme mémoire anti-doublon.
+
+### Peut-on ajouter d'autres sources ?
+Oui, si elles disposent d’un accès exploitable par n8n.
 
 ---
+
+## Ne laissez plus votre veille dépendre d'une vérification manuelle
+
+[**🛠️ Commander la version personnalisée — 29 € →**](https://n8nmarketai.com/products/alerte-ia-appels-d-offres-publics-par-email-workflow-n8n)
 
 [← Retour au catalogue N8N Market AI](../../README.md)
