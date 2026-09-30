@@ -1,5 +1,7 @@
 # Veille marque automatique Twitter vers Google Sheets
 
+![Veille marque automatique Twitter vers Google Sheets](./workflow-banner.svg)
+
 > **Statut : BETA — validation/corrections en cours**
 
 Ce workflow surveille automatiquement les mentions de votre marque sur Twitter/X et les centralise dans un tableau Google Sheets. Vous recevez un email d’alerte uniquement pour les tweets importants (plus de 5 likes ou contenant des mots négatifs). Fini de passer à côté des conversations qui vous concernent.
