@@ -2,14 +2,31 @@
 
 ![Alerte email automatique baisse de prix Amazon](./workflow-banner.svg)
 
-## 🛒 Acheter ce workflow
+## 🛒 Offre N8N Market AI
 
-[**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/alerte-email-automatique-baisse-de-prix-amazon-workflow-n8n)
+| | |
+|---|---|
+| 💰 **Prix** | **29 €** |
+| 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
+| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 🧩 **Niveau** | Intermédiaire |
+| ⏱️ **Installation estimée** | 30–60 min* |
+| 🔧 **Personnalisation** | Disponible |
 
-> Produit numérique vendu via la boutique N8N Market AI.
+[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
 
+<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
 
-> **Statut : BETA — validation/corrections en cours**
+## 📦 Ce que vous recevez
+
+- une version finalisée et adaptée à votre environnement ;
+- le workflow n8n importable après validation ;
+- le guide de configuration ;
+- la liste des comptes, API et credentials à connecter ;
+- les paramètres à personnaliser.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
+
 
 Ne ratez plus jamais une baisse de prix sur Amazon. Ce workflow vérifie automatiquement vos produits surveillés toutes les six heures et vous envoie un email dès que le prix descend en dessous de votre seuil cible. Fini les vérifications manuelles quotidiennes et les achats trop chers.
 
@@ -36,3 +53,7 @@ Le workflow ne fonctionne pas si Amazon sert un captcha ou bloque l adresse IP, 
 ## Tags
 
 amazon, alerte prix, price tracker, baisse de prix, notification email
+
+---
+
+[← Retour au catalogue N8N Market AI](../../README.md)
