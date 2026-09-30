@@ -1,5 +1,7 @@
 # Alerte IA appels d'offres publics par email
 
+![Alerte IA appels d'offres publics par email](./workflow-banner.svg)
+
 > **Statut : BETA — validation/corrections en cours**
 
 Les artisans, TPE et freelances ratent quotidiennement des marchés publics par manque de temps pour surveiller BOAMP et Marchés Publics. Ce template envoie automatiquement par email uniquement les appels d'offres réellement pertinents selon vos mots-clés métier. Il remplace les services de veille payants à plusieurs centaines d'euros par an.
