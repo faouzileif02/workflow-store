@@ -1,6 +1,10 @@
-# Tri automatique des CV par email vers Notion
+# Tri automatique des CV par email vers Notion — n8n
 
-![Tri automatique des CV par email vers Notion](./workflow-banner.svg)
+![Tri CV email vers Notion](./workflow-banner.svg)
+
+> **Un workflow pour détecter les CV reçus par email, extraire les informations clés et créer une fiche structurée dans Notion.**
+
+[**🛠️ Commander une version personnalisée — 29 € →**](https://n8nmarketai.com/products/tri-automatique-des-cv-par-email-vers-notion-workflow-n8n)
 
 ## 🛒 Offre N8N Market AI
 
@@ -8,54 +12,132 @@
 |---|---|
 | 💰 **Prix** | **29 €** |
 | 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
-| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 📦 **Livraison** | Finalisation + validation avant livraison |
 | 🧩 **Niveau** | Intermédiaire |
 | ⏱️ **Installation estimée** | 30–60 min* |
 | 🔧 **Personnalisation** | Disponible |
 
-[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
+<sub>*Estimation hors récupération, création ou validation des accès externes.</sub>
 
-<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+---
 
-## 📦 Ce que vous recevez
+## Pourquoi ce produit ?
 
-- une version finalisée et adaptée à votre environnement ;
-- le workflow n8n importable après validation ;
-- le guide de configuration ;
-- la liste des comptes, API et credentials à connecter ;
-- les paramètres à personnaliser.
+Copier manuellement les informations des CV vers un tableau de suivi prend du temps et produit des fiches incohérentes.
 
-> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
-
-
-Les RH de petites structures perdent un temps fou à copier manuellement les CV reçus par email dans leur tableau de suivi. Ce workflow détecte automatiquement les nouvelles candidatures, extrait les informations clés du PDF et crée une fiche structurée dans Notion. Un email de confirmation est envoyé au candidat et une notification arrive sur Slack.
+Il vise à :
+- détecter les candidatures ;
+- isoler les pièces jointes PDF ;
+- extraire les informations utiles ;
+- créer une fiche Notion ;
+- notifier l’équipe ;
+- conserver le document original selon la version finale.
 
 ## Pour qui ?
 
-Responsables RH et recruteurs de PME qui reçoivent les candidatures par email.
+- recruteurs ;
+- PME ;
+- cabinets ;
+- services RH ;
+- équipes utilisant Notion pour le suivi candidat.
 
-## Prérequis
+## Avant / Après
 
-Connectez vos comptes Gmail, Notion, Slack et OpenAI.
+| Avant | Avec le workflow |
+|---|---|
+| Ouvrir chaque email | Détection automatisée |
+| Copier les informations du CV | Extraction structurée |
+| Créer la fiche à la main | Création Notion |
+| CV original difficile à retrouver | Archivage prévu |
+| Aucune notification | Alerte équipe |
 
-## Versions disponibles
+## Architecture
 
-Trois variantes de conception existent dans le dossier source. Elles sont regroupées ici comme un seul produit pour éviter les doublons dans le catalogue.
+![Architecture Tri CV email vers Notion](./architecture-cv-notion.svg)
 
-## Points à finaliser avant commercialisation
+**Gmail → Filtre PDF → Extraction → Notion → Notification**
 
-- Variante 1 (10 nœuds) : Le setup doit imperativement lister les colonnes a creer dans la base Notion pour que le mapping fonctionne. Il manque aussi une etape pour uploader le fichier PDF original dans Notion ou Google Drive.
-- Variante 2 (12 nœuds) : Un filtre pour isoler uniquement les pieces jointes PDF et ignorer les images de signature. Il faut aussi imperativement uploader le fichier original dans Notion, aucun recruteur ne se contentera du texte brut.
-- Variante 3 (9 nœuds) : Le setup doit imperativement detailler les colonnes a creer dans la base Notion. Il faut aussi ajouter une condition juste apres Gmail pour verifier la presence de la piece jointe avant de lancer l extraction.
+## Fonctionnement cible
+
+1. Détecter un email de candidature.
+2. Vérifier la présence d’un PDF pertinent.
+3. Extraire le texte et les champs utiles.
+4. Créer la fiche candidat dans Notion.
+5. Archiver ou lier le PDF original.
+6. Notifier l’équipe.
+
+## Cas d'usage
+
+### PME
+Centraliser les candidatures reçues par email.
+
+### Cabinet de recrutement
+Préparer automatiquement les fiches candidat.
+
+### RH utilisant Notion
+Éviter les doubles saisies.
+
+## ⚠️ À finaliser avant livraison
+
+- choisir et consolider une seule des variantes existantes ;
+- documenter les propriétés Notion requises ;
+- filtrer uniquement les pièces jointes CV pertinentes ;
+- uploader ou archiver le PDF original ;
+- gérer le cas où aucune pièce jointe exploitable n’est présente.
 
 ## Limites
 
-Le workflow ne lit pas les CV au format Word ou image scannee, seulement les PDF avec texte selectionnable. Il ne note pas les candidats ni ne les compare entre eux. Il ne gere pas les candidatures soumises via un formulaire web externe. Si le PDF est mal structure, l extraction peut rater certains champs.
+- centré sur les PDF avec texte exploitable ;
+- les scans peuvent nécessiter un traitement supplémentaire ;
+- ne note pas les candidats par défaut ;
+- ne couvre pas les formulaires externes dans cette version.
 
-## Tags
+## 🛡️ Garde-fous recommandés
 
-recrutement, cv, notion, automatisation, rh, email, parsing
+- filtre MIME/extension ;
+- aucun scoring automatique sans règles explicites ;
+- journalisation ;
+- credentials Gmail/Notion dans n8n ;
+- fallback si l’extraction échoue.
+
+## 📦 Ce que vous recevez
+
+Après finalisation :
+- workflow consolidé ;
+- structure Notion documentée ;
+- logique d’extraction ;
+- archivage du PDF selon configuration ;
+- guide d’installation ;
+- notifications personnalisables.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés dans ce dépôt.
+
+## Prérequis
+
+- n8n ;
+- Gmail ;
+- Notion ;
+- fournisseur d’extraction/IA si utilisé ;
+- Slack si la notification est conservée.
+
+## FAQ
+
+### Le workflow note-t-il les candidats ?
+Non dans la version standard.
+
+### Gère-t-il les CV Word ?
+Pas dans la conception standard.
+
+### Le PDF original est-il conservé ?
+La version finale doit prévoir son archivage ou son lien.
+
+### Puis-je adapter les champs Notion ?
+Oui.
 
 ---
+
+## Transformez vos emails de candidature en fiches Notion structurées
+
+[**🛠️ Commander la version personnalisée — 29 € →**](https://n8nmarketai.com/products/tri-automatique-des-cv-par-email-vers-notion-workflow-n8n)
 
 [← Retour au catalogue N8N Market AI](../../README.md)
