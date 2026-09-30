@@ -1,5 +1,7 @@
 # Alerte email automatique baisse de prix Amazon
 
+![Alerte email automatique baisse de prix Amazon](./workflow-banner.svg)
+
 ## 🛒 Acheter ce workflow
 
 [**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/alerte-email-automatique-baisse-de-prix-amazon-workflow-n8n)
