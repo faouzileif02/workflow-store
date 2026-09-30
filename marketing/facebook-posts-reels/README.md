@@ -2,14 +2,31 @@
 
 ![Facebook Posts + Reels — n8n](./workflow-banner.svg)
 
-## 🛒 Acheter ce workflow
+## 🛒 Offre N8N Market AI
 
-[**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/facebook-posts-reels-image-video-workflow-n8n)
+| | |
+|---|---|
+| 💰 **Prix** | **29 €** |
+| 📌 **Statut** | **✅ LIVRABLE** |
+| 📦 **Livraison** | Prêt à livrer après achat |
+| 🧩 **Niveau** | Intermédiaire |
+| ⏱️ **Installation estimée** | 30–60 min* |
+| 🔧 **Personnalisation** | Disponible |
 
-> Produit numérique vendu via la boutique N8N Market AI.
+[**🛒 Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/facebook-posts-reels-image-video-workflow-n8n)
 
+<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
 
-> **Statut : LIVRABLE**
+## 📦 Ce que vous recevez
+
+- le workflow n8n importable ;
+- le guide d'installation et de configuration ;
+- la liste des comptes, API et credentials à connecter ;
+- les paramètres à personnaliser ;
+- une base prête pour votre environnement.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
+
 
 Workflow n8n avec deux branches indépendantes dans le même projet :
 
@@ -59,3 +76,7 @@ La version préparée pour livraison ne contient pas :
 ## Catégorie
 
 Marketing / Facebook / Réseaux sociaux / Reels
+
+---
+
+[← Retour au catalogue N8N Market AI](../../README.md)
