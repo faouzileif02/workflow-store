@@ -1,6 +1,10 @@
-# Sauvegarde automatique factures et devis vers Google Drive
+# Archivage automatique des factures et devis vers Google Drive — n8n
 
 ![Sauvegarde automatique factures et devis vers Google Drive](./workflow-banner.svg)
+
+> **Un workflow conçu pour détecter les pièces jointes de facturation reçues par email, les analyser, les renommer puis les classer automatiquement dans Google Drive.**
+
+[**🛠️ Commander une version personnalisée — 29 € →**](https://n8nmarketai.com/)
 
 ## 🛒 Offre N8N Market AI
 
@@ -8,54 +12,126 @@
 |---|---|
 | 💰 **Prix** | **29 €** |
 | 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
-| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 📦 **Livraison** | Finalisation + validation avant livraison |
 | 🧩 **Niveau** | Intermédiaire |
 | ⏱️ **Installation estimée** | 30–60 min* |
-| 🔧 **Personnalisation** | Disponible |
+| 🔧 **Personnalisation** | Dossiers, règles de nommage et fournisseurs |
 
-[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
+<sub>*Estimation hors récupération et validation des accès externes.</sub>
 
-<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+---
 
-## 📦 Ce que vous recevez
+## Pourquoi ce produit ?
 
-- une version finalisée et adaptée à votre environnement ;
-- le workflow n8n importable après validation ;
-- le guide de configuration ;
-- la liste des comptes, API et credentials à connecter ;
-- les paramètres à personnaliser.
+Les factures et devis arrivent souvent dans des emails aux objets peu précis. Les télécharger, renommer puis ranger manuellement devient vite répétitif.
 
-> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
+Le workflow cible un processus plus fiable :
 
-
-Vous cherchez une facture depuis vingt minutes dans votre boîte Gmail, elle est quelque part, vous ne la trouvez plus. Chaque semaine des dizaines de pièces jointes s’éparpillent entre votre boîte mail et vos téléchargements. Ce workflow les renomme automatiquement avec l’IA et les range dans des dossiers fournisseurs sans que vous ayez à toucher quoi que ce soit.
+- récupérer les pièces jointes ;
+- lire le contenu utile du document ;
+- identifier le fournisseur ou le type ;
+- générer un nom cohérent ;
+- traiter chaque fichier séparément ;
+- l’archiver dans Google Drive.
 
 ## Pour qui ?
 
-Comptables indépendants, assistantes de direction et prestataires qui reçoivent de nombreuses factures et devis par email.
+- comptables indépendants ;
+- assistantes de direction ;
+- TPE/PME ;
+- prestataires recevant de nombreuses factures et devis par Gmail.
 
-## Prérequis
+## Avant / Après
 
-Connecter un compte Google (Gmail + Drive) et un compte OpenAI.
+| Avant | Avec le workflow |
+|---|---|
+| Chercher les pièces jointes dans Gmail | Détection automatique |
+| Renommer manuellement | Nommage préparé selon le contenu |
+| Créer/ranger les dossiers à la main | Classement Drive automatisable |
+| Oublier un fichier parmi plusieurs pièces jointes | Traitement document par document |
+| Noms de fichiers incohérents | Convention de nommage structurée |
 
-## Version commerciale
+## Architecture
 
-Le fichier JSON n8n complet reste privé. Le pack commercial est prévu pour inclure le workflow importable, les instructions de configuration et les paramètres à personnaliser.
+![Architecture archivage documents](./architecture-document-archive.svg)
 
-## Validation technique
+**Gmail → Extraction → Analyse IA → Boucle fichiers → Google Drive**
 
-La fiche de conception indique que ce workflow doit encore être retravaillé avant commercialisation.
+## Fonctionnement cible
 
-**Point principal à corriger :** L extraction du texte des PDF avant l analyse IA est indispensable. Se baser uniquement sur le sujet de l email produira des erreurs car les emails de facturation sont souvent generiques. Il manque aussi la boucle explicite dans les etapes pour gerer les pieces jointes multiples.
+1. détection d’un email avec pièces jointes ;
+2. isolation des fichiers concernés ;
+3. extraction du texte du document ;
+4. analyse des informations utiles ;
+5. génération d’un nom de fichier sécurisé avec fallback ;
+6. traitement de chaque pièce jointe ;
+7. upload dans le bon dossier Google Drive.
+
+## Cas d’usage
+
+### Cabinet indépendant
+Centraliser automatiquement les factures reçues par email.
+
+### Assistante de direction
+Éviter le téléchargement et renommage répétitif des documents.
+
+### TPE
+Créer une archive Drive plus cohérente pour la comptabilité.
+
+## ⚠️ À finaliser avant livraison
+
+La conception actuelle doit être renforcée sur plusieurs points :
+
+- **extraire le texte du PDF avant analyse IA** au lieu de se baser seulement sur l’objet de l’email ;
+- gérer explicitement les **pièces jointes multiples** avec une boucle ;
+- prévoir un fallback si l’IA renvoie un nom vide ou invalide ;
+- vérifier le passage correct du binaire Gmail vers Google Drive dans la version n8n utilisée.
 
 ## Limites
 
-Le workflow ne traite pas les pièces jointes intégrées dans le corps HTML de l'email. Il ne fusionne pas les doublons si un même document arrive deux fois. Il ne lit pas le contenu du PDF pour en extraire le montant ou le numéro de facture. Il ne fonctionne pas sur Outlook sans reconfiguration complète des credentials.
+- pièces jointes intégrées dans certains corps HTML non garanties ;
+- déduplication des documents non prévue par défaut ;
+- Outlook nécessite une adaptation ;
+- la qualité de l’extraction dépend du type de PDF et du contenu disponible ;
+- les documents scannés peuvent nécessiter un traitement supplémentaire.
 
-## Tags
+## 🛡️ Garde-fous recommandés
 
-factures, google drive, renommage ia, tri automatique, fournisseurs
+- nom de fichier de secours si l’analyse échoue ;
+- validation du type MIME ;
+- filtrage des extensions autorisées ;
+- journalisation du fichier et du dossier cible ;
+- aucune suppression automatique de l’email source.
+
+## 📦 Ce que vous recevez
+
+Après finalisation :
+
+- workflow n8n importable ;
+- logique de traitement des pièces jointes ;
+- règles de nommage personnalisées ;
+- structure de dossiers Drive ;
+- guide de configuration Gmail/Drive ;
+- paramètres IA à adapter.
+
+## FAQ
+
+### Le workflow lit-il le contenu des PDF ?
+La version commerciale finalisée doit intégrer cette étape avant l’analyse IA.
+
+### Gère-t-il plusieurs pièces jointes ?
+C’est un point obligatoire de la finalisation prévue.
+
+### Fonctionne-t-il avec Outlook ?
+Pas sans adaptation.
+
+### Les fichiers sont-ils supprimés de Gmail ?
+Non dans la conception prévue.
 
 ---
+
+## Classez vos documents sans passer votre journée dans Gmail
+
+[**🛠️ Commander la version personnalisée — 29 € →**](https://n8nmarketai.com/)
 
 [← Retour au catalogue N8N Market AI](../../README.md)
