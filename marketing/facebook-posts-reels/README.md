@@ -1,5 +1,7 @@
 # Facebook Posts + Reels — n8n
 
+![Facebook Posts + Reels — n8n](./workflow-banner.svg)
+
 ## 🛒 Acheter ce workflow
 
 [**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/facebook-posts-reels-image-video-workflow-n8n)
