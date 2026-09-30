@@ -1,6 +1,10 @@
-# Collecte automatique d'avis clients après achat
+# Collecte automatique d'avis clients après achat — n8n
 
-![Collecte automatique d'avis clients après achat](./workflow-banner.svg)
+![Collecte automatique d'avis clients](./workflow-banner.svg)
+
+> **Un workflow pour demander un avis après une prestation ou un achat, distinguer les clients satisfaits des insatisfaits et centraliser les réponses.**
+
+[**🛠️ Commander une version personnalisée — 29 € →**](https://n8nmarketai.com/products/collecte-automatique-d-avis-clients-apres-achat-workflow-n8n)
 
 ## 🛒 Offre N8N Market AI
 
@@ -8,52 +12,131 @@
 |---|---|
 | 💰 **Prix** | **29 €** |
 | 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
-| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 📦 **Livraison** | Finalisation + validation avant livraison |
 | 🧩 **Niveau** | Intermédiaire |
 | ⏱️ **Installation estimée** | 30–60 min* |
 | 🔧 **Personnalisation** | Disponible |
 
-[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
+<sub>*Estimation hors récupération, création ou validation des accès externes.</sub>
 
-<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+---
 
-## 📦 Ce que vous recevez
+## Pourquoi ce produit ?
 
-- une version finalisée et adaptée à votre environnement ;
-- le workflow n8n importable après validation ;
-- le guide de configuration ;
-- la liste des comptes, API et credentials à connecter ;
-- les paramètres à personnaliser.
+Demander des avis au bon moment et traiter les retours négatifs demande une routine constante que les petites équipes ont rarement le temps de suivre.
 
-> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
-
-
-Ce workflow envoie automatiquement une demande d'avis au bon moment, 24h après la livraison ou la fin de la prestation. Il trie les réponses selon la note donnée : il invite les clients satisfaits à laisser un avis public sur Google et alerte immédiatement l'équipe en cas d'insatisfaction. Toutes les réponses sont enregistrées dans Google Sheets avec le statut correspondant.
+Il vise à :
+- déclencher une demande d’avis ;
+- collecter une note et un commentaire ;
+- orienter les clients satisfaits vers un avis public ;
+- alerter l’équipe en cas d’insatisfaction ;
+- journaliser les réponses.
 
 ## Pour qui ?
 
-Commerçants, e-commerçants, prestataires de services et responsables SAV qui veulent collecter plus d'avis tout en détectant rapidement les clients mécontents.
+- e-commerçants ;
+- prestataires de services ;
+- commerces locaux ;
+- équipes SAV ;
+- entreprises qui veulent structurer la collecte d’avis.
 
-## Prérequis
+## Avant / Après
 
-Connecter un compte Gmail, Typeform, Slack et Google Sheets.
+| Avant | Avec le workflow |
+|---|---|
+| Demande d'avis oubliée | Déclenchement automatique |
+| Même traitement pour tous | Branche selon la satisfaction |
+| Retours négatifs vus trop tard | Alerte interne |
+| Réponses dispersées | Suivi dans Sheets |
+| Processus manuel | Routine reproductible |
 
-## Version commerciale
+## Architecture
 
-Le JSON n8n complet reste privé. Le pack commercial comprendra le workflow importable, la documentation et les paramètres de configuration.
+![Architecture Collecte automatique d'avis clients](./architecture-review-collection.svg)
 
-## Point à corriger avant commercialisation
+**Achat terminé → Demande d'avis → Formulaire → Décision → Google Sheets**
 
-Il faut scinder le processus en deux workflows distincts car un noeud Trigger (Typeform) ne peut pas s insérer au milieu d un flux. Il faut aussi transmettre l ID de commande à Typeform via un champ caché pour lier l avis au bon client.
+## Fonctionnement cible
+
+1. Déclencher la demande après l’événement métier.
+2. Envoyer le lien de formulaire.
+3. Recevoir la réponse.
+4. Relier la réponse au bon client/achat.
+5. Orienter selon la note.
+6. Enregistrer le résultat.
+
+## Cas d'usage
+
+### Commerce local
+Demander un avis après une prestation.
+
+### E-commerce
+Collecter la satisfaction après livraison.
+
+### Service client
+Détecter rapidement les réponses insatisfaites.
+
+## ⚠️ À finaliser avant livraison
+
+La version commerciale doit être finalisée et testée dans l’environnement du client, notamment :
+- séparer proprement l’envoi de la demande et la réception du formulaire si deux triggers sont nécessaires ;
+- transmettre un identifiant de commande/client dans un champ caché ;
+- tester les scénarios simultanés ;
+- documenter l’intégration avec la source d’achat ou de prestation.
 
 ## Limites
 
-Le workflow ne publie pas l avis sur Google My Business à la place du client, il l y invite seulement. Il ne relance pas le client qui n a pas répondu au formulaire. Il ne gère pas plusieurs commandes simultanées du même client sans doublon si le Webhook est appelé plusieurs fois. Il ne s intègre pas nativement à Shopify ou WooCommerce sans que ces plateformes envoient elles-mêmes le Webhook au bon moment.
+- ne publie pas un avis à la place du client ;
+- pas de relance automatique des non-répondants dans cette version ;
+- l’intégration Shopify/WooCommerce nécessite un déclencheur adapté ;
+- la gestion des doublons doit être validée.
 
-## Tags
+## 🛡️ Garde-fous recommandés
 
-avis clients, collecte automatique, satisfaction client, Typeform, Google Sheets
+- identifiant unique pour relier la réponse ;
+- alerte humaine pour les notes faibles ;
+- journalisation ;
+- aucune publication automatique d’avis ;
+- credentials stockés dans n8n.
+
+## 📦 Ce que vous recevez
+
+Après finalisation :
+- workflow finalisé ;
+- structure du formulaire ;
+- modèle Google Sheets ;
+- configuration des branches satisfaction ;
+- guide d’installation ;
+- paramètres de délai personnalisables.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés dans ce dépôt.
+
+## Prérequis
+
+- n8n ;
+- Gmail ou service email ;
+- formulaire compatible ;
+- Google Sheets ;
+- Slack si l’alerte interne est conservée.
+
+## FAQ
+
+### Le workflow publie-t-il l'avis Google à la place du client ?
+Non. Il peut inviter le client à publier son avis.
+
+### Puis-je changer le délai après l'achat ?
+Oui.
+
+### Peut-on utiliser un autre formulaire que Typeform ?
+Oui, avec adaptation.
+
+### Que se passe-t-il en cas d'avis négatif ?
+La version cible peut déclencher une alerte interne.
 
 ---
+
+## Collectez les avis sans oublier les clients insatisfaits
+
+[**🛠️ Commander la version personnalisée — 29 € →**](https://n8nmarketai.com/products/collecte-automatique-d-avis-clients-apres-achat-workflow-n8n)
 
 [← Retour au catalogue N8N Market AI](../../README.md)
