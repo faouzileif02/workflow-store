@@ -1,5 +1,7 @@
 # Confirmation RDV automatique par SMS pour salon de coiffure
 
+![Confirmation RDV automatique par SMS pour salon de coiffure](./workflow-banner.svg)
+
 > **Statut : BETA — workflow salon générique, séparé de SalonPilot**
 
 Les salons de coiffure perdent 10 à 20 % de leurs rendez-vous à cause des no-shows. Ce workflow envoie automatiquement un SMS de confirmation la veille et met à jour le planning selon la réponse du client. Le gérant est alerté par email en cas d'annulation pour pouvoir réattribuer le créneau rapidement.
