@@ -1,5 +1,7 @@
 # Accusé réception automatique candidature formulaire
 
+![Accusé réception automatique candidature formulaire](./workflow-banner.svg)
+
 > **Statut : BETA — validation/corrections en cours**
 
 Les entreprises qui reçoivent des candidatures via un formulaire en ligne ne répondent jamais immédiatement, ce qui donne une image peu professionnelle et laisse les candidats sans nouvelle. Ce workflow envoie automatiquement un accusé de réception personnalisé au candidat dès la soumission, ajoute sa candidature dans un tableau de suivi et notifie le recruteur. Il permet de gagner du temps tout en offrant une meilleure expérience candidat.
