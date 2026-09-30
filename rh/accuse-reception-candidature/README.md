@@ -1,6 +1,10 @@
-# Accusé réception automatique candidature formulaire
+# Accusé de réception automatique des candidatures — n8n
 
-![Accusé réception automatique candidature formulaire](./workflow-banner.svg)
+![Accusé réception candidature](./workflow-banner.svg)
+
+> **Un workflow pour répondre immédiatement à une candidature, enregistrer le dossier dans Google Sheets et notifier le recruteur.**
+
+[**🛠️ Commander une version personnalisée — 29 € →**](https://n8nmarketai.com/products/accuse-reception-automatique-candidature-formulaire-workflow-n8n)
 
 ## 🛒 Offre N8N Market AI
 
@@ -8,52 +12,128 @@
 |---|---|
 | 💰 **Prix** | **29 €** |
 | 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
-| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 📦 **Livraison** | Finalisation + validation avant livraison |
 | 🧩 **Niveau** | Facile à intermédiaire |
 | ⏱️ **Installation estimée** | 20–40 min* |
 | 🔧 **Personnalisation** | Disponible |
 
-[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
+<sub>*Estimation hors récupération, création ou validation des accès externes.</sub>
 
-<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+---
 
-## 📦 Ce que vous recevez
+## Pourquoi ce produit ?
 
-- une version finalisée et adaptée à votre environnement ;
-- le workflow n8n importable après validation ;
-- le guide de configuration ;
-- la liste des comptes, API et credentials à connecter ;
-- les paramètres à personnaliser.
+Un candidat qui soumet un formulaire attend au minimum une confirmation claire. Automatiser cette première réponse améliore la régularité du processus RH.
 
-> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
-
-
-Les entreprises qui reçoivent des candidatures via un formulaire en ligne ne répondent jamais immédiatement, ce qui donne une image peu professionnelle et laisse les candidats sans nouvelle. Ce workflow envoie automatiquement un accusé de réception personnalisé au candidat dès la soumission, ajoute sa candidature dans un tableau de suivi et notifie le recruteur. Il permet de gagner du temps tout en offrant une meilleure expérience candidat.
+Il vise à :
+- répondre immédiatement ;
+- enregistrer la candidature ;
+- notifier le recruteur ;
+- centraliser le suivi ;
+- standardiser l’expérience candidat.
 
 ## Pour qui ?
 
-Recruteurs, indépendants, RH et petites entreprises qui reçoivent des candidatures via formulaire web.
+- PME ;
+- recruteurs indépendants ;
+- services RH ;
+- associations ;
+- entreprises recevant les candidatures via formulaire.
 
-## Prérequis
+## Avant / Après
 
-Compte Google (Gmail + Google Sheets) et un formulaire configuré pour envoyer les données vers le webhook n8n.
+| Avant | Avec le workflow |
+|---|---|
+| Réponse manuelle | Accusé automatique |
+| Candidature copiée à la main | Enregistrement dans Sheets |
+| Recruteur non averti | Notification |
+| Suivi dispersé | Tableau centralisé |
+| Formulaire pouvant attendre trop longtemps | Réponse webhook rapide |
 
-## Version commerciale
+## Architecture
 
-Le JSON n8n complet reste privé.
+![Architecture Accusé réception candidature](./architecture-application-ack.svg)
 
-## Point à corriger avant commercialisation
+**Formulaire → Webhook → Email → Google Sheets → Recruteur**
 
-La structure exacte des colonnes attendues dans Google Sheets doit etre precisee dans la description. Le noeud Respond to Webhook doit etre connecte juste apres le trigger pour eviter un timeout du formulaire distant. La gestion de la piece jointe n est pas robuste, un simple lien limite l accessibilite si le fichier recu est prive.
+## Fonctionnement cible
+
+1. Recevoir la candidature via webhook.
+2. Répondre rapidement au formulaire.
+3. Envoyer l’accusé de réception.
+4. Créer la ligne de suivi.
+5. Notifier le recruteur.
+
+## Cas d'usage
+
+### Petite entreprise
+Répondre proprement à chaque candidature reçue.
+
+### Cabinet
+Centraliser les nouveaux dossiers dans une feuille.
+
+### Association
+Mettre en place un suivi simple sans ATS.
+
+## ⚠️ À finaliser avant livraison
+
+- documenter précisément les colonnes Google Sheets ;
+- placer la réponse webhook suffisamment tôt pour éviter les timeouts ;
+- définir la gestion des pièces jointes privées ;
+- tester les champs obligatoires du formulaire.
 
 ## Limites
 
-Le workflow ne lit pas le contenu du CV joint, ne fait aucun scoring ou classement de la candidature, ne gère pas les relances si le recruteur ne répond pas, et ne s'intègre pas à un ATS existant.
+- ne lit pas le contenu du CV dans cette version ;
+- ne score pas les candidats ;
+- ne remplace pas un ATS complet ;
+- les relances recruteur ne sont pas prévues par défaut.
 
-## Tags
+## 🛡️ Garde-fous recommandés
 
-candidature, accusé réception, recrutement, formulaire, google sheets
+- validation des champs entrants ;
+- aucune donnée sensible dans GitHub ;
+- journalisation ;
+- gestion d’erreur email ;
+- stockage des credentials dans n8n.
+
+## 📦 Ce que vous recevez
+
+Après finalisation :
+- workflow finalisé ;
+- modèle Google Sheets ;
+- template d’accusé de réception ;
+- guide webhook ;
+- configuration notification ;
+- documentation des champs.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés dans ce dépôt.
+
+## Prérequis
+
+- n8n ;
+- formulaire ou webhook ;
+- Google Sheets ;
+- Gmail ou service email.
+
+## FAQ
+
+### Le workflow analyse-t-il le CV ?
+Non, ce produit est centré sur l’accusé de réception et le suivi.
+
+### Peut-on personnaliser l’email ?
+Oui.
+
+### Fonctionne-t-il avec n’importe quel formulaire ?
+Oui si le formulaire peut envoyer ses données vers un webhook compatible.
+
+### Remplace-t-il un ATS ?
+Non. Il s’agit d’une automatisation légère.
 
 ---
+
+## Donnez une réponse immédiate à chaque candidature
+
+[**🛠️ Commander la version personnalisée — 29 € →**](https://n8nmarketai.com/products/accuse-reception-automatique-candidature-formulaire-workflow-n8n)
 
 [← Retour au catalogue N8N Market AI](../../README.md)
