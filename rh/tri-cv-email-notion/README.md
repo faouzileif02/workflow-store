@@ -1,5 +1,7 @@
 # Tri automatique des CV par email vers Notion
 
+![Tri automatique des CV par email vers Notion](./workflow-banner.svg)
+
 > **Statut : BETA — 3 variantes regroupées**
 
 Les RH de petites structures perdent un temps fou à copier manuellement les CV reçus par email dans leur tableau de suivi. Ce workflow détecte automatiquement les nouvelles candidatures, extrait les informations clés du PDF et crée une fiche structurée dans Notion. Un email de confirmation est envoyé au candidat et une notification arrive sur Slack.
