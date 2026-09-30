@@ -1,5 +1,7 @@
 # Collecte automatique d'avis clients après achat
 
+![Collecte automatique d'avis clients après achat](./workflow-banner.svg)
+
 ## 🛒 Acheter ce workflow
 
 [**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/collecte-automatique-d-avis-clients-apres-achat-workflow-n8n)
