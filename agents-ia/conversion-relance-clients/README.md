@@ -2,14 +2,31 @@
 
 ![Agent IA Conversion & Relance Clients — Shopify + n8n](./workflow-banner.svg)
 
-**SKU :** N8N-AI-CONVERT-020  
-**Prix Shopify :** 29 €  
-**Statut :** DISPONIBLE — BETA PERSONNALISÉE SUR COMMANDE  
-**Type :** Agent IA n8n
+## 🛒 Offre N8N Market AI
 
-## Acheter
+| | |
+|---|---|
+| 💰 **Prix** | **29 €** |
+| 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
+| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 🧩 **Niveau** | Intermédiaire |
+| ⏱️ **Installation estimée** | 30–60 min* |
+| 🔧 **Personnalisation** | Disponible |
 
-[Commander sur N8N Market AI](https://n8nmarketai.com/products/agent-ia-conversion-relance-clients-shopify-n8n)
+[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
+
+<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+
+## 📦 Ce que vous recevez
+
+- une version finalisée et adaptée à votre environnement ;
+- le workflow n8n importable après validation ;
+- le guide de configuration ;
+- la liste des comptes, API et credentials à connecter ;
+- les paramètres à personnaliser.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
+
 
 La personnalisation est incluse : le workflow est adapté aux segments clients, aux canaux autorisés et aux règles de fréquence du client.
 
@@ -43,3 +60,7 @@ L'architecture est prête dans ce dépôt. Le JSON final est adapté au canal ch
 - aucun credential client stocké dans GitHub.
 
 [Voir toute la gamme Agents IA](https://n8nmarketai.com/collections/agents-ia-marketing-ventes)
+
+---
+
+[← Retour au catalogue N8N Market AI](../../README.md)
