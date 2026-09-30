@@ -1,5 +1,7 @@
 # Qualification automatique des leads par email
 
+![Qualification automatique des leads par email](./workflow-banner.svg)
+
 ## 🛒 Acheter ce workflow
 
 [**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/qualification-automatique-des-leads-par-email-workflow-n8n)
