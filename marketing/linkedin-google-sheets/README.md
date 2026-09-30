@@ -2,14 +2,31 @@
 
 ![Publication automatique LinkedIn depuis Google Sheets](./workflow-banner.svg)
 
-## 🛒 Acheter ce workflow
+## 🛒 Offre N8N Market AI
 
-[**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/publication-automatique-linkedin-depuis-google-sheets-workflow-n8n)
+| | |
+|---|---|
+| 💰 **Prix** | **29 €** |
+| 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
+| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 🧩 **Niveau** | Intermédiaire |
+| ⏱️ **Installation estimée** | 20–45 min* |
+| 🔧 **Personnalisation** | Disponible |
 
-> Produit numérique vendu via la boutique N8N Market AI.
+[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
 
+<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
 
-> **Statut : BETA — validation/corrections en cours**
+## 📦 Ce que vous recevez
+
+- une version finalisée et adaptée à votre environnement ;
+- le workflow n8n importable après validation ;
+- le guide de configuration ;
+- la liste des comptes, API et credentials à connecter ;
+- les paramètres à personnaliser.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
+
 
 Les community managers et fondateurs perdent beaucoup de temps à copier-coller manuellement leurs posts LinkedIn chaque jour. Ce workflow lit automatiquement votre planning dans Google Sheets et publie le contenu prévu à 9h00. Il met à jour le statut et vous envoie un email de confirmation ou d’alerte.
 
@@ -36,3 +53,7 @@ ne gere pas les images ni les videos dans les posts, uniquement du texte brut. N
 ## Tags
 
 LinkedIn, Google Sheets, automatisation, publication, reseaux sociaux
+
+---
+
+[← Retour au catalogue N8N Market AI](../../README.md)
