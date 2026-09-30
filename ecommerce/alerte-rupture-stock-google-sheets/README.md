@@ -155,6 +155,23 @@ Non. Il alerte le responsable ; il ne passe pas de commande.
 ### Peut-on gérer plusieurs entrepôts ?
 Pas dans cette version standard. Cela demanderait une adaptation.
 
+
+## 🚀 Vous avez aimé ce workflow gratuit ?
+
+Ce workflow découverte vous permet de tester notre méthode, notre documentation et la logique d'automatisation N8N Market AI.
+
+Pour aller plus loin, voici trois workflows premium à **29 €** :
+
+| Workflow premium | Idéal pour | Accès |
+|---|---|---|
+| **Agent IA Directeur Marketing & Ventes** | Shopify, stratégie, SEO, contenu et priorisation commerciale | [Voir le workflow →](https://n8nmarketai.com/products/agent-ia-directeur-marketing-ventes-multi-agent-n8n) |
+| **Prospection IA — Brouillons Gmail** | Recherche de prospects, qualification IA et préparation d'emails | [Voir le workflow →](https://n8nmarketai.com/products/prospection-ia-brouillons-gmail-workflow-n8n) |
+| **Facebook Posts + Reels** | Automatiser les publications image et vidéo sur Facebook | [Voir le workflow →](https://n8nmarketai.com/products/facebook-posts-reels-image-video-workflow-n8n) |
+
+> **Vous avez un besoin spécifique ?** Les workflows BETA du catalogue peuvent aussi être personnalisés et finalisés pour votre environnement.
+
+[**🛒 Voir tous les workflows N8N Market AI →**](https://n8nmarketai.com/)
+
 ---
 
 ## Transformez votre Google Sheet en système d’alerte stock
