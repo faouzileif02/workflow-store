@@ -2,14 +2,31 @@
 
 ![Collecte automatique d'avis clients après achat](./workflow-banner.svg)
 
-## 🛒 Acheter ce workflow
+## 🛒 Offre N8N Market AI
 
-[**Acheter sur N8N Market AI →**](https://n8nmarketai.com/products/collecte-automatique-d-avis-clients-apres-achat-workflow-n8n)
+| | |
+|---|---|
+| 💰 **Prix** | **29 €** |
+| 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
+| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 🧩 **Niveau** | Intermédiaire |
+| ⏱️ **Installation estimée** | 30–60 min* |
+| 🔧 **Personnalisation** | Disponible |
 
-> Produit numérique vendu via la boutique N8N Market AI.
+[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
 
+<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
 
-> **Statut : BETA — validation/corrections en cours**
+## 📦 Ce que vous recevez
+
+- une version finalisée et adaptée à votre environnement ;
+- le workflow n8n importable après validation ;
+- le guide de configuration ;
+- la liste des comptes, API et credentials à connecter ;
+- les paramètres à personnaliser.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
+
 
 Ce workflow envoie automatiquement une demande d'avis au bon moment, 24h après la livraison ou la fin de la prestation. Il trie les réponses selon la note donnée : il invite les clients satisfaits à laisser un avis public sur Google et alerte immédiatement l'équipe en cas d'insatisfaction. Toutes les réponses sont enregistrées dans Google Sheets avec le statut correspondant.
 
@@ -36,3 +53,7 @@ Le workflow ne publie pas l avis sur Google My Business à la place du client, i
 ## Tags
 
 avis clients, collecte automatique, satisfaction client, Typeform, Google Sheets
+
+---
+
+[← Retour au catalogue N8N Market AI](../../README.md)
