@@ -1,5 +1,7 @@
 # Réponse automatique aux avis Google My Business
 
+![Réponse automatique aux avis Google My Business](./workflow-banner.svg)
+
 > **Statut : BETA — validation/corrections en cours**
 
 Les petits commerces reçoivent régulièrement des avis Google qu’ils n’ont jamais le temps de traiter. Ce workflow récupère automatiquement les nouveaux avis, génère une réponse adaptée et personnalisée grâce à l’IA, puis la publie directement sur Google. Le gérant reçoit chaque jour un email récapitulatif de toutes les réponses publiées.
