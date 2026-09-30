@@ -1,6 +1,10 @@
-# Relance SMS automatique clients inactifs 90 jours
+# Relance SMS automatique des clients inactifs 90 jours — n8n
 
-![Relance SMS automatique clients inactifs 90 jours](./workflow-banner.svg)
+![Relance clients inactifs 90 jours](./workflow-banner.svg)
+
+> **Un workflow pour repérer les clients sans rendez-vous récent, appliquer les exclusions puis envoyer des SMS de réactivation de façon contrôlée.**
+
+[**🛠️ Commander une version personnalisée — 29 € →**](https://n8nmarketai.com/products/relance-sms-automatique-clients-inactifs-90-jours-workflow-n8n)
 
 ## 🛒 Offre N8N Market AI
 
@@ -8,52 +12,130 @@
 |---|---|
 | 💰 **Prix** | **29 €** |
 | 📌 **Statut** | **🟠 BETA / PERSONNALISATION** |
-| 📦 **Livraison** | Personnalisation + validation avant livraison |
+| 📦 **Livraison** | Finalisation + validation avant livraison |
 | 🧩 **Niveau** | Intermédiaire |
 | ⏱️ **Installation estimée** | 20–45 min* |
 | 🔧 **Personnalisation** | Disponible |
 
-[**🛠️ Commander une version personnalisée →**](https://n8nmarketai.com/)
+<sub>*Estimation hors récupération, création ou validation des accès externes.</sub>
 
-<sub>*Estimation hors création, validation ou récupération des accès aux services externes.</sub>
+---
 
-## 📦 Ce que vous recevez
+## Pourquoi ce produit ?
 
-- une version finalisée et adaptée à votre environnement ;
-- le workflow n8n importable après validation ;
-- le guide de configuration ;
-- la liste des comptes, API et credentials à connecter ;
-- les paramètres à personnaliser.
+Les clients inactifs peuvent disparaître de la relation commerciale sans que le salon s’en rende compte. Une routine simple permet de préparer des relances régulières.
 
-> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés sur GitHub.
-
-
-Votre salon perd régulièrement des clients fidèles qui ne reviennent plus sans que vous le remarquiez. Ce workflow identifie automatiquement les clients qui n’ont pas pris rendez-vous depuis plus de 90 jours et leur envoie un SMS de relance personnalisé. Vous recevez chaque lundi un récapitulatif par email avec le nombre de personnes relancées.
+Il vise à :
+- détecter l’inactivité ;
+- exclure les clients à ne pas contacter ;
+- envoyer les SMS un par un ;
+- éviter un envoi massif instantané ;
+- produire un récapitulatif.
 
 ## Pour qui ?
 
-Gérants de salons de coiffure qui veulent récupérer leurs clients inactifs sans perdre de temps.
+- salons de coiffure ;
+- barbiers ;
+- instituts ;
+- commerces avec base clients dans Sheets ;
+- structures utilisant Twilio ou un fournisseur SMS compatible.
 
-## Prérequis
+## Avant / Après
 
-Connecter un compte Google et un compte Twilio.
+| Avant | Avec le workflow |
+|---|---|
+| Chercher les anciens clients à la main | Détection selon la dernière visite |
+| Risque de contacter un client exclu | Liste d’exclusion |
+| Envoi manuel | Boucle SMS contrôlée |
+| Pas de synthèse | Récapitulatif hebdomadaire |
+| Données dispersées | Suivi dans Sheets |
 
-## Version commerciale
+## Architecture
 
-Le JSON n8n complet reste privé. Ce workflow est présenté comme automatisation indépendante pour salons et n'est pas intégré à SalonPilot dans ce dépôt.
+![Architecture Relance clients inactifs 90 jours](./architecture-reactivation-sms.svg)
 
-## Point à corriger avant commercialisation
+**Google Sheets → Inactivité → Exclusions → Boucle SMS → Récapitulatif**
 
-Il faut fournir un lien vers un modele Google Sheets preconfigure avec les bons onglets et colonnes. Il manque aussi un noeud Loop pour que la pause de deux secondes s applique bien a chaque SMS individuel.
+## Fonctionnement cible
+
+1. Lire la base clients.
+2. Calculer le temps depuis la dernière visite.
+3. Exclure les clients non éligibles.
+4. Traiter chaque client individuellement.
+5. Envoyer le SMS.
+6. Produire un récapitulatif.
+
+## Cas d'usage
+
+### Salon
+Réactiver les clients absents depuis plusieurs mois.
+
+### Barbier
+Créer une campagne hebdomadaire légère.
+
+### Institut
+Adapter le délai d’inactivité à son cycle de visite.
+
+## ⚠️ À finaliser avant livraison
+
+- fournir un modèle Google Sheets complet ;
+- ajouter une boucle explicite pour traiter chaque SMS séparément ;
+- mettre en place une liste d’exclusion/opt-out robuste ;
+- définir le suivi après réponse ou nouveau rendez-vous ;
+- tester la cadence d’envoi.
 
 ## Limites
 
-Le workflow ne sait pas si le client a répondu au SMS ou pris rendez-vous après la relance, ce suivi doit être fait manuellement dans le Google Sheet. Il ne gère pas les désabonnements SMS, le gérant doit tenir à jour une liste noire manuellement. Il ne se connecte à aucun logiciel de caisse ou de réservation, les données clients doivent être exportées et collées dans le Google Sheet.
+- ne sait pas automatiquement si le client a réservé après le SMS sans intégration supplémentaire ;
+- pas de logiciel de réservation connecté par défaut ;
+- les données doivent être à jour ;
+- les SMS sont facturés par le fournisseur.
 
-## Tags
+## 🛡️ Garde-fous recommandés
 
-relance clients, sms automatique, salon coiffure, fidélisation, twilio
+- liste noire/opt-out ;
+- limite de fréquence ;
+- pause entre messages ;
+- journalisation ;
+- aucun envoi aux numéros invalides.
+
+## 📦 Ce que vous recevez
+
+Après finalisation :
+- workflow finalisé ;
+- modèle Google Sheets ;
+- règles d’inactivité personnalisables ;
+- templates SMS ;
+- guide Twilio ;
+- récapitulatif email.
+
+> Le fichier JSON commercial complet, les clés API et les credentials clients ne sont pas publiés dans ce dépôt.
+
+## Prérequis
+
+- n8n ;
+- Google Sheets ;
+- fournisseur SMS compatible ;
+- email si le récapitulatif est conservé.
+
+## FAQ
+
+### Le délai doit-il être exactement 90 jours ?
+Non. Il est personnalisable.
+
+### Le workflow sait-il si le client a réservé ensuite ?
+Pas sans connexion supplémentaire au système de réservation.
+
+### Peut-on gérer les désabonnements ?
+Oui, la version finale doit intégrer une liste d’exclusion.
+
+### Les SMS partent-ils tous en même temps ?
+La version finale prévoit un traitement en boucle pour mieux contrôler la cadence.
 
 ---
+
+## Réactivez vos anciens clients avec une routine simple et contrôlée
+
+[**🛠️ Commander la version personnalisée — 29 € →**](https://n8nmarketai.com/products/relance-sms-automatique-clients-inactifs-90-jours-workflow-n8n)
 
 [← Retour au catalogue N8N Market AI](../../README.md)
