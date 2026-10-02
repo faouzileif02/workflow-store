@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="650" viewBox="0 0 1600 650">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#071226"/><stop offset=".6" stop-color="#0b1731"/><stop offset="1" stop-color="#1d102b"/></linearGradient>
+  <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#112243"/><stop offset="1" stop-color="#0d1932"/></linearGradient>
+  <filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-opacity=".28"/></filter>
+</defs>
+<rect width="1600" height="650" rx="30" fill="url(#bg)"/>
+<text x="65" y="78" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="38" font-weight="850" fill="#fff">Architecture — Prospection TikTok Luxembourg</text>
+<text x="65" y="118" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21" fill="#9fb6d8">Rechercher → extraire → dédupliquer → enregistrer dans Google Sheets</text>
+
+<g filter="url(#shadow)">
+  <rect x="65" y="220" width="255" height="170" rx="22" fill="url(#card)" stroke="#64a0ff" stroke-width="2"/>
+  <text x="192" y="275" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24" font-weight="800" fill="#fff">Requêtes ciblées</text>
+  <text x="192" y="317" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" fill="#a9bdd9">Luxembourg • food • lifestyle</text>
+  <text x="192" y="347" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" fill="#a9bdd9">Ettelbruck • Diekirch</text>
+</g>
+<g filter="url(#shadow)">
+  <rect x="365" y="220" width="255" height="170" rx="22" fill="url(#card)" stroke="#ff8b4b" stroke-width="2"/>
+  <text x="492" y="275" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24" font-weight="800" fill="#fff">Google / SerpAPI</text>
+  <text x="492" y="317" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" fill="#a9bdd9">résultats organiques</text>
+</g>
+<g filter="url(#shadow)">
+  <rect x="665" y="220" width="255" height="170" rx="22" fill="url(#card)" stroke="#25f4ee" stroke-width="2"/>
+  <text x="792" y="275" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24" font-weight="800" fill="#fff">Extraction TikTok</text>
+  <text x="792" y="317" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" fill="#a9bdd9">pseudo • URL • email public</text>
+  <text x="792" y="347" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" fill="#a9bdd9">abonnés si visibles</text>
+</g>
+<g filter="url(#shadow)">
+  <rect x="965" y="220" width="255" height="170" rx="22" fill="url(#card)" stroke="#fe2c55" stroke-width="2"/>
+  <text x="1092" y="275" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24" font-weight="800" fill="#fff">Déduplication</text>
+  <text x="1092" y="317" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" fill="#a9bdd9">un profil = un pseudo</text>
+</g>
+<g filter="url(#shadow)">
+  <rect x="1265" y="220" width="270" height="170" rx="22" fill="url(#card)" stroke="#65d896" stroke-width="2"/>
+  <text x="1400" y="275" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24" font-weight="800" fill="#fff">Google Sheets</text>
+  <text x="1400" y="317" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" fill="#a9bdd9">append / update</text>
+  <text x="1400" y="347" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" fill="#a9bdd9">statut « À contacter »</text>
+</g>
+<g stroke="#8bcff5" stroke-width="5" fill="none" stroke-linecap="round">
+  <path d="M320 305 L365 305"/><path d="M620 305 L665 305"/><path d="M920 305 L965 305"/><path d="M1220 305 L1265 305"/>
+</g>
+<text x="65" y="515" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="22" font-weight="800" fill="#25f4ee">Inclus dans le pack : workflow JSON + Google Sheets + XLSX + CSV + guide</text>
+<text x="65" y="565" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" fill="#718aac">N8N Market AI • architecture simplifiée à des fins de présentation</text>
+</svg>
