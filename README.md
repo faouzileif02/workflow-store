@@ -4,7 +4,7 @@
 
 **Automatisez les tâches répétitives avec des workflows n8n professionnels, documentés et personnalisables.**
 
-[🌐 Visiter N8N Market AI](https://n8nmarketai.com/) · [🚀 Voir les workflows prêts à livrer](#-prêts-à-livrer) · [📦 Parcourir les 22 workflows](#-catalogue-complet)
+[🌐 Visiter N8N Market AI](https://n8nmarketai.com/) · [🚀 Voir les workflows prêts à livrer](#-prêts-à-livrer) · [📦 Parcourir les 23 workflows](#-catalogue-complet)
 
 ---
 
@@ -192,6 +192,17 @@ Les workflows BETA peuvent être adaptés aux outils, règles et données du cli
 <sub>🟠 BETA / personnalisation</sub><br><a href="marketing/veille-marque-twitter-google-sheets/">Voir la fiche →</a>
 </td>
 </tr>
+<tr>
+<td width="50%" valign="top">
+<a href="marketing/prospection-tiktok-luxembourg/"><img src="marketing/prospection-tiktok-luxembourg/workflow-banner.svg" alt="Prospection TikTok Luxembourg"></a><br>
+<strong>Prospection TikTok Luxembourg — SerpAPI + Google Sheets</strong><br>
+<sub>🟢 PUBLIABLE · 9,99 € · TikTok · SerpAPI · Sheets</sub><br><a href="marketing/prospection-tiktok-luxembourg/">Voir la fiche →</a>
+</td>
+<td width="50%" valign="top">
+<strong>Nouveau workflow prospection locale</strong><br><br>
+Recherche de profils TikTok via Google/SerpAPI avec déduplication et suivi Google Sheets.
+</td>
+</tr>
 </table>
 
 ### 🛒 E-commerce
@@ -287,7 +298,7 @@ Les versions commerciales complètes ne doivent jamais exposer publiquement :
 
 ## N8N Market AI
 
-**22 workflows documentés** couvrant l'IA, le marketing, les ventes, le business, l'e-commerce, la productivité, les RH et les salons.
+**23 workflows documentés** couvrant l'IA, le marketing, les ventes, le business, l'e-commerce, la productivité, les RH et les salons.
 
 👉 [**Découvrir la boutique N8N Market AI**](https://n8nmarketai.com/)
 
