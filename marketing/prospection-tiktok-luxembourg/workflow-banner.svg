@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="600" viewBox="0 0 1600 600">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#071226"/><stop offset=".55" stop-color="#0b1731"/><stop offset="1" stop-color="#22102d"/>
+  </linearGradient>
+  <radialGradient id="glow"><stop offset="0" stop-color="#25f4ee" stop-opacity=".45"/><stop offset=".55" stop-color="#fe2c55" stop-opacity=".22"/><stop offset="1" stop-color="#fe2c55" stop-opacity="0"/></radialGradient>
+  <filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity=".28"/></filter>
+</defs>
+<rect width="1600" height="600" rx="30" fill="url(#bg)"/>
+<circle cx="1325" cy="280" r="350" fill="url(#glow)"/>
+
+<g transform="translate(90,68)">
+  <circle cx="22" cy="22" r="10" fill="#ff7a35"/>
+  <circle cx="50" cy="8" r="8" fill="#5da9ff"/>
+  <circle cx="50" cy="36" r="8" fill="#5da9ff"/>
+  <path d="M30 18 L42 11 M30 26 L42 33" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  <text x="78" y="31" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27" font-weight="800" fill="#fff">N8N Market AI</text>
+  <text x="78" y="61" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="600" fill="#8eabd0">WORKFLOW 23 • N8N-TIKTOK-LUX-022</text>
+</g>
+
+<text x="90" y="250" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="62" font-weight="850" fill="#fff">Prospection TikTok Luxembourg</text>
+<text x="90" y="332" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="48" font-weight="800" fill="#25f4ee">SerpAPI + Google Sheets</text>
+<text x="92" y="408" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24" font-weight="500" fill="#b9c9e4">Recherche de profils locaux • déduplication • suivi prêt à contacter</text>
+
+<g transform="translate(90,468)">
+  <rect width="180" height="54" rx="27" fill="#0f1d3d" stroke="#25f4ee" stroke-opacity=".75"/>
+  <text x="90" y="35" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21" font-weight="700" fill="#eaf3ff">SERPAPI</text>
+</g>
+<g transform="translate(290,468)">
+  <rect width="180" height="54" rx="27" fill="#0f1d3d" stroke="#fe2c55" stroke-opacity=".75"/>
+  <text x="90" y="35" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21" font-weight="700" fill="#eaf3ff">TIKTOK</text>
+</g>
+<g transform="translate(490,468)">
+  <rect width="200" height="54" rx="27" fill="#0f1d3d" stroke="#64a0ff" stroke-opacity=".75"/>
+  <text x="100" y="35" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21" font-weight="700" fill="#eaf3ff">GOOGLE SHEETS</text>
+</g>
+
+<g transform="translate(1060,135)" filter="url(#shadow)">
+  <rect width="410" height="320" rx="28" fill="#0c1833" stroke="#25f4ee" stroke-width="3"/>
+  <circle cx="205" cy="108" r="70" fill="#111f43" stroke="#fe2c55" stroke-width="4"/>
+  <text x="205" y="119" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="36" font-weight="900" fill="#fff">n8n</text>
+  <text x="205" y="211" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="22" font-weight="800" fill="#fff">Google → TikTok → Sheets</text>
+  <text x="205" y="251" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" fill="#9fb6d8">Luxembourg • Ettelbruck • Diekirch</text>
+</g>
+</svg>
