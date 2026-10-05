@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="650" viewBox="0 0 1600 650">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#071226"/><stop offset=".55" stop-color="#0b1831"/><stop offset="1" stop-color="#1b1029"/></linearGradient>
+  <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#112243"/><stop offset="1" stop-color="#0d1932"/></linearGradient>
+</defs>
+<rect width="1600" height="650" rx="30" fill="url(#bg)"/>
+<text x="65" y="78" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="38" font-weight="850" fill="#fff">Architecture — Multi LLM Router</text>
+<text x="65" y="118" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21" font-weight="500" fill="#9fb6d8">Une seule API n8n, quatre fournisseurs et fallback automatique</text>
+<g font-family="Inter,Segoe UI,Arial,sans-serif">
+  <rect x="65" y="220" width="250" height="170" rx="22" fill="url(#card)" stroke="#55cfff" stroke-width="2"/>
+  <text x="190" y="285" text-anchor="middle" font-size="22" font-weight="800" fill="#fff">Webhook</text><text x="190" y="330" text-anchor="middle" font-size="16" fill="#a9bdd9">requête utilisateur</text>
+  <rect x="350" y="220" width="250" height="170" rx="22" fill="url(#card)" stroke="#ff7a3d" stroke-width="2"/>
+  <text x="475" y="285" text-anchor="middle" font-size="22" font-weight="800" fill="#fff">Groq</text><text x="475" y="330" text-anchor="middle" font-size="16" fill="#a9bdd9">GPT-OSS 20B</text>
+  <rect x="635" y="220" width="250" height="170" rx="22" fill="url(#card)" stroke="#55cfff" stroke-width="2"/>
+  <text x="760" y="285" text-anchor="middle" font-size="22" font-weight="800" fill="#fff">Mistral</text><text x="760" y="330" text-anchor="middle" font-size="16" fill="#a9bdd9">Small 4</text>
+  <rect x="920" y="220" width="250" height="170" rx="22" fill="url(#card)" stroke="#ff7a3d" stroke-width="2"/>
+  <text x="1045" y="285" text-anchor="middle" font-size="22" font-weight="800" fill="#fff">GLM / Z.AI</text><text x="1045" y="330" text-anchor="middle" font-size="16" fill="#a9bdd9">GLM 4.7 Flash</text>
+  <rect x="1205" y="220" width="250" height="170" rx="22" fill="url(#card)" stroke="#55cfff" stroke-width="2"/>
+  <text x="1330" y="285" text-anchor="middle" font-size="22" font-weight="800" fill="#fff">Gemini</text><text x="1330" y="330" text-anchor="middle" font-size="16" fill="#a9bdd9">3.6 Flash</text>
+</g>
+<g stroke="#8bcff5" stroke-width="5" fill="#8bcff5">
+  <path d="M315 305 L350 305"/><polygon points="350,305 338,297 338,313"/>
+  <path d="M600 305 L635 305"/><polygon points="635,305 623,297 623,313"/>
+  <path d="M885 305 L920 305"/><polygon points="920,305 908,297 908,313"/>
+  <path d="M1170 305 L1205 305"/><polygon points="1205,305 1193,297 1193,313"/>
+</g>
+<text x="65" y="505" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="22" font-weight="700" fill="#55cfff">Groq → erreur ? Mistral → erreur ? GLM/Z.AI → erreur ? Gemini</text>
+<text x="65" y="555" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" fill="#9fb6d8">La première réponse valide est renvoyée au client avec le fournisseur et le modèle utilisés.</text>
+<text x="65" y="610" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" font-weight="600" fill="#708aaf">N8N Market AI • architecture simplifiée</text>
+</svg>
