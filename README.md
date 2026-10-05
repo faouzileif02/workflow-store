@@ -4,7 +4,7 @@
 
 **Automatisez les tâches répétitives avec des workflows n8n professionnels, documentés et personnalisables.**
 
-[🌐 Visiter N8N Market AI](https://n8nmarketai.com/) · [🚀 Voir les workflows prêts à livrer](#-prêts-à-livrer) · [📦 Parcourir les 23 workflows](#-catalogue-complet)
+[🌐 Visiter N8N Market AI](https://n8nmarketai.com/) · [🚀 Voir les workflows prêts à livrer](#-prêts-à-livrer) · [📦 Parcourir les 24 workflows](#-catalogue-complet)
 
 ---
 
@@ -67,9 +67,10 @@
 <a href="ecommerce/alerte-rupture-stock-google-sheets/">Voir la fiche →</a>
 </td>
 <td width="50%" valign="top">
-<strong>Besoin d'une version personnalisée ?</strong><br><br>
-Les workflows BETA peuvent être adaptés aux outils, règles et données du client avant livraison.<br><br>
-<a href="https://n8nmarketai.com/"><strong>Découvrir N8N Market AI →</strong></a>
+<a href="agents-ia/multi-llm-router/"><img src="agents-ia/multi-llm-router/workflow-banner.svg" alt="Multi LLM Router"></a><br>
+<strong>Multi LLM Router — Groq + Mistral + GLM + Gemini</strong><br>
+<sub>✅ LIVRABLE · n8n · LLM · fallback · API</sub><br>
+<a href="agents-ia/multi-llm-router/">Voir la fiche →</a>
 </td>
 </tr>
 </table>
@@ -103,6 +104,17 @@ Les workflows BETA peuvent être adaptés aux outils, règles et données du cli
 <a href="agents-ia/conversion-relance-clients/"><img src="agents-ia/conversion-relance-clients/workflow-banner.svg" alt="Agent IA Conversion et Relance Clients"></a><br>
 <strong>Agent IA Conversion & Relance Clients</strong><br>
 <sub>🟠 BETA / personnalisation</sub><br><a href="agents-ia/conversion-relance-clients/">Voir la fiche →</a>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<a href="agents-ia/multi-llm-router/"><img src="agents-ia/multi-llm-router/workflow-banner.svg" alt="Multi LLM Router"></a><br>
+<strong>Multi LLM Router — Groq + Mistral + GLM + Gemini</strong><br>
+<sub>✅ LIVRABLE · 29 € · fallback multi-LLM</sub><br><a href="agents-ia/multi-llm-router/">Voir la fiche →</a>
+</td>
+<td width="50%" valign="top">
+<strong>Routeur IA résilient</strong><br><br>
+Une seule URL n8n pour basculer automatiquement entre Groq, Mistral, GLM/Z.AI et Gemini.
 </td>
 </tr>
 </table>
@@ -298,7 +310,7 @@ Les versions commerciales complètes ne doivent jamais exposer publiquement :
 
 ## N8N Market AI
 
-**23 workflows documentés** couvrant l'IA, le marketing, les ventes, le business, l'e-commerce, la productivité, les RH et les salons.
+**24 workflows documentés** couvrant l'IA, le marketing, les ventes, le business, l'e-commerce, la productivité, les RH et les salons.
 
 👉 [**Découvrir la boutique N8N Market AI**](https://n8nmarketai.com/)
 
