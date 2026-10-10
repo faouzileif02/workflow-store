@@ -22,26 +22,36 @@ A project should not be presented as production-ready until it has tests, docume
 
 ## Priority 1 — PromptBOM
 
-**Current stage:** 🟡 Specification
+**Current stage:** 🟢 Functional MVP `v0.2.0`
 
-Goal: create an SBOM-like inventory of the instruction surface seen by an AI agent.
-
-### MVP
+Implemented:
 
 - scan common instruction files;
-- calculate SHA-256 hashes;
-- output `promptbom.json`;
-- generate `promptbom.lock`;
-- compare two PromptBOM snapshots;
-- flag high-authority changes.
+- SHA-256 inventory;
+- `promptbom.json`;
+- deterministic `promptbom.lock`;
+- drift verification;
+- snapshot diff;
+- Markdown / HTML reports;
+- built-in validation;
+- custom config/rules;
+- Claude / Cursor / Copilot / Gemini / MCP awareness;
+- secret-location detection;
+- heuristic authority-conflict signals;
+- unit tests;
+- GitHub Actions CI;
+- Python 3.9+ compatibility.
 
-### Later
+### Next
 
-- MCP tool-description inventory;
-- GitHub Action;
-- prompt provenance graph;
-- signatures / attestations;
-- runtime capture.
+- GitHub PR comment integration;
+- CycloneDX-inspired export;
+- signed lock / attestations;
+- runtime instruction capture;
+- MCP / n8n adapters;
+- optional semantic conflict plugin.
+
+➡️ [`agents-ia/faouzi-ai-lab/promptbom/`](agents-ia/faouzi-ai-lab/promptbom/)
 
 ---
 
@@ -115,17 +125,18 @@ Goal: create an SBOM-like inventory of the instruction surface seen by an AI age
 
 ## Open-source quality track
 
-Every promoted project should eventually include:
+Every promoted project should include:
 
 - `README.md`
 - quick-start example
-- `LICENSE` where appropriate
+- `LICENSE`
 - tests
 - security notes
 - example data with no secrets
-- clear maturity badge
+- clear maturity status
 - screenshots or diagrams
-- changelog for stable releases
+- changelog when releases begin
+- CI when executable code exists
 
 ---
 
@@ -151,4 +162,4 @@ Behavioral Evaluation
 PromptBOM / Audit Trail
 ```
 
-The aim is not to build everything at once. Each layer should be useful independently.
+Each layer should remain useful independently.
