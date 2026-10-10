@@ -22,7 +22,7 @@ A project should not be presented as production-ready until it has tests, docume
 
 ## Priority 1 — PromptBOM
 
-**Current stage:** 🟢 Functional MVP `v0.2.0`
+**Current stage:** 🟢 Hardened Functional MVP `v0.2.1`
 
 Implemented:
 
@@ -30,6 +30,7 @@ Implemented:
 - SHA-256 inventory;
 - `promptbom.json`;
 - deterministic `promptbom.lock`;
+- true read-only scan with `--no-write` / `--read-only`;
 - drift verification;
 - snapshot diff;
 - Markdown / HTML reports;
@@ -37,8 +38,10 @@ Implemented:
 - custom config/rules;
 - Claude / Cursor / Copilot / Gemini / MCP awareness;
 - secret-location detection;
-- heuristic authority-conflict signals;
-- unit tests;
+- action-aware heuristic authority-conflict signals;
+- Claude Skill packaging with exactly one `SKILL.md`;
+- visible Claude test fixtures that survive import;
+- regression tests;
 - GitHub Actions CI;
 - Python 3.9+ compatibility.
 
