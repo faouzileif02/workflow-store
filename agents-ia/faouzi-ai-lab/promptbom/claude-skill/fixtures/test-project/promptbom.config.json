@@ -1,0 +1,22 @@
+{
+  "rules": [
+    {
+      "pattern": "cursor_rules/**",
+      "kind": "developer_prompt",
+      "authority": "developer",
+      "mutability": "versioned"
+    },
+    {
+      "pattern": "copilot_instructions/**",
+      "kind": "developer_prompt",
+      "authority": "developer",
+      "mutability": "versioned"
+    },
+    {
+      "pattern": "mcp_config/**",
+      "kind": "mcp_description",
+      "authority": "tool_description",
+      "mutability": "versioned"
+    }
+  ]
+}
