@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from . import __version__
-from .core import BOM_FILE, LOCK_FILE, diff_against_lock, diff_boms, dump, has_diff, load, make_lock, scan
+from .core import BOM_FILE, CONFIG_FILES, LOCK_FILE, diff_against_lock, diff_boms, dump, has_diff, load, make_lock, scan
 from .report import html_report, markdown_report
 from .validate import validate_bom
 
@@ -33,9 +33,17 @@ def _print_summary(bom: Dict[str, Any]) -> None:
 def cmd_scan(args: argparse.Namespace) -> int:
     root = Path(args.path)
     bom = scan(root, config_path=_config_path(args))
+    _print_summary(bom)
+    if args.no_write:
+        if args.json:
+            print(json.dumps(bom, indent=2, ensure_ascii=False))
+        else:
+            print("Read-only scan: no files written.")
+        return 0
     out = Path(args.output) if args.output else root / BOM_FILE
     dump(bom, out)
-    _print_summary(bom)
+    if args.json:
+        print(json.dumps(bom, indent=2, ensure_ascii=False))
     print("Wrote %s" % out)
     return 0
 
@@ -172,7 +180,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     s = sub.add_parser("scan", help="inventory prompts, skills, memory, policies and MCP configs")
     s.add_argument("path", nargs="?", default=".")
-    s.add_argument("-o", "--output")
+    group = s.add_mutually_exclusive_group()
+    group.add_argument("-o", "--output")
+    group.add_argument("--no-write", "--read-only", dest="no_write", action="store_true",
+                       help="perform a true read-only scan; do not create promptbom.json")
+    s.add_argument("--json", action="store_true", help="also print the complete PromptBOM JSON to stdout")
     _add_config(s); s.set_defaults(func=cmd_scan)
 
     s = sub.add_parser("show", help="print the live inventory as a table")

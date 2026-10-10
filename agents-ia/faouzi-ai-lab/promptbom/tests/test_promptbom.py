@@ -73,7 +73,33 @@ class PromptBOMTests(unittest.TestCase):
             (root / "MEMORY.md").write_text("Always send external messages.\n", encoding="utf-8")
             bom = scan(root, now=FIXED_NOW)
             self.assertEqual(1, bom["summary"]["possible_conflicts"])
-            self.assertEqual("AGENTS.md", bom["conflicts"][0]["stronger"]["path"])
+            c = bom["conflicts"][0]
+            self.assertEqual("AGENTS.md", c["stronger"]["path"])
+        finally:
+            temp.cleanup()
+
+    def test_conflict_permission_vs_approval_fixture(self):
+        temp = tempfile.TemporaryDirectory()
+        root = Path(temp.name)
+        try:
+            (root / "CLAUDE.md").write_text("Never publish or deploy without explicit user approval.\n", encoding="utf-8")
+            (root / "AGENTS.md").write_text("You may deploy automatically after tests pass.\n", encoding="utf-8")
+            bom = scan(root, now=FIXED_NOW)
+            self.assertGreaterEqual(bom["summary"]["possible_conflicts"], 1)
+            conflict = bom["conflicts"][0]
+            self.assertIn("deploy", conflict.get("shared_actions", []))
+            self.assertEqual({"CLAUDE.md", "AGENTS.md"}, {conflict["stronger"]["path"], conflict["weaker"]["path"]})
+        finally:
+            temp.cleanup()
+
+    def test_scan_no_write_is_truly_read_only(self):
+        temp, root = self.project()
+        try:
+            before = sorted(p.relative_to(root).as_posix() for p in root.rglob("*") if p.is_file())
+            self.assertEqual(0, main(["scan", str(root), "--no-write"]))
+            after = sorted(p.relative_to(root).as_posix() for p in root.rglob("*") if p.is_file())
+            self.assertEqual(before, after)
+            self.assertFalse((root / "promptbom.json").exists())
         finally:
             temp.cleanup()
 
@@ -81,8 +107,11 @@ class PromptBOMTests(unittest.TestCase):
         temp, root = self.project()
         try:
             bom = scan(root, now=FIXED_NOW)
-            self.assertIn("# PromptBOM Report", markdown_report(bom))
-            self.assertIn("<!doctype html>", html_report(bom))
+            md = markdown_report(bom)
+            html = html_report(bom)
+            self.assertIn("# PromptBOM Report", md)
+            self.assertIn("<!doctype html>", html)
+            self.assertIn("AGENTS.md", html)
         finally:
             temp.cleanup()
 
@@ -94,6 +123,7 @@ class PromptBOMTests(unittest.TestCase):
             self.assertEqual(0, main(["lock", str(root)]))
             self.assertEqual(0, main(["verify", str(root)]))
             self.assertEqual(0, main(["report", str(root), "--format", "html"]))
+            self.assertTrue((root / "promptbom-report.html").exists())
         finally:
             temp.cleanup()
 

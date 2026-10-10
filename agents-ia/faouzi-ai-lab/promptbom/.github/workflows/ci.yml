@@ -2,13 +2,7 @@ name: PromptBOM CI
 
 on:
   push:
-    paths:
-      - 'agents-ia/faouzi-ai-lab/promptbom/**'
-      - '.github/workflows/promptbom-ci.yml'
   pull_request:
-    paths:
-      - 'agents-ia/faouzi-ai-lab/promptbom/**'
-      - '.github/workflows/promptbom-ci.yml'
 
 permissions:
   contents: read
@@ -19,10 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.9', '3.11', '3.13']
-    defaults:
-      run:
-        working-directory: agents-ia/faouzi-ai-lab/promptbom
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -33,22 +24,20 @@ jobs:
       - name: Unit tests
         run: python -m unittest discover -s tests -v
       - name: Validate demo
-        run: python -m promptbom validate examples/demo
+        run: promptbom validate examples/demo
       - name: Read-only scan leaves no output file
         run: |
           cp -R examples/demo /tmp/promptbom-readonly-demo
           rm -f /tmp/promptbom-readonly-demo/promptbom.json
-          python -m promptbom scan /tmp/promptbom-readonly-demo --no-write
+          promptbom scan /tmp/promptbom-readonly-demo --no-write
           test ! -e /tmp/promptbom-readonly-demo/promptbom.json
       - name: Build and validate Claude Skill
         run: |
           python tools/build_claude_skill.py --output /tmp/promptbom-claude-skill.zip
           python -c "import zipfile; z=zipfile.ZipFile('/tmp/promptbom-claude-skill.zip'); s=[n for n in z.namelist() if n.endswith('SKILL.md')]; assert s == ['promptbom/SKILL.md'], s"
-      - name: Lock demo
-        run: python -m promptbom lock examples/demo
       - name: Verify demo lock
-        run: python -m promptbom verify examples/demo
+        run: promptbom verify examples/demo
       - name: Build reports
         run: |
-          python -m promptbom report examples/demo -o /tmp/promptbom-report.md
-          python -m promptbom report examples/demo --format html -o /tmp/promptbom-report.html
+          promptbom report examples/demo -o /tmp/promptbom-report.md
+          promptbom report examples/demo --format html -o /tmp/promptbom-report.html

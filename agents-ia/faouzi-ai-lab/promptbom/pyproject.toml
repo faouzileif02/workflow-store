@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "promptbom"
-version = "0.2.0"
+version = "0.2.1"
 description = "SBOM for everything your AI was told. Local-first, no network, no LLM."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -29,3 +29,6 @@ promptbom = "promptbom.cli:main"
 
 [tool.setuptools]
 packages = ["promptbom"]
+
+[tool.setuptools.package-data]
+promptbom = ["schema/*.json"]

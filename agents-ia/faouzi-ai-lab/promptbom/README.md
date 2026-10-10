@@ -45,8 +45,11 @@ python -m pip install -e .
 promptbom --version
 ```
 
-## v0.2.0 highlights
+## v0.2.1 highlights
 
+- `promptbom scan --no-write` / `--read-only` — true read-only audit with no `promptbom.json` side effect.
+- Improved permission-vs-prohibition conflict detection (`may/can/allowed` vs `never/must not`).
+- Claude Skill packaging builder that guarantees exactly one `SKILL.md` and uses visible fixture folders.
 - `promptbom diff` — compare live state to the lock or compare two BOM files.
 - `promptbom report` — Markdown or standalone HTML report.
 - `promptbom validate` — built-in structural/invariant validation without a third-party dependency.
@@ -62,7 +65,7 @@ promptbom --version
 
 | Command | Purpose |
 |---|---|
-| `scan [path]` | Write `promptbom.json` from live files |
+| `scan [path]` | Scan live files; add `--no-write` for a true read-only audit |
 | `show [path]` | Terminal table of the live inventory |
 | `lock [path]` | Write `promptbom.json` + deterministic `promptbom.lock` |
 | `verify [path]` | Exit `1` if the behavioral surface drifted |
@@ -71,6 +74,18 @@ promptbom --version
 | `report [path]` | Generate Markdown or HTML |
 | `validate [path|json]` | Check PromptBOM invariants |
 | `init [path]` | Create `promptbom.config.json` |
+
+See [`docs/CLI.md`](docs/CLI.md) and [`docs/CONFIG.md`](docs/CONFIG.md).
+
+## Claude Skill
+
+A Claude-compatible package is included for direct testing:
+
+- [`dist/promptbom-claude-skill-v0.2.1.zip`](dist/promptbom-claude-skill-v0.2.1.zip) — uploadable Skill ZIP, validated to contain exactly one `SKILL.md`.
+- [`claude-skill/`](claude-skill/) — source fixture and Skill instructions.
+- `python tools/build_claude_skill.py` — reproducible builder.
+
+The bundled self-test uses visible fixture directories for Cursor, Copilot and MCP examples so Claude import does not silently drop hidden test folders.
 
 ## What gets inventoried
 
@@ -87,16 +102,45 @@ promptbom --version
 
 Each item records its path, SHA-256, size, ecosystem, authority, mutability, age, provenance, secret finding locations and directive count.
 
-## Authority-conflict detection
+## Configuration
 
-PromptBOM v0.2 looks for explicit directive pairs such as:
+Create a config:
 
-```text
-AGENTS.md:   Never send external messages.
-MEMORY.md:   Always send external messages.
+```bash
+promptbom init .
 ```
 
-It reports a **possible authority conflict** with the stronger and weaker source. This is a lexical heuristic, not semantic proof; it is intentionally review-oriented.
+Then add custom rules if your project stores instructions elsewhere:
+
+```json
+{
+  "rules": [
+    {
+      "pattern": "assistant/**/*.md",
+      "kind": "developer_prompt",
+      "authority": "developer",
+      "mutability": "versioned"
+    }
+  ],
+  "ignore_dirs": ["vendor"],
+  "ignore_patterns": ["docs/archive/**"],
+  "max_bytes": 2000000,
+  "stale_after_days": 180
+}
+```
+
+Custom rules are evaluated before built-in rules.
+
+## Authority-conflict detection
+
+PromptBOM v0.2.1 looks for explicit prohibitions, requirements and permissions, including action-level pairs such as:
+
+```text
+CLAUDE.md:  Never publish or deploy without explicit user approval.
+AGENTS.md:   You may deploy automatically after tests pass.
+```
+
+It reports a **possible authority conflict** with the stronger and weaker source. The local-only detector combines lexical overlap with high-signal action groups (`deploy`, `send`, `delete`, `write`, etc.). It remains a heuristic, not semantic proof, and is intentionally review-oriented.
 
 ## Security model
 
@@ -108,11 +152,30 @@ It reports a **possible authority conflict** with the stronger and weaker source
 - `lock` refuses to run on possible secret findings unless `--allow-secrets` is explicitly used.
 - Regex secret detection is best-effort and is **not** a replacement for a dedicated secret scanner.
 
+Read [`SECURITY.md`](SECURITY.md) before using PromptBOM in sensitive repositories.
+
+## CI
+
+A GitHub Actions example is included at `.github/workflows/ci.yml`.
+
+Typical verification step:
+
+```bash
+promptbom verify .
+```
+
+Exit codes:
+
+- `0`: verified / valid / successful.
+- `1`: drift or validation failure.
+- `2`: usage/config/lock problem, or lock refused because possible secrets were found.
+- `3`: conflict policy failure when `--fail-on-conflicts` is enabled.
+
 ## Project status
 
-**v0.2.0 — Alpha / functional MVP**
+**v0.2.1 — Alpha / hardened functional MVP**
 
-The project is useful today for deterministic inventory/locking. Conflict detection is intentionally conservative and heuristic. Semantic contradiction analysis remains out of scope for the local-only core.
+The project is useful today for deterministic inventory/locking. Conflict detection now covers common permission-vs-prohibition phrasing while remaining intentionally heuristic. Full semantic contradiction analysis remains out of scope for the local-only core.
 
 ## Roadmap
 
@@ -128,6 +191,10 @@ The project is useful today for deterministic inventory/locking. Conflict detect
 - [ ] CycloneDX-inspired export profile
 - [ ] Signed lock / attestation mode
 - [ ] Optional semantic conflict plugin (strict opt-in)
+
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md). Small, testable changes are preferred.
 
 ## License
 

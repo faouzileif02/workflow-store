@@ -1,0 +1,3 @@
+# System Prompt
+
+TEST_ONLY_FAKE_TOKEN=sk-test-NOT_A_REAL_SECRET_1234567890

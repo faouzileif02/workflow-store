@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "demo": {
+      "description": "Read project files only. Never delete files."
+    }
+  }
+}

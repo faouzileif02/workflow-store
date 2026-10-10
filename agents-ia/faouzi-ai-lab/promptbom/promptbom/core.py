@@ -22,6 +22,7 @@ BOM_FILE = "promptbom.json"
 LOCK_FILE = "promptbom.lock"
 CONFIG_FILES = ("promptbom.config.json", ".promptbom.json")
 
+# pattern, kind, authority rank (lower = stronger), mutability
 DEFAULT_RULES: List[Tuple[str, str, int, str]] = [
     ("**/SYSTEM_PROMPT*", "system_prompt", 0, "versioned"),
     ("**/system_prompt*", "system_prompt", 0, "versioned"),
@@ -95,13 +96,39 @@ SECRET_PATTERNS = [
 ]
 
 DIRECTIVE_RE = re.compile(
-    r"(?i)^\s*(?:[-*]\s*)?(must\s+not|do\s+not|don't|never|should\s+not|must|always|should|required\s+to)\s+(.+?)\s*[.!]?\s*$"
+    r"(?i)^\s*(?:[-*]\s*)?"
+    r"(?:(?:you|the\s+agent|agent|assistant)\s+)?"
+    r"(must\s+not|do\s+not|don't|never|should\s+not|may\s+not|cannot|can't|"
+    r"(?:is\s+)?not\s+(?:allowed|permitted|authorized)\s+to|"
+    r"must|always|should|required\s+to|may|can|"
+    r"(?:is\s+)?(?:allowed|permitted|authorized)\s+to)"
+    r"\s+(.+?)\s*[.!]?\s*$"
 )
-NEGATIVE_DIRECTIVES = {"must not", "do not", "don't", "never", "should not"}
+NEGATIVE_DIRECTIVES = {
+    "must not", "do not", "don't", "never", "should not", "may not",
+    "cannot", "can't", "not allowed to", "not permitted to", "not authorized to",
+    "is not allowed to", "is not permitted to", "is not authorized to",
+}
 STOPWORDS = {
     "a", "an", "the", "to", "of", "for", "and", "or", "any", "all", "this", "that",
     "your", "user", "users", "please", "only", "always", "never", "must", "should", "not",
+    "you", "agent", "assistant", "may", "can", "cannot", "allowed", "permitted", "authorized",
 }
+
+ACTION_GROUPS = {
+    "deploy": {"deploy", "publish", "release", "ship"},
+    "send": {"send", "message", "email", "notify", "contact"},
+    "delete": {"delete", "remove", "erase", "destroy"},
+    "write": {"write", "modify", "edit", "change", "update"},
+    "execute": {"execute", "run", "launch", "start"},
+    "install": {"install", "download", "fetch"},
+    "git-write": {"commit", "push", "merge"},
+    "share-secret": {"reveal", "expose", "share", "leak"},
+    "spend": {"pay", "purchase", "buy", "transfer", "spend"},
+}
+
+def _action_groups(tokens: set) -> set:
+    return {name for name, words in ACTION_GROUPS.items() if tokens & words}
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -201,13 +228,13 @@ def detect_ecosystem(rel: str) -> str:
         return "claude"
     if low == "gemini.md" or low.endswith("/gemini.md") or "/.gemini/" in "/" + low:
         return "gemini"
-    if low == ".cursorrules" or "/.cursor/" in "/" + low:
+    if low == ".cursorrules" or "/.cursor/" in "/" + low or low.startswith("cursor_rules/") or "/cursor_rules/" in "/" + low:
         return "cursor"
-    if "copilot-instructions.md" in low or "/.github/instructions/" in "/" + low or "/.github/prompts/" in "/" + low:
+    if "copilot-instructions.md" in low or "/.github/instructions/" in "/" + low or "/.github/prompts/" in "/" + low or low.startswith("copilot_instructions/") or "/copilot_instructions/" in "/" + low:
         return "copilot"
     if low.endswith("agents.md"):
         return "cross-tool"
-    if "mcp" in low:
+    if "mcp" in low or low.startswith("mcp_config/") or "/mcp_config/" in "/" + low:
         return "mcp"
     return "generic"
 
@@ -275,27 +302,46 @@ def extract_directives(text: str, path: str, rank: int, level: str) -> List[Dict
 
 
 def detect_conflicts(directives: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Return conservative cross-file contradiction candidates.
+
+    Combines token overlap with canonical action groups so common
+    permission-vs-prohibition pairs are not missed merely because qualifiers differ.
+    Results remain review signals, not semantic proof.
+    """
     conflicts: List[Dict[str, Any]] = []
+    seen = set()
     for idx, left in enumerate(directives):
         lt = set(left["tokens"])
+        la = _action_groups(lt)
         for right in directives[idx + 1:]:
             if left["path"] == right["path"] or left["polarity"] == right["polarity"]:
                 continue
             rt = set(right["tokens"])
+            ra = _action_groups(rt)
             union = lt | rt
             shared = lt & rt
-            if len(shared) < 2 or not union:
+            shared_actions = la & ra
+            similarity = (len(shared) / float(len(union))) if union else 0.0
+            lexical_match = len(shared) >= 2 and similarity >= 0.35
+            action_match = bool(shared_actions)
+            if not (lexical_match or action_match):
                 continue
-            similarity = len(shared) / float(len(union))
-            if similarity < 0.55:
-                continue
+            confidence = similarity
+            if action_match:
+                confidence = max(confidence, 0.72 if len(shared) >= 2 else 0.62)
+            confidence = round(min(0.99, confidence), 2)
             stronger, weaker = (left, right)
             if right["authority"]["rank"] < left["authority"]["rank"]:
                 stronger, weaker = right, left
+            key = (stronger["path"], stronger["line"], weaker["path"], weaker["line"], tuple(sorted(shared_actions)))
+            if key in seen:
+                continue
+            seen.add(key)
             conflicts.append({
                 "type": "possible_authority_conflict",
-                "confidence": round(min(0.99, similarity), 2),
+                "confidence": confidence,
                 "shared_terms": sorted(shared),
+                "shared_actions": sorted(shared_actions),
                 "stronger": {k: stronger[k] for k in ("path", "line", "authority", "polarity", "directive")},
                 "weaker": {k: weaker[k] for k in ("path", "line", "authority", "polarity", "directive")},
             })
