@@ -10,36 +10,39 @@ FAOUZI AI LAB is an open-source workspace for building practical infrastructure 
 
 ---
 
-## 🚀 First functional project: PromptBOM v0.2.0
+## 🚀 First functional project: PromptBOM v0.2.1
 
 > **SBOM for everything your AI was told.**
 
-PromptBOM is now a real local-first CLI, not only a specification. It inventories the instruction surface that can influence an agent, fingerprints it with SHA-256 and generates a deterministic lock so behavioral-surface drift becomes reviewable.
+PromptBOM is a real local-first CLI. It inventories the instruction surface that can influence an agent, fingerprints it with SHA-256 and generates a deterministic lock so behavioral-surface drift becomes reviewable.
 
 ### Current capabilities
 
 - `scan`, `show`, `lock`, `verify`
+- true read-only audit with `scan --no-write` / `--read-only`
 - `diff`, `report`, `validate`, `init`
 - Claude / Cursor / GitHub Copilot / Gemini awareness
 - MCP, skills, memory, policies and `AGENTS.md`
 - secret-location detection without storing secret values
-- heuristic authority-conflict detection
+- improved permission-vs-prohibition conflict heuristics
 - Markdown / standalone HTML reports
 - custom scan rules
 - symlink safety
+- Claude Skill builder with exactly one `SKILL.md`
+- visible Claude test fixtures for Cursor / Copilot / MCP
 - Python 3.9+ support
-- unit tests + GitHub Actions CI
+- regression tests + GitHub Actions CI
 
 ```bash
 cd promptbom
 python -m pip install -e .
-promptbom scan examples/demo
+promptbom scan examples/demo --no-write
 promptbom lock examples/demo
 promptbom verify examples/demo
 promptbom report examples/demo --format html
 ```
 
-➡️ **[Open the PromptBOM v0.2.0 code](promptbom/)**  
+➡️ **[Open the PromptBOM v0.2.1 code](promptbom/)**  
 ➡️ [Read the PromptBOM concept/specification](03_PROMPT_BOM.md)
 
 ---
@@ -48,7 +51,7 @@ promptbom report examples/demo --format html
 
 | Project | Status | Core idea |
 |---|---|---|
-| **PromptBOM** | 🟢 Functional MVP v0.2.0 | SBOM-like inventory of everything an AI agent was told |
+| **PromptBOM** | 🟢 Hardened functional MVP v0.2.1 | SBOM-like inventory of everything an AI agent was told |
 | **Intent Mutation Testing** | 🟡 Specification | Test one intent through many equivalent phrasings |
 | **Agent Effect Manifest** | 🟡 Specification | Predict side effects before a tool call, then compare with real effects |
 | **Behavioral SemVer** | 🟡 Specification | Infer MAJOR / MINOR / PATCH from measured agent behavior |
@@ -89,7 +92,7 @@ The goal is to separate probabilistic reasoning from deterministic runtime contr
 
 ## Recommended build order
 
-1. ✅ **PromptBOM** — functional MVP shipped.
+1. ✅ **PromptBOM** — hardened functional MVP shipped.
 2. **Intent Mutation Testing** — behavioral-invariance test runner.
 3. **Agent Effect Manifest** — predicted vs observed effect contracts.
 4. **Behavioral SemVer** — compatibility based on measured behavior.
@@ -130,6 +133,6 @@ The goal is to separate probabilistic reasoning from deterministic runtime contr
 
 ## Status
 
-**PromptBOM is a tested functional MVP.** The remaining concepts are research specifications until they receive their own tested implementations.
+**PromptBOM v0.2.1 is a tested hardened functional MVP.** The remaining concepts are research specifications until they receive their own tested implementations.
 
 <p align="center"><strong>FAOUZI AI LAB</strong><br>From experimental ideas to safer agent infrastructure.</p>
