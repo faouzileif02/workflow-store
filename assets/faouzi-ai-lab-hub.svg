@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="620" viewBox="0 0 1800 620">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#050814"/><stop offset=".50" stop-color="#0a1730"/><stop offset="1" stop-color="#19102d"/>
+  </linearGradient>
+  <linearGradient id="brand" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#5bd7ff"/><stop offset=".52" stop-color="#8b7cff"/><stop offset="1" stop-color="#ff8a42"/>
+  </linearGradient>
+  <radialGradient id="blue"><stop offset="0" stop-color="#2d9cff" stop-opacity=".40"/><stop offset="1" stop-color="#2d9cff" stop-opacity="0"/></radialGradient>
+  <radialGradient id="orange"><stop offset="0" stop-color="#ff7a3d" stop-opacity=".28"/><stop offset="1" stop-color="#ff7a3d" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="1800" height="620" rx="34" fill="url(#bg)"/>
+<circle cx="1480" cy="100" r="430" fill="url(#blue)"/><circle cx="1460" cy="570" r="390" fill="url(#orange)"/>
+<g opacity=".17" stroke="#7aaeff" fill="none" stroke-width="2">
+  <path d="M1010 90 C1210 25 1390 190 1715 110"/><path d="M980 180 C1220 95 1435 325 1710 220"/><path d="M1000 285 C1250 195 1410 430 1700 325"/><path d="M980 400 C1210 305 1430 520 1690 435"/>
+</g>
+<g transform="translate(84 72)"><rect width="385" height="52" rx="26" fill="#101d38" stroke="#355d99"/><circle cx="29" cy="26" r="8" fill="#5bd7ff"/><circle cx="55" cy="26" r="8" fill="#8b7cff"/><circle cx="81" cy="26" r="8" fill="#ff8a42"/><text x="106" y="34" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="22" font-weight="800" fill="#dfeaff">FAOUZI • OPEN SOURCE LAB</text></g>
+<text x="84" y="228" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="90" font-weight="900" fill="#fff">FAOUZI</text>
+<text x="425" y="228" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="90" font-weight="900" fill="url(#brand)">AI LAB</text>
+<text x="86" y="306" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="39" font-weight="700" fill="#d8e4f8">AI Agents • n8n Automation • Open Source</text>
+<text x="86" y="364" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27" fill="#aebfdd">Practical experiments for safer agents, resilient workflows and useful developer tools.</text>
+<g transform="translate(86 430)">
+  <rect width="220" height="64" rx="32" fill="#101e39" stroke="#5bd7ff"/><text x="110" y="41" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="23" font-weight="800" fill="#fff">AI AGENTS</text>
+  <rect x="240" width="220" height="64" rx="32" fill="#101e39" stroke="#8b7cff"/><text x="350" y="41" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="23" font-weight="800" fill="#fff">N8N</text>
+  <rect x="480" width="250" height="64" rx="32" fill="#101e39" stroke="#ff8a42"/><text x="605" y="41" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="23" font-weight="800" fill="#fff">OPEN SOURCE</text>
+</g>
+<g transform="translate(1150 114)"><rect width="475" height="390" rx="30" fill="#09152c" stroke="#2c4e80" stroke-width="2"/><text x="38" y="62" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="22" font-weight="800" fill="#5bd7ff">BUILDING NOW</text><text x="38" y="112" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="34" font-weight="900" fill="#fff">Agent Infrastructure</text><g font-family="Inter,Segoe UI,Arial,sans-serif" font-size="22" fill="#d9e7ff"><circle cx="46" cy="165" r="6" fill="#5bd7ff"/><text x="66" y="173">PromptBOM</text><circle cx="46" cy="216" r="6" fill="#8b7cff"/><text x="66" y="224">Intent Mutation Testing</text><circle cx="46" cy="267" r="6" fill="#ff8a42"/><text x="66" y="275">Agent Effect Manifest</text><circle cx="46" cy="318" r="6" fill="#4de0b3"/><text x="66" y="326">Behavioral SemVer</text></g><text x="38" y="366" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" fill="#7890b5">BUILD • TEST • AUTOMATE • SHARE</text></g>
+<text x="84" y="574" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="20" font-weight="700" fill="#7188ad">github.com/faouzileif02</text>
+</svg>
