@@ -1,60 +1,56 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1800" height="620" viewBox="0 0 1800 620">
 <defs>
   <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="#050b19"/>
-    <stop offset=".52" stop-color="#0a1730"/>
-    <stop offset="1" stop-color="#1a1030"/>
+    <stop offset="0" stop-color="#050814"/>
+    <stop offset=".48" stop-color="#0b1630"/>
+    <stop offset="1" stop-color="#17102d"/>
   </linearGradient>
-  <radialGradient id="g1"><stop offset="0" stop-color="#ff6b35" stop-opacity=".55"/><stop offset="1" stop-color="#ff6b35" stop-opacity="0"/></radialGradient>
-  <radialGradient id="g2"><stop offset="0" stop-color="#4cc9ff" stop-opacity=".45"/><stop offset="1" stop-color="#4cc9ff" stop-opacity="0"/></radialGradient>
+  <linearGradient id="brand" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#5bd7ff"/>
+    <stop offset=".55" stop-color="#8b7cff"/>
+    <stop offset="1" stop-color="#ff8a42"/>
+  </linearGradient>
+  <radialGradient id="blue"><stop offset="0" stop-color="#2d9cff" stop-opacity=".45"/><stop offset="1" stop-color="#2d9cff" stop-opacity="0"/></radialGradient>
+  <radialGradient id="orange"><stop offset="0" stop-color="#ff7a3d" stop-opacity=".35"/><stop offset="1" stop-color="#ff7a3d" stop-opacity="0"/></radialGradient>
 </defs>
 <rect width="1800" height="620" rx="34" fill="url(#bg)"/>
-<circle cx="1460" cy="140" r="360" fill="url(#g1)"/>
-<circle cx="1320" cy="520" r="430" fill="url(#g2)"/>
-<g opacity=".2" stroke="#6fa8ff" stroke-width="2" fill="none">
-  <path d="M980 110 C1180 40 1350 230 1670 120"/>
-  <path d="M940 190 C1170 110 1390 330 1690 210"/>
-  <path d="M960 280 C1200 190 1370 420 1660 310"/>
-  <path d="M930 380 C1200 290 1410 510 1680 420"/>
+<circle cx="1460" cy="120" r="420" fill="url(#blue)"/>
+<circle cx="1480" cy="560" r="360" fill="url(#orange)"/>
+<g opacity=".16" stroke="#84b8ff" fill="none">
+  <path d="M960 100 C1170 20 1390 200 1710 110"/>
+  <path d="M930 180 C1190 90 1410 320 1710 220"/>
+  <path d="M950 280 C1200 190 1390 430 1700 320"/>
+  <path d="M930 390 C1190 290 1410 520 1700 430"/>
 </g>
-<g transform="translate(1080,120)">
-  <circle cx="250" cy="190" r="126" fill="#0b1834" stroke="#ff7a3d" stroke-width="6"/>
-  <circle cx="250" cy="190" r="76" fill="#102247" stroke="#6fd2ff" stroke-opacity=".7" stroke-width="3"/>
-  <circle cx="250" cy="190" r="22" fill="#ff7a3d"/>
-  <g stroke="#6fd2ff" stroke-width="5" stroke-linecap="round">
-    <line x1="250" y1="62" x2="250" y2="114"/>
-    <line x1="250" y1="266" x2="250" y2="318"/>
-    <line x1="122" y1="190" x2="174" y2="190"/>
-    <line x1="326" y1="190" x2="378" y2="190"/>
-    <line x1="158" y1="98" x2="195" y2="135"/>
-    <line x1="305" y1="245" x2="342" y2="282"/>
-    <line x1="342" y1="98" x2="305" y2="135"/>
-    <line x1="195" y1="245" x2="158" y2="282"/>
+<g transform="translate(84 72)">
+  <rect width="330" height="52" rx="26" fill="#101d38" stroke="#355d99"/>
+  <circle cx="28" cy="26" r="8" fill="#5bd7ff"/>
+  <circle cx="54" cy="26" r="8" fill="#8b7cff"/>
+  <circle cx="80" cy="26" r="8" fill="#ff8a42"/>
+  <text x="105" y="34" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="22" font-weight="800" fill="#dfeaff">FAOUZI • OPEN SOURCE</text>
+</g>
+<text x="84" y="222" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="76" font-weight="900" fill="#fff">N8N Market AI</text>
+<text x="84" y="310" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="64" font-weight="900" fill="url(#brand)">Automation + AI Agent Lab</text>
+<text x="86" y="374" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="29" font-weight="500" fill="#b9cbea">Workflows n8n • AI agents • automation • developer tools • open-source experiments</text>
+<g transform="translate(86 438)">
+  <rect width="220" height="62" rx="31" fill="#101e39" stroke="#5bd7ff"/>
+  <text x="110" y="40" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="23" font-weight="800" fill="#fff">24 WORKFLOWS</text>
+  <rect x="240" width="230" height="62" rx="31" fill="#101e39" stroke="#8b7cff"/>
+  <text x="355" y="40" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="23" font-weight="800" fill="#fff">FAOUZI AI LAB</text>
+  <rect x="490" width="260" height="62" rx="31" fill="#101e39" stroke="#ff8a42"/>
+  <text x="620" y="40" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="23" font-weight="800" fill="#fff">PUBLIC PROJECTS</text>
+</g>
+<g transform="translate(1120 108)">
+  <rect width="500" height="372" rx="30" fill="#09152c" stroke="#2c4e80" stroke-width="2"/>
+  <text x="40" y="64" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24" font-weight="800" fill="#5bd7ff">FEATURED</text>
+  <text x="40" y="112" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="36" font-weight="900" fill="#fff">FAOUZI AI LAB</text>
+  <text x="40" y="154" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21" fill="#aebfdd">Novel AI-agent infrastructure</text>
+  <g transform="translate(40 195)" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="20" fill="#dbe7ff">
+    <circle cx="8" cy="-7" r="5" fill="#5bd7ff"/><text x="26">PromptBOM</text>
+    <circle cx="8" cy="40" r="5" fill="#8b7cff"/><text x="26" y="47">Intent Mutation Testing</text>
+    <circle cx="8" cy="87" r="5" fill="#ff8a42"/><text x="26" y="94">Agent Effect Manifest</text>
+    <circle cx="8" cy="134" r="5" fill="#4de0b3"/><text x="26" y="141">Behavioral SemVer</text>
   </g>
-  <g fill="#0d1a38" stroke="#ff7a3d" stroke-width="4">
-    <circle cx="250" cy="48" r="18"/><circle cx="250" cy="332" r="18"/>
-    <circle cx="108" cy="190" r="18"/><circle cx="392" cy="190" r="18"/>
-    <circle cx="148" cy="88" r="18"/><circle cx="352" cy="88" r="18"/>
-    <circle cx="148" cy="292" r="18"/><circle cx="352" cy="292" r="18"/>
-  </g>
-  <text x="250" y="199" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="28" font-weight="800" fill="#fff">n8n</text>
 </g>
-<g transform="translate(92,78)">
-  <circle cx="22" cy="22" r="10" fill="#ff7a3d"/>
-  <circle cx="50" cy="8" r="8" fill="#5bd7ff"/>
-  <circle cx="50" cy="36" r="8" fill="#5bd7ff"/>
-  <path d="M30 18 L42 11 M30 26 L42 33" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-  <text x="78" y="31" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="30" font-weight="800" fill="#fff">N8N Market AI</text>
-</g>
-<text x="92" y="225" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="76" font-weight="900" fill="#fff">Workflows n8n</text>
-<text x="92" y="307" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="70" font-weight="900" fill="#ff8a42">prêts à automatiser votre business</text>
-<text x="94" y="376" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="28" font-weight="500" fill="#b9cbea">IA • Marketing • Business • E-commerce • RH • Productivité • Salons</text>
-<g transform="translate(94,445)">
-  <rect width="210" height="58" rx="29" fill="#13233f" stroke="#ff8a42"/>
-  <text x="105" y="38" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="23" font-weight="800" fill="#fff">22 WORKFLOWS</text>
-  <rect x="232" width="260" height="58" rx="29" fill="#13233f" stroke="#56cfff"/>
-  <text x="362" y="38" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="23" font-weight="800" fill="#fff">PERSONNALISABLES</text>
-  <rect x="514" width="256" height="58" rx="29" fill="#13233f" stroke="#63e6a8"/>
-  <text x="642" y="38" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="23" font-weight="800" fill="#fff">LIVRAISON GUIDÉE</text>
-</g>
+<text x="84" y="568" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="20" font-weight="700" fill="#7188ad">BUILD • DOCUMENT • SHARE • IMPROVE</text>
 </svg>
