@@ -1,59 +1,91 @@
 # PromptBOM
 
-**Working name:** `promptbom`
+**Status:** 🟢 Functional MVP `v0.2.0`
 
-> Generate an SBOM-like inventory of everything an AI agent was told.
+> **SBOM for everything your AI was told.**
 
 ## Problem
 
-Software can have a Software Bill of Materials. AI agents usually have no equivalent inventory for behavioral inputs such as system prompts, developer prompts, `AGENTS.md`, skills, MCP descriptions, workflow prompts, retrieved documents, long-term memory and organization policy.
+AI-agent behavior can be influenced by system prompts, developer prompts, `AGENTS.md`, `CLAUDE.md`, Cursor rules, GitHub Copilot instructions, `GEMINI.md`, skills, MCP descriptions, memory, policies and retrieved context.
 
-When behavior changes, teams ask: **What changed?** The answer is scattered across files and runtime systems.
+When behavior changes, teams often ask: **What changed?** The answer is usually scattered across files and runtime systems.
 
-## Core idea
+## Implemented solution
 
-Generate a Prompt Bill of Materials.
+PromptBOM now provides a local-first Python CLI that:
 
-```json
-{
-  "schema": "promptbom.v1",
-  "agent": "support-agent",
-  "components": [
-    {
-      "id": "system-main",
-      "type": "system_prompt",
-      "source": "prompts/system.md",
-      "sha256": "49bf...",
-      "authority": 100,
-      "mutable": false
-    }
-  ]
-}
-```
-
-## Key fields
-
-- **Provenance** — where did the instruction originate?
-- **Authority** — which source wins during conflict?
-- **Freshness** — is it stale?
-- **Mutability** — can it change at runtime?
-- **Exposure** — was it visible to the model?
-- **Sensitivity** — could it contain secrets or private data?
+- discovers common instruction sources;
+- fingerprints each source with SHA-256;
+- records authority, mutability, freshness and provenance;
+- tags ecosystems such as Claude, Cursor, Copilot, Gemini and MCP;
+- detects possible secret locations without storing the secret value;
+- creates a deterministic `promptbom.lock`;
+- detects drift against the lock;
+- compares two BOM snapshots;
+- generates Markdown and standalone HTML reports;
+- supports custom scan rules;
+- flags possible authority conflicts using a conservative heuristic.
 
 ## CLI
 
 ```bash
 promptbom scan .
-promptbom build --format json
-promptbom diff old.json new.json
-promptbom graph
-promptbom verify promptbom.lock
+promptbom show .
+promptbom lock .
+promptbom verify .
+promptbom diff .
+promptbom report . --format html
+promptbom validate .
+promptbom init .
 ```
 
-A `promptbom.lock` can make CI fail when a high-authority instruction changes without review.
+## Example supply chain
 
-## Future
+```text
+AGENTS.md
+CLAUDE.md
+Cursor rules
+Copilot instructions
+GEMINI.md
+Skills
+MCP descriptions
+Memory
+Policies
+   ↓
+PromptBOM
+   ↓
+promptbom.json
+   +
+promptbom.lock
+   ↓
+Git / CI detects behavioral-surface drift
+```
 
-Signature verification, prompt licenses, MCP snapshots, runtime capture, supply-chain scanning and GitHub PR comments.
+## Security properties
+
+- local-first;
+- no network calls in the core;
+- no LLM calls;
+- no API key required;
+- symlinks skipped;
+- secret values never copied into output;
+- `lock` refuses possible secret findings unless explicitly overridden.
+
+## Current limitations
+
+- conflict detection is lexical/heuristic, not semantic proof;
+- regex secret detection is best-effort, not a replacement for a dedicated secret scanner;
+- runtime prompt capture is not yet implemented;
+- signed attestations are not yet implemented.
+
+## Next milestones
+
+- GitHub PR comment integration;
+- CycloneDX-inspired export profile;
+- signed lock / attestation mode;
+- optional semantic-conflict plugin;
+- MCP and n8n adapters.
+
+➡️ **[Open the functional PromptBOM v0.2.0 project](promptbom/)**
 
 > **SBOM tells you what your software contains. PromptBOM tells you what your AI was told.**
