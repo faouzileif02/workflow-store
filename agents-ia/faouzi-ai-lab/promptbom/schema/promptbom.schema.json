@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PromptBOM",
+  "type": "object",
+  "required": ["promptbom_version", "tool", "generated_at", "root", "summary", "items"],
+  "properties": {
+    "promptbom_version": {"type": "string"},
+    "tool": {"type": "string"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "root": {"type": "string"},
+    "configuration": {"type": "object"},
+    "summary": {
+      "type": "object",
+      "required": ["total", "by_kind", "by_ecosystem", "mutable", "stale", "with_secret_findings", "possible_conflicts", "root_hash"],
+      "properties": {
+        "total": {"type": "integer"},
+        "by_kind": {"type": "object", "additionalProperties": {"type": "integer"}},
+        "by_ecosystem": {"type": "object", "additionalProperties": {"type": "integer"}},
+        "mutable": {"type": "integer"},
+        "stale": {"type": "integer"},
+        "with_secret_findings": {"type": "integer"},
+        "possible_conflicts": {"type": "integer"},
+        "root_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "conflicts": {"type": "array"},
+    "skipped": {"type": "object"},
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "path", "kind", "ecosystem", "sha256", "bytes", "authority", "mutability", "freshness", "provenance", "secret_findings"],
+        "properties": {
+          "id": {"type": "string"},
+          "path": {"type": "string"},
+          "kind": {"enum": ["system_prompt", "developer_prompt", "prompt", "policy", "skill", "mcp_description", "memory", "retrieved_context"]},
+          "ecosystem": {"type": "string"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "bytes": {"type": "integer"},
+          "lines": {"type": "integer"},
+          "directives": {"type": "integer"},
+          "authority": {
+            "type": "object",
+            "required": ["rank", "level"],
+            "properties": {
+              "rank": {"type": "integer", "minimum": 0, "maximum": 6},
+              "level": {"enum": ["system", "developer", "policy", "skill", "tool_description", "memory", "retrieved"]}
+            }
+          },
+          "mutability": {"enum": ["versioned", "mutable"]},
+          "freshness": {"type": "object"},
+          "provenance": {"type": "object"},
+          "secret_findings": {"type": "array", "description": "Locations only. Secret values are never stored."}
+        }
+      }
+    }
+  }
+}
