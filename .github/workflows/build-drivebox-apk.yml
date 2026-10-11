@@ -5,6 +5,7 @@ on:
     branches: ["drivebox-apk-build"]
     paths:
       - "drivebox-build/**"
+      - "drivebox-v11/**"
       - ".github/workflows/build-drivebox-apk.yml"
   workflow_dispatch:
 
@@ -53,6 +54,19 @@ jobs:
           unzip -q "$RUNNER_TEMP/DriveBox_v1.0_FIXED3.zip" -d "$RUNNER_TEMP/drivebox-src"
           test -f "$RUNNER_TEMP/drivebox-src/DriveBox_v1.0/settings.gradle.kts"
 
+      - name: Apply DriveBox v1.1 storage fix
+        shell: bash
+        run: |
+          ROOT="$RUNNER_TEMP/drivebox-src/DriveBox_v1.0"
+          cp drivebox-v11/AppConfig.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/AppConfig.kt"
+          cp drivebox-v11/MainActivity.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/MainActivity.kt"
+          cp drivebox-v11/StorageRepository.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/StorageRepository.kt"
+          cp drivebox-v11/DriveBoxHttpServer.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/DriveBoxHttpServer.kt"
+          cp drivebox-v11/AndroidManifest.xml "$ROOT/app/src/main/AndroidManifest.xml"
+          cp drivebox-v11/app-build.gradle.kts "$ROOT/app/build.gradle.kts"
+          grep -q 'versionName = "1.1.0"' "$ROOT/app/build.gradle.kts"
+          grep -q 'MANAGE_EXTERNAL_STORAGE' "$ROOT/app/src/main/AndroidManifest.xml"
+
       - name: Build APK
         working-directory: ${{ runner.temp }}/drivebox-src/DriveBox_v1.0
         shell: bash
@@ -64,14 +78,14 @@ jobs:
         run: |
           APK="$RUNNER_TEMP/drivebox-src/DriveBox_v1.0/app/build/outputs/apk/debug/app-debug.apk"
           test -f "$APK"
-          cp "$APK" "$RUNNER_TEMP/DriveBox-v1.0.apk"
-          ls -lh "$RUNNER_TEMP/DriveBox-v1.0.apk"
-          sha256sum "$RUNNER_TEMP/DriveBox-v1.0.apk"
+          cp "$APK" "$RUNNER_TEMP/DriveBox-v1.1-storage-fix.apk"
+          ls -lh "$RUNNER_TEMP/DriveBox-v1.1-storage-fix.apk"
+          sha256sum "$RUNNER_TEMP/DriveBox-v1.1-storage-fix.apk"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: DriveBox-v1.0-APK
-          path: ${{ runner.temp }}/DriveBox-v1.0.apk
+          name: DriveBox-v1.1-storage-fix-APK
+          path: ${{ runner.temp }}/DriveBox-v1.1-storage-fix.apk
           if-no-files-found: error
           retention-days: 7
