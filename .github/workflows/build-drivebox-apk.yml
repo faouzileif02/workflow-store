@@ -39,11 +39,17 @@ jobs:
         with:
           gradle-version: "9.6.0"
 
-      - name: Decode DriveBox source
+      - name: Assemble and verify DriveBox source
         shell: bash
         run: |
           mkdir -p "$RUNNER_TEMP/drivebox-src"
-          base64 -d drivebox-build/DriveBox_v1.0_FIXED3.zip.b64 > "$RUNNER_TEMP/DriveBox_v1.0_FIXED3.zip"
+          cat drivebox-build/chunks/part*.txt > "$RUNNER_TEMP/drivebox.b64"
+          B64_SIZE=$(wc -c < "$RUNNER_TEMP/drivebox.b64" | tr -d ' ')
+          echo "Base64 size: $B64_SIZE"
+          test "$B64_SIZE" -eq 41284
+          base64 -d "$RUNNER_TEMP/drivebox.b64" > "$RUNNER_TEMP/DriveBox_v1.0_FIXED3.zip"
+          echo "64bf67814be2140925c643cf934112208beee00ac5b500d43e9afa2fe50ae085  $RUNNER_TEMP/DriveBox_v1.0_FIXED3.zip" | sha256sum -c -
+          unzip -t "$RUNNER_TEMP/DriveBox_v1.0_FIXED3.zip"
           unzip -q "$RUNNER_TEMP/DriveBox_v1.0_FIXED3.zip" -d "$RUNNER_TEMP/drivebox-src"
           test -f "$RUNNER_TEMP/drivebox-src/DriveBox_v1.0/settings.gradle.kts"
 
