@@ -9,6 +9,7 @@ on:
       - "drivebox-v12/**"
       - "drivebox-v13/**"
       - "drivebox-v14/**"
+      - "drivebox-v20/**"
       - ".github/workflows/build-drivebox-apk.yml"
   workflow_dispatch:
 
@@ -83,21 +84,31 @@ jobs:
           cp drivebox-v13/AuthManager.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/AuthManager.kt"
           cp drivebox-v13/MainActivity.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/MainActivity.kt"
 
-      - name: Apply DriveBox Family v1.4.1 file manager
+      - name: Apply DriveBox Family v1.4.1 storage engine
         shell: bash
         run: |
           ROOT="$RUNNER_TEMP/drivebox-src/DriveBox_v1.0"
           cp drivebox-v14/StorageRepository.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/StorageRepository.kt"
-          cp drivebox-v14/DriveBoxHttpServer.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/DriveBoxHttpServer.kt"
-          cp drivebox-v14/index.html "$ROOT/app/src/main/assets/drivebox/index.html"
           sed -i 's/versionCode = 3/versionCode = 7/' "$ROOT/app/build.gradle.kts"
           sed -i 's/versionName = "1.2.0"/versionName = "1.4.1"/' "$ROOT/app/build.gradle.kts"
-          sed -i 's/"1.4.0"/"1.4.1"/g' "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/DriveBoxHttpServer.kt"
-          grep -q 'versionName = "1.4.1"' "$ROOT/app/build.gradle.kts"
           grep -q 'USB_APP_SCOPED' "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/StorageRepository.kt"
           grep -q 'probeFileWrite' "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/StorageRepository.kt"
-          grep -q 'api/storage/status' "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/DriveBoxHttpServer.kt"
-          grep -q 'Nouveau dossier' "$ROOT/app/src/main/assets/drivebox/index.html"
+
+      - name: Apply DriveBox V2 Preview AI
+        shell: bash
+        run: |
+          ROOT="$RUNNER_TEMP/drivebox-src/DriveBox_v1.0"
+          cp drivebox-v20/DriveBoxHttpServer.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/DriveBoxHttpServer.kt"
+          cp drivebox-v20/index.html "$ROOT/app/src/main/assets/drivebox/index.html"
+          sed -i 's/versionCode = 7/versionCode = 20/' "$ROOT/app/build.gradle.kts"
+          sed -i 's/versionName = "1.4.1"/versionName = "2.0.0-preview"/' "$ROOT/app/build.gradle.kts"
+          sed -i 's/DriveBox Family/DriveBox AI/g' "$ROOT/app/src/main/java/lu/guerrida/drivebox/MainActivity.kt"
+          sed -i 's/Cloud familial privé • V1.3/Private Smart Cloud • V2 Preview/g' "$ROOT/app/src/main/java/lu/guerrida/drivebox/MainActivity.kt"
+          sed -i 's/Scanner pour ouvrir DriveBox Family/Scanner pour ouvrir DriveBox AI/g' "$ROOT/app/src/main/java/lu/guerrida/drivebox/MainActivity.kt"
+          grep -q 'versionName = "2.0.0-preview"' "$ROOT/app/build.gradle.kts"
+          grep -q 'api/insights' "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/DriveBoxHttpServer.kt"
+          grep -q 'api/ai/query' "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/DriveBoxHttpServer.kt"
+          grep -q 'DriveBox Intelligence' "$ROOT/app/src/main/assets/drivebox/index.html"
 
       - name: Build APK
         working-directory: ${{ runner.temp }}/drivebox-src/DriveBox_v1.0
@@ -109,15 +120,15 @@ jobs:
         run: |
           APK="$RUNNER_TEMP/drivebox-src/DriveBox_v1.0/app/build/outputs/apk/debug/app-debug.apk"
           test -f "$APK"
-          cp "$APK" "$RUNNER_TEMP/DriveBox-v1.4.1-Family.apk"
-          ls -lh "$RUNNER_TEMP/DriveBox-v1.4.1-Family.apk"
-          sha256sum "$RUNNER_TEMP/DriveBox-v1.4.1-Family.apk"
-          unzip -t "$RUNNER_TEMP/DriveBox-v1.4.1-Family.apk" >/dev/null
+          cp "$APK" "$RUNNER_TEMP/DriveBox-v2.0-Preview.apk"
+          ls -lh "$RUNNER_TEMP/DriveBox-v2.0-Preview.apk"
+          sha256sum "$RUNNER_TEMP/DriveBox-v2.0-Preview.apk"
+          unzip -t "$RUNNER_TEMP/DriveBox-v2.0-Preview.apk" >/dev/null
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: DriveBox-v1.4.1-Family-APK
-          path: ${{ runner.temp }}/DriveBox-v1.4.1-Family.apk
+          name: DriveBox-v2.0-Preview-APK
+          path: ${{ runner.temp }}/DriveBox-v2.0-Preview.apk
           if-no-files-found: error
           retention-days: 7
