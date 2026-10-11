@@ -84,12 +84,13 @@ class DriveBoxHttpServer(private val context: Context, port: Int = AppConfig.POR
     private fun login(session: IHTTPSession): Response {
         val body = body(session)
         val memberId = body.optString("memberId")
+        val password = body.optString("password")
         val member = users.findById(memberId)
             ?: return json(Response.Status.UNAUTHORIZED, JSONObject().put("error", "Profil introuvable"))
         if (member.hash.isBlank()) {
-            return json(Response.Status.BAD_REQUEST, JSONObject().put("error", "Ce profil doit d'abord choisir son mot de passe"))
+            users.setupPassword(memberId, password)
         }
-        val token = auth.loginMember(memberId, body.optString("password"))
+        val token = auth.loginMember(memberId, password)
             ?: return json(Response.Status.UNAUTHORIZED, JSONObject().put("error", "Mot de passe incorrect"))
         val principal = auth.principal(token) ?: return json(Response.Status.UNAUTHORIZED, JSONObject().put("error", "Connexion impossible"))
         ensureMemberRoot(principal)
