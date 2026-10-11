@@ -100,11 +100,11 @@ class MainActivity : ComponentActivity() {
         return sm.storageVolumes.mapNotNull { volume ->
             val state = volume.state
             if (state != Environment.MEDIA_MOUNTED && state != Environment.MEDIA_MOUNTED_READ_ONLY) return@mapNotNull null
-            val dir = if (Build.VERSION.SDK_INT >= 30) volume.directory else when {
+            val dir = (if (Build.VERSION.SDK_INT >= 30) volume.directory else when {
                 volume.isPrimary -> Environment.getExternalStorageDirectory()
                 !volume.uuid.isNullOrBlank() -> File("/storage/${volume.uuid}")
                 else -> null
-            } ?: return@mapNotNull null
+            }) ?: return@mapNotNull null
             if (!dir.exists() || !dir.isDirectory) return@mapNotNull null
             val removable = volume.isRemovable
             val kind = if (removable) "USB / SSD" else "Stockage interne"
@@ -200,14 +200,20 @@ class MainActivity : ComponentActivity() {
                         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             Text("DriveBox peut utiliser le sélecteur Android ou choisir directement un disque monté.")
                             if (systemFolderPickerAvailable()) {
-                                Button(Modifier.fillMaxWidth(), onClick = { showStorageDialog = false; safeLaunchSystemFolderPicker() }) { Text("Sélecteur de dossier Android") }
+                                Button(
+                                    onClick = { showStorageDialog = false; safeLaunchSystemFolderPicker() },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) { Text("Sélecteur de dossier Android") }
                             } else {
                                 Text("Sélecteur Android indisponible — mode direct activé.", color = Color(0xFFFBBF24))
                             }
                             Text("Volumes détectés", fontWeight = FontWeight.Bold)
                             if (choices.isEmpty()) Text("Aucun volume monté. Branche le disque USB/SSD puis rouvre cette fenêtre.")
                             choices.forEach { choice ->
-                                OutlinedButton(Modifier.fillMaxWidth(), onClick = { showStorageDialog = false; selectDirectStorage(choice.path) }) {
+                                OutlinedButton(
+                                    onClick = { showStorageDialog = false; selectDirectStorage(choice.path) },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
                                     Column(Modifier.fillMaxWidth()) {
                                         Text(choice.label, fontWeight = FontWeight.Bold)
                                         Text(choice.path, fontSize = 12.sp)
