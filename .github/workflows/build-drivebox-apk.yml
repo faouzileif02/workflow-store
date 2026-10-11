@@ -7,6 +7,7 @@ on:
       - "drivebox-build/**"
       - "drivebox-v11/**"
       - "drivebox-v12/**"
+      - "drivebox-v13/**"
       - ".github/workflows/build-drivebox-apk.yml"
   workflow_dispatch:
 
@@ -62,7 +63,7 @@ jobs:
           cp drivebox-v11/AndroidManifest.xml "$ROOT/app/src/main/AndroidManifest.xml"
           cp drivebox-v11/app-build.gradle.kts "$ROOT/app/build.gradle.kts"
 
-      - name: Apply DriveBox Family v1.2
+      - name: Apply DriveBox Family v1.2 base
         shell: bash
         run: |
           ROOT="$RUNNER_TEMP/drivebox-src/DriveBox_v1.0"
@@ -72,8 +73,21 @@ jobs:
           cp drivebox-v12/index.html "$ROOT/app/src/main/assets/drivebox/index.html"
           sed -i 's/versionCode = 2/versionCode = 3/' "$ROOT/app/build.gradle.kts"
           sed -i 's/versionName = "1.1.0"/versionName = "1.2.0"/' "$ROOT/app/build.gradle.kts"
-          grep -q 'versionName = "1.2.0"' "$ROOT/app/build.gradle.kts"
-          grep -q 'class UserManager' "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/UserManager.kt"
+
+      - name: Apply DriveBox Family v1.3
+        shell: bash
+        run: |
+          ROOT="$RUNNER_TEMP/drivebox-src/DriveBox_v1.0"
+          cp drivebox-v13/UserManager.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/UserManager.kt"
+          cp drivebox-v13/AuthManager.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/AuthManager.kt"
+          cp drivebox-v13/DriveBoxHttpServer.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/DriveBoxHttpServer.kt"
+          cp drivebox-v13/index.html "$ROOT/app/src/main/assets/drivebox/index.html"
+          cp drivebox-v13/MainActivity.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/MainActivity.kt"
+          sed -i 's/versionCode = 3/versionCode = 4/' "$ROOT/app/build.gradle.kts"
+          sed -i 's/versionName = "1.2.0"/versionName = "1.3.0"/' "$ROOT/app/build.gradle.kts"
+          grep -q 'versionName = "1.3.0"' "$ROOT/app/build.gradle.kts"
+          grep -q 'family/profiles' "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/DriveBoxHttpServer.kt"
+          grep -q 'Qui utilise DriveBox' "$ROOT/app/src/main/assets/drivebox/index.html"
 
       - name: Build APK
         working-directory: ${{ runner.temp }}/drivebox-src/DriveBox_v1.0
@@ -85,14 +99,14 @@ jobs:
         run: |
           APK="$RUNNER_TEMP/drivebox-src/DriveBox_v1.0/app/build/outputs/apk/debug/app-debug.apk"
           test -f "$APK"
-          cp "$APK" "$RUNNER_TEMP/DriveBox-v1.2-Family.apk"
-          ls -lh "$RUNNER_TEMP/DriveBox-v1.2-Family.apk"
-          sha256sum "$RUNNER_TEMP/DriveBox-v1.2-Family.apk"
+          cp "$APK" "$RUNNER_TEMP/DriveBox-v1.3-Family.apk"
+          ls -lh "$RUNNER_TEMP/DriveBox-v1.3-Family.apk"
+          sha256sum "$RUNNER_TEMP/DriveBox-v1.3-Family.apk"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: DriveBox-v1.2-Family-APK
-          path: ${{ runner.temp }}/DriveBox-v1.2-Family.apk
+          name: DriveBox-v1.3-Family-APK
+          path: ${{ runner.temp }}/DriveBox-v1.3-Family.apk
           if-no-files-found: error
           retention-days: 7
