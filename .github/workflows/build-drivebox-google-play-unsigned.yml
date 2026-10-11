@@ -1,0 +1,105 @@
+name: Build DriveBox Google Play Unsigned Release
+
+on:
+  push:
+    branches: ["drivebox-apk-build"]
+    paths:
+      - ".github/workflows/build-drivebox-google-play-unsigned.yml"
+
+jobs:
+  play-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android SDK 37
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses >/dev/null 2>&1 || true
+          sdkmanager "platform-tools" "platforms;android-37.0" "build-tools;37.0.0"
+
+      - name: Set up Gradle 9.6
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.6.0"
+
+      - name: Assemble DriveBox base source
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/drivebox-src"
+          cat drivebox-build/chunks/part*.txt > "$RUNNER_TEMP/drivebox.b64"
+          test "$(wc -c < "$RUNNER_TEMP/drivebox.b64" | tr -d ' ')" -eq 41284
+          base64 -d "$RUNNER_TEMP/drivebox.b64" > "$RUNNER_TEMP/DriveBox_v1.0_FIXED3.zip"
+          echo "64bf67814be2140925c643cf934112208beee00ac5b500d43e9afa2fe50ae085  $RUNNER_TEMP/DriveBox_v1.0_FIXED3.zip" | sha256sum -c -
+          unzip -q "$RUNNER_TEMP/DriveBox_v1.0_FIXED3.zip" -d "$RUNNER_TEMP/drivebox-src"
+
+      - name: Apply DriveBox V2 source layers
+        shell: bash
+        run: |
+          ROOT="$RUNNER_TEMP/drivebox-src/DriveBox_v1.0"
+          cp drivebox-v11/AppConfig.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/AppConfig.kt"
+          cp drivebox-v11/MainActivity.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/MainActivity.kt"
+          cp drivebox-v11/AndroidManifest.xml "$ROOT/app/src/main/AndroidManifest.xml"
+          cp drivebox-v11/app-build.gradle.kts "$ROOT/app/build.gradle.kts"
+          cp drivebox-v13/UserManager.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/UserManager.kt"
+          cp drivebox-v13/AuthManager.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/AuthManager.kt"
+          cp drivebox-v13/MainActivity.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/MainActivity.kt"
+          cp drivebox-v14/StorageRepository.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/StorageRepository.kt"
+          cp drivebox-v20/DriveBoxHttpServer.kt "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/DriveBoxHttpServer.kt"
+          cp drivebox-v20/index.html "$ROOT/app/src/main/assets/drivebox/index.html"
+          cp drivebox-v20/ic_drivebox_ai.xml "$ROOT/app/src/main/res/drawable/ic_drivebox_ai.xml"
+          cp drivebox-v20/ic_launcher_v2.xml "$ROOT/app/src/main/res/mipmap-anydpi/ic_launcher.xml"
+          cp drivebox-v20/ic_launcher_adaptive_v2.xml "$ROOT/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml"
+          cp drivebox-v20/ic_launcher_adaptive_v2.xml "$ROOT/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml"
+          sed -i 's/android:label="DriveBox"/android:label="DriveBox AI"/' "$ROOT/app/src/main/AndroidManifest.xml"
+          sed -E -i 's/versionCode = [0-9]+/versionCode = 20/' "$ROOT/app/build.gradle.kts"
+          sed -E -i 's/versionName = "[^"]+"/versionName = "2.0.0-preview"/' "$ROOT/app/build.gradle.kts"
+          sed -i 's/DriveBox Family/DriveBox AI/g' "$ROOT/app/src/main/java/lu/guerrida/drivebox/MainActivity.kt"
+          sed -i 's/Cloud familial privé • V1.3/Private Smart Cloud • V2 Preview/g' "$ROOT/app/src/main/java/lu/guerrida/drivebox/MainActivity.kt"
+          sed -i 's/Scanner pour ouvrir DriveBox Family/Scanner pour ouvrir DriveBox AI/g' "$ROOT/app/src/main/java/lu/guerrida/drivebox/MainActivity.kt"
+          grep -q 'android:label="DriveBox AI"' "$ROOT/app/src/main/AndroidManifest.xml"
+          grep -q 'versionCode = 20' "$ROOT/app/build.gradle.kts"
+          grep -q 'versionName = "2.0.0-preview"' "$ROOT/app/build.gradle.kts"
+          grep -q 'api/insights' "$ROOT/app/src/main/java/lu/guerrida/drivebox/server/DriveBoxHttpServer.kt"
+          grep -q 'DriveBox Intelligence' "$ROOT/app/src/main/assets/drivebox/index.html"
+
+      - name: Build release AAB and APK
+        working-directory: ${{ runner.temp }}/drivebox-src/DriveBox_v1.0
+        shell: bash
+        run: gradle :app:bundleRelease :app:assembleRelease --stacktrace --no-daemon
+
+      - name: Prepare unsigned release package
+        shell: bash
+        run: |
+          ROOT="$RUNNER_TEMP/drivebox-src/DriveBox_v1.0"
+          PACK="$RUNNER_TEMP/DriveBox-v2.0-Google-Play-Unsigned"
+          mkdir -p "$PACK"
+          cp "$ROOT/app/build/outputs/bundle/release/app-release.aab" "$PACK/DriveBox-v2.0-Preview-unsigned.aab"
+          cp "$ROOT/app/build/outputs/apk/release/app-release-unsigned.apk" "$PACK/DriveBox-v2.0-Preview-unsigned.apk"
+          cp drivebox-v20/PLAY_STORE_TEST_LISTING.md "$PACK/PLAY_STORE_TEST_LISTING.md"
+          cp drivebox-v20/ic_drivebox_ai.xml "$PACK/ic_drivebox_ai.xml"
+          sha256sum "$PACK/DriveBox-v2.0-Preview-unsigned.aab" > "$PACK/SHA256SUMS.txt"
+          sha256sum "$PACK/DriveBox-v2.0-Preview-unsigned.apk" >> "$PACK/SHA256SUMS.txt"
+          ls -lh "$PACK"
+
+      - name: Upload unsigned Google Play package
+        uses: actions/upload-artifact@v4
+        with:
+          name: DriveBox-v2.0-Google-Play-Unsigned
+          path: ${{ runner.temp }}/DriveBox-v2.0-Google-Play-Unsigned/
+          if-no-files-found: error
+          retention-days: 7
