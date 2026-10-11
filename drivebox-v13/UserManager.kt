@@ -28,6 +28,10 @@ class UserManager(context: Context) {
     private val random = SecureRandom()
     private val defaultProfiles = listOf("Faouzi", "Cynthia", "Amira", "Ines")
 
+    init {
+        migrateSeededPasswordsV132()
+    }
+
     @Synchronized
     fun profiles(): List<Member> {
         seedDefaults()
@@ -90,9 +94,6 @@ class UserManager(context: Context) {
         val member = findById(id) ?: return null
         if (!member.active) return null
 
-        // Seeded family profiles have no password yet. The first valid password
-        // entered becomes that member's personal password, then verification
-        // works normally on all following logins.
         if (member.hash.isBlank() || member.salt.isBlank()) {
             return try {
                 setupPassword(id, password)
@@ -126,6 +127,28 @@ class UserManager(context: Context) {
         .put("username", member.username)
         .put("initial", member.name.trim().take(1).uppercase(Locale.ROOT))
         .put("configured", member.hash.isNotBlank())
+
+    private fun migrateSeededPasswordsV132() {
+        val migrationKey = "v132_seed_password_reset_done"
+        if (prefs.getBoolean(migrationKey, false)) return
+
+        val all = load().toMutableList()
+        var changed = false
+        for (i in all.indices) {
+            if (defaultProfiles.any { it.equals(all[i].name, true) }) {
+                all[i] = all[i].copy(
+                    salt = "",
+                    hash = "",
+                    codeSalt = "",
+                    codeHash = "",
+                    active = true
+                )
+                changed = true
+            }
+        }
+        if (changed) save(all)
+        prefs.edit().putBoolean(migrationKey, true).commit()
+    }
 
     private fun seedDefaults() {
         val all = load().toMutableList()
