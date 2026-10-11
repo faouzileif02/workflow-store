@@ -26,12 +26,23 @@ class UserManager(context: Context) {
 
     private val prefs = context.getSharedPreferences("drivebox_family", Context.MODE_PRIVATE)
     private val random = SecureRandom()
+    private val defaultProfiles = listOf("Faouzi", "Cynthia", "Amira", "Ines")
 
     @Synchronized
-    fun profiles(): List<Member> = load().filter { it.active && it.hash.isNotBlank() }.sortedBy { it.name.lowercase(Locale.ROOT) }
+    fun profiles(): List<Member> {
+        seedDefaults()
+        val order = defaultProfiles.mapIndexed { index, name -> name.lowercase(Locale.ROOT) to index }.toMap()
+        return load().filter { it.active }.sortedWith(
+            compareBy<Member> { order[it.name.lowercase(Locale.ROOT)] ?: 1000 }
+                .thenBy { it.name.lowercase(Locale.ROOT) }
+        )
+    }
 
     @Synchronized
-    fun findById(id: String): Member? = load().firstOrNull { it.id == id }
+    fun findById(id: String): Member? {
+        seedDefaults()
+        return load().firstOrNull { it.id == id && it.active }
+    }
 
     @Synchronized
     fun create(displayName: String, password: String): Member {
@@ -40,14 +51,7 @@ class UserManager(context: Context) {
         val all = load().toMutableList()
         require(all.none { it.active && it.name.equals(name, true) }) { "Ce membre existe déjà" }
 
-        val base = slug(name).ifBlank { "membre" }
-        var username = base
-        var index = 2
-        while (all.any { it.username == username }) {
-            username = "$base$index"
-            index++
-        }
-
+        val username = uniqueUsername(name, all)
         val salt = randomBytes()
         val member = Member(
             id = UUID.randomUUID().toString().replace("-", ""),
@@ -60,6 +64,25 @@ class UserManager(context: Context) {
         all += member
         save(all)
         return member
+    }
+
+    @Synchronized
+    fun setupPassword(id: String, password: String): Member {
+        validPassword(password)
+        val all = load().toMutableList()
+        val i = all.indexOfFirst { it.id == id && it.active }
+        require(i >= 0) { "Profil introuvable" }
+        require(all[i].hash.isBlank()) { "Ce profil possède déjà un mot de passe" }
+        val salt = randomBytes()
+        all[i] = all[i].copy(
+            salt = encode(salt),
+            hash = encode(kdf(password, salt, 180000)),
+            codeSalt = "",
+            codeHash = "",
+            active = true
+        )
+        save(all)
+        return all[i]
     }
 
     @Synchronized
@@ -77,7 +100,7 @@ class UserManager(context: Context) {
     fun changePassword(id: String, currentPassword: String, newPassword: String) {
         validPassword(newPassword)
         val all = load().toMutableList()
-        val i = all.indexOfFirst { it.id == id }
+        val i = all.indexOfFirst { it.id == id && it.active }
         require(i >= 0) { "Compte introuvable" }
         require(verifyById(id, currentPassword) != null) { "Mot de passe actuel incorrect" }
         val salt = randomBytes()
@@ -90,6 +113,43 @@ class UserManager(context: Context) {
         .put("displayName", member.name)
         .put("username", member.username)
         .put("initial", member.name.trim().take(1).uppercase(Locale.ROOT))
+        .put("configured", member.hash.isNotBlank())
+
+    private fun seedDefaults() {
+        val all = load().toMutableList()
+        var changed = false
+        for (name in defaultProfiles) {
+            val existing = all.indexOfFirst { it.name.equals(name, true) }
+            if (existing >= 0) {
+                if (!all[existing].active) {
+                    all[existing] = all[existing].copy(active = true, codeSalt = "", codeHash = "")
+                    changed = true
+                }
+            } else {
+                all += Member(
+                    id = UUID.randomUUID().toString().replace("-", ""),
+                    username = uniqueUsername(name, all),
+                    name = name,
+                    salt = "",
+                    hash = "",
+                    active = true
+                )
+                changed = true
+            }
+        }
+        if (changed) save(all)
+    }
+
+    private fun uniqueUsername(name: String, all: List<Member>): String {
+        val base = slug(name).ifBlank { "membre" }
+        var username = base
+        var index = 2
+        while (all.any { it.username == username }) {
+            username = "$base$index"
+            index++
+        }
+        return username
+    }
 
     private fun validName(value: String): String {
         val name = value.trim().replace(Regex("\\s+"), " ")
