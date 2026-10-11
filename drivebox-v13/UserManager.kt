@@ -88,7 +88,19 @@ class UserManager(context: Context) {
     @Synchronized
     fun verifyById(id: String, password: String): Member? {
         val member = findById(id) ?: return null
-        if (!member.active || member.salt.isBlank() || member.hash.isBlank()) return null
+        if (!member.active) return null
+
+        // Seeded family profiles have no password yet. The first valid password
+        // entered becomes that member's personal password, then verification
+        // works normally on all following logins.
+        if (member.hash.isBlank() || member.salt.isBlank()) {
+            return try {
+                setupPassword(id, password)
+            } catch (_: Exception) {
+                null
+            }
+        }
+
         return try {
             if (MessageDigest.isEqual(kdf(password, decode(member.salt), 180000), decode(member.hash))) member else null
         } catch (_: Exception) {
