@@ -22,6 +22,7 @@ class DriveBoxHttpServer(private val context: Context, port: Int = AppConfig.POR
             session.uri == "/" || session.uri == "/index.html" -> asset("drivebox/index.html", "text/html; charset=utf-8")
             session.uri == "/api/family/profiles" && session.method == Method.GET -> profiles()
             session.uri == "/api/family/create" && session.method == Method.POST -> createMember(session)
+            session.uri == "/api/family/setup" && session.method == Method.POST -> setupMember(session)
             session.uri == "/api/login" && session.method == Method.POST -> login(session)
             session.uri.startsWith("/api/") -> {
                 val token = bearer(session) ?: session.parameters["token"]?.firstOrNull()
@@ -55,21 +56,40 @@ class DriveBoxHttpServer(private val context: Context, port: Int = AppConfig.POR
         val password = body.optString("password")
         require(password == body.optString("confirm")) { "Les mots de passe ne correspondent pas" }
         val member = users.create(body.optString("displayName"), password)
-        val token = auth.loginMember(member.id, password) ?: throw IllegalStateException("Connexion impossible")
+        return loginCreatedMember(member.id, password)
+    }
+
+    private fun setupMember(session: IHTTPSession): Response {
+        val body = body(session)
+        val password = body.optString("password")
+        require(password == body.optString("confirm")) { "Les mots de passe ne correspondent pas" }
+        val member = users.setupPassword(body.optString("memberId"), password)
+        return loginCreatedMember(member.id, password)
+    }
+
+    private fun loginCreatedMember(memberId: String, password: String): Response {
+        val token = auth.loginMember(memberId, password) ?: throw IllegalStateException("Connexion impossible")
         val principal = auth.principal(token) ?: throw IllegalStateException("Session impossible")
         ensureMemberRoot(principal)
+        val member = users.findById(memberId)
         return json(
             Response.Status.OK,
             JSONObject()
                 .put("token", token)
                 .put("user", userJson(principal))
-                .put("member", users.publicJson(member))
+                .put("member", member?.let { users.publicJson(it) })
         )
     }
 
     private fun login(session: IHTTPSession): Response {
         val body = body(session)
-        val token = auth.loginMember(body.optString("memberId"), body.optString("password"))
+        val memberId = body.optString("memberId")
+        val member = users.findById(memberId)
+            ?: return json(Response.Status.UNAUTHORIZED, JSONObject().put("error", "Profil introuvable"))
+        if (member.hash.isBlank()) {
+            return json(Response.Status.BAD_REQUEST, JSONObject().put("error", "Ce profil doit d'abord choisir son mot de passe"))
+        }
+        val token = auth.loginMember(memberId, body.optString("password"))
             ?: return json(Response.Status.UNAUTHORIZED, JSONObject().put("error", "Mot de passe incorrect"))
         val principal = auth.principal(token) ?: return json(Response.Status.UNAUTHORIZED, JSONObject().put("error", "Connexion impossible"))
         ensureMemberRoot(principal)
