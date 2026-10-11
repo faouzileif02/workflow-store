@@ -15,7 +15,8 @@ class DriveBoxHttpServer(private val context: Context, port: Int = AppConfig.POR
     private val users = UserManager(context)
     private val auth = AuthManager(users)
     private val storage = StorageRepository(context)
-    private val familyRoot = ".drivebox_family"
+    private val familyRoot = "DriveBoxFamily"
+    private val legacyFamilyRoot = ".drivebox_family"
 
     override fun serve(session: IHTTPSession): Response = try {
         when {
@@ -45,7 +46,7 @@ class DriveBoxHttpServer(private val context: Context, port: Int = AppConfig.POR
         return json(
             Response.Status.OK,
             JSONObject()
-                .put("version", "1.3.0")
+                .put("version", "1.3.2")
                 .put("profiles", array)
                 .put("storageReady", storage.hasRoot())
         )
@@ -56,7 +57,7 @@ class DriveBoxHttpServer(private val context: Context, port: Int = AppConfig.POR
         val password = body.optString("password")
         require(password == body.optString("confirm")) { "Les mots de passe ne correspondent pas" }
         val member = users.create(body.optString("displayName"), password)
-        return loginCreatedMember(member.id, password)
+        return openSession(member)
     }
 
     private fun setupMember(session: IHTTPSession): Response {
@@ -64,20 +65,21 @@ class DriveBoxHttpServer(private val context: Context, port: Int = AppConfig.POR
         val password = body.optString("password")
         require(password == body.optString("confirm")) { "Les mots de passe ne correspondent pas" }
         val member = users.setupPassword(body.optString("memberId"), password)
-        return loginCreatedMember(member.id, password)
+        return openSession(member)
     }
 
-    private fun loginCreatedMember(memberId: String, password: String): Response {
-        val token = auth.loginMember(memberId, password) ?: throw IllegalStateException("Connexion impossible")
+    private fun openSession(member: UserManager.Member): Response {
+        val token = auth.startMemberSession(member)
         val principal = auth.principal(token) ?: throw IllegalStateException("Session impossible")
-        ensureMemberRoot(principal)
-        val member = users.findById(memberId)
+        val storageWarning = safeEnsureMemberRoot(principal)
         return json(
             Response.Status.OK,
             JSONObject()
                 .put("token", token)
                 .put("user", userJson(principal))
-                .put("member", member?.let { users.publicJson(it) })
+                .put("member", users.publicJson(member))
+                .put("storageReady", storageWarning == null && storage.hasRoot())
+                .put("storageWarning", storageWarning ?: JSONObject.NULL)
         )
     }
 
@@ -85,30 +87,39 @@ class DriveBoxHttpServer(private val context: Context, port: Int = AppConfig.POR
         val body = body(session)
         val memberId = body.optString("memberId")
         val password = body.optString("password")
-        val member = users.findById(memberId)
+        val existing = users.findById(memberId)
             ?: return json(Response.Status.UNAUTHORIZED, JSONObject().put("error", "Profil introuvable"))
-        if (member.hash.isBlank()) {
-            users.setupPassword(memberId, password)
+
+        val member = if (existing.hash.isBlank() || existing.salt.isBlank()) {
+            try {
+                users.setupPassword(memberId, password)
+            } catch (e: Exception) {
+                return json(Response.Status.BAD_REQUEST, JSONObject().put("error", e.message ?: "Impossible d'enregistrer le mot de passe"))
+            }
+        } else {
+            users.verifyById(memberId, password)
+                ?: return json(Response.Status.UNAUTHORIZED, JSONObject().put("error", "Mot de passe incorrect"))
         }
-        val token = auth.loginMember(memberId, password)
-            ?: return json(Response.Status.UNAUTHORIZED, JSONObject().put("error", "Mot de passe incorrect"))
-        val principal = auth.principal(token) ?: return json(Response.Status.UNAUTHORIZED, JSONObject().put("error", "Connexion impossible"))
-        ensureMemberRoot(principal)
-        return json(Response.Status.OK, JSONObject().put("token", token).put("user", userJson(principal)))
+
+        return openSession(member)
     }
 
     private fun api(session: IHTTPSession, token: String, principal: AuthPrincipal): Response = when (session.uri) {
-        "/api/status" -> json(
-            Response.Status.OK,
-            JSONObject()
-                .put("ok", true)
-                .put("name", "DriveBox Family")
-                .put("version", "1.3.0")
-                .put("ip", NetworkUtils.localIp())
-                .put("port", AppConfig.PORT)
-                .put("storageReady", storage.hasRoot())
-                .put("user", userJson(principal))
-        )
+        "/api/status" -> {
+            val warning = safeEnsureMemberRoot(principal)
+            json(
+                Response.Status.OK,
+                JSONObject()
+                    .put("ok", true)
+                    .put("name", "DriveBox Family")
+                    .put("version", "1.3.2")
+                    .put("ip", NetworkUtils.localIp())
+                    .put("port", AppConfig.PORT)
+                    .put("storageReady", warning == null && storage.hasRoot())
+                    .put("storageWarning", warning ?: JSONObject.NULL)
+                    .put("user", userJson(principal))
+            )
+        }
         "/api/list" -> json(Response.Status.OK, listFor(principal, param(session, "path")))
         "/api/mkdir" -> {
             method(session, Method.POST)
@@ -149,8 +160,19 @@ class DriveBoxHttpServer(private val context: Context, port: Int = AppConfig.POR
         return json(Response.Status.OK, JSONObject().put("ok", true).put("reauthenticate", true))
     }
 
+    private fun safeEnsureMemberRoot(principal: AuthPrincipal): String? = try {
+        ensureMemberRoot(principal)
+        null
+    } catch (e: Exception) {
+        "Compte connecté, mais stockage indisponible : ${e.message ?: "écriture impossible"}"
+    }
+
     private fun ensureMemberRoot(principal: AuthPrincipal) {
         if (!storage.hasRoot()) return
+
+        val legacyBase = "$legacyFamilyRoot/${principal.storageKey}"
+        if (storage.resolve(legacyBase) != null) return
+
         if (storage.resolve(familyRoot) == null) storage.createFolder("", familyRoot)
         val base = "$familyRoot/${principal.storageKey}"
         if (storage.resolve(base) == null) storage.createFolder(familyRoot, principal.storageKey)
@@ -161,11 +183,16 @@ class DriveBoxHttpServer(private val context: Context, port: Int = AppConfig.POR
         }
     }
 
+    private fun basePath(principal: AuthPrincipal): String {
+        val legacyBase = "$legacyFamilyRoot/${principal.storageKey}"
+        return if (storage.resolve(legacyBase) != null) legacyBase else "$familyRoot/${principal.storageKey}"
+    }
+
     private fun scope(principal: AuthPrincipal, path: String): String {
         val visible = normalizeVisible(path)
         require(visible.split('/').none { it == "." || it == ".." }) { "Chemin interdit" }
         ensureMemberRoot(principal)
-        val prefix = "$familyRoot/${principal.storageKey}"
+        val prefix = basePath(principal)
         return if (visible.isBlank()) prefix else "$prefix/$visible"
     }
 
@@ -173,10 +200,11 @@ class DriveBoxHttpServer(private val context: Context, port: Int = AppConfig.POR
 
     private fun listFor(principal: AuthPrincipal, path: String): JSONObject {
         val visiblePath = normalizeVisible(path)
-        val data = storage.list(scope(principal, visiblePath))
+        val scoped = scope(principal, visiblePath)
+        val data = storage.list(scoped)
         val source = data.getJSONArray("items")
         val result = JSONArray()
-        val prefix = "$familyRoot/${principal.storageKey}/"
+        val prefix = basePath(principal) + "/"
         for (i in 0 until source.length()) {
             val copy = JSONObject(source.getJSONObject(i).toString())
             val storedPath = copy.optString("path")
