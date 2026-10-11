@@ -23,16 +23,19 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      - name: Set up Gradle 9.6
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "9.6.0"
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
 
       - name: Install Android SDK 37
         shell: bash
         run: |
           yes | sdkmanager --licenses >/dev/null 2>&1 || true
           sdkmanager "platform-tools" "platforms;android-37.0" "build-tools;37.0.0"
+
+      - name: Set up Gradle 9.6
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.6.0"
 
       - name: Decode DriveBox source
         shell: bash
