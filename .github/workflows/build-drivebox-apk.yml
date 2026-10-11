@@ -1,0 +1,66 @@
+name: Build DriveBox APK
+
+on:
+  push:
+    branches: ["drivebox-apk-build"]
+    paths:
+      - "drivebox-build/**"
+      - ".github/workflows/build-drivebox-apk.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle 9.6
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.6.0"
+
+      - name: Install Android SDK 37
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses >/dev/null 2>&1 || true
+          sdkmanager "platform-tools" "platforms;android-37.0" "build-tools;37.0.0"
+
+      - name: Decode DriveBox source
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/drivebox-src"
+          base64 -d drivebox-build/DriveBox_v1.0_FIXED3.zip.b64 > "$RUNNER_TEMP/DriveBox_v1.0_FIXED3.zip"
+          unzip -q "$RUNNER_TEMP/DriveBox_v1.0_FIXED3.zip" -d "$RUNNER_TEMP/drivebox-src"
+          test -f "$RUNNER_TEMP/drivebox-src/DriveBox_v1.0/settings.gradle.kts"
+
+      - name: Build APK
+        working-directory: ${{ runner.temp }}/drivebox-src/DriveBox_v1.0
+        shell: bash
+        run: |
+          gradle :app:assembleDebug --stacktrace --no-daemon
+
+      - name: Prepare APK
+        shell: bash
+        run: |
+          APK="$RUNNER_TEMP/drivebox-src/DriveBox_v1.0/app/build/outputs/apk/debug/app-debug.apk"
+          test -f "$APK"
+          cp "$APK" "$RUNNER_TEMP/DriveBox-v1.0.apk"
+          ls -lh "$RUNNER_TEMP/DriveBox-v1.0.apk"
+          sha256sum "$RUNNER_TEMP/DriveBox-v1.0.apk"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: DriveBox-v1.0-APK
+          path: ${{ runner.temp }}/DriveBox-v1.0.apk
+          if-no-files-found: error
+          retention-days: 7
