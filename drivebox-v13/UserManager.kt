@@ -29,7 +29,7 @@ class UserManager(context: Context) {
     private val defaultProfiles = listOf("Faouzi", "Cynthia", "Amira", "Ines")
 
     init {
-        migrateSeededPasswordsV132()
+        migrateAllPasswordsV132()
     }
 
     @Synchronized
@@ -128,25 +128,21 @@ class UserManager(context: Context) {
         .put("initial", member.name.trim().take(1).uppercase(Locale.ROOT))
         .put("configured", member.hash.isNotBlank())
 
-    private fun migrateSeededPasswordsV132() {
-        val migrationKey = "v132_seed_password_reset_done"
+    private fun migrateAllPasswordsV132() {
+        val migrationKey = "v132_all_password_reset_done"
         if (prefs.getBoolean(migrationKey, false)) return
 
         val all = load().toMutableList()
-        var changed = false
         for (i in all.indices) {
-            if (defaultProfiles.any { it.equals(all[i].name, true) }) {
-                all[i] = all[i].copy(
-                    salt = "",
-                    hash = "",
-                    codeSalt = "",
-                    codeHash = "",
-                    active = true
-                )
-                changed = true
-            }
+            all[i] = all[i].copy(
+                salt = "",
+                hash = "",
+                codeSalt = "",
+                codeHash = "",
+                active = true
+            )
         }
-        if (changed) save(all)
+        if (all.isNotEmpty()) save(all)
         prefs.edit().putBoolean(migrationKey, true).commit()
     }
 
