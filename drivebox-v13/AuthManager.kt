@@ -17,15 +17,17 @@ class AuthManager(private val users: UserManager) {
 
     fun loginMember(memberId: String, password: String): String? {
         val member = users.verifyById(memberId, password) ?: return null
-        return newSession(
-            AuthPrincipal(
-                memberId = member.id,
-                displayName = member.name,
-                username = member.username,
-                storageKey = member.id
-            )
-        )
+        return startMemberSession(member)
     }
+
+    fun startMemberSession(member: UserManager.Member): String = newSession(
+        AuthPrincipal(
+            memberId = member.id,
+            displayName = member.name,
+            username = member.username,
+            storageKey = member.id
+        )
+    )
 
     fun principal(token: String?): AuthPrincipal? {
         if (token.isNullOrBlank()) return null
