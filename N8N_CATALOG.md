@@ -31,6 +31,7 @@ A structured index of the automation projects inside this repository.
 - [Google Business review replies](marketing/reponse-avis-google-business/)
 - [Brand monitoring → Google Sheets](marketing/veille-marque-twitter-google-sheets/)
 - [TikTok prospecting Luxembourg](marketing/prospection-tiktok-luxembourg/)
+- [Telegram Social Post Writer & Designer](marketing/telegram-social-post-writer-designer/)
 
 ## 🛒 E-commerce
 
