@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="520" viewBox="0 0 1500 520">
+<rect width="1500" height="520" rx="28" fill="#081226"/>
+<text x="70" y="75" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="34" font-weight="800" fill="#fff">Architecture — Telegram Social Post Writer &amp; Designer</text>
+<g font-family="Inter,Segoe UI,Arial,sans-serif">
+  <g transform="translate(70,150)"><rect width="230" height="150" rx="22" fill="#0d2140" stroke="#29a9ea" stroke-width="3"/><text x="115" y="63" text-anchor="middle" font-size="26" font-weight="800" fill="#fff">Telegram</text><text x="115" y="100" text-anchor="middle" font-size="17" fill="#a9c9df">Message utilisateur</text></g>
+  <path d="M320 225 H405" stroke="#6f8fb8" stroke-width="5" marker-end="url(#a)"/>
+  <g transform="translate(425,150)"><rect width="260" height="150" rx="22" fill="#0d2140" stroke="#7c5cff" stroke-width="3"/><text x="130" y="52" text-anchor="middle" font-size="25" font-weight="800" fill="#fff">AI Agent</text><text x="130" y="88" text-anchor="middle" font-size="17" fill="#c6bfff">Caption + hashtags</text><text x="130" y="116" text-anchor="middle" font-size="17" fill="#c6bfff">Image prompt</text></g>
+  <path d="M705 225 H790" stroke="#6f8fb8" stroke-width="5" marker-end="url(#a)"/>
+  <g transform="translate(810,150)"><rect width="260" height="150" rx="22" fill="#0d2140" stroke="#55d6be" stroke-width="3"/><text x="130" y="52" text-anchor="middle" font-size="24" font-weight="800" fill="#fff">Image AI</text><text x="130" y="88" text-anchor="middle" font-size="17" fill="#b7eadd">1024 × 1024</text><text x="130" y="116" text-anchor="middle" font-size="17" fill="#b7eadd">Visuel sans texte</text></g>
+  <path d="M1090 225 H1175" stroke="#6f8fb8" stroke-width="5" marker-end="url(#a)"/>
+  <g transform="translate(1195,150)"><rect width="235" height="150" rx="22" fill="#0d2140" stroke="#29a9ea" stroke-width="3"/><text x="117" y="55" text-anchor="middle" font-size="24" font-weight="800" fill="#fff">Telegram</text><text x="117" y="92" text-anchor="middle" font-size="17" fill="#a9c9df">Photo + caption</text><text x="117" y="120" text-anchor="middle" font-size="17" fill="#a9c9df">prêtes à publier</text></g>
+</g>
+<defs><marker id="a" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#6f8fb8"/></marker></defs>
+<text x="70" y="405" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="20" fill="#9fb6d8">Credentials Telegram et OpenAI configurés localement dans n8n. Aucun secret n’est inclus dans le pack public.</text>
+</svg>
